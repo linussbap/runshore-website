@@ -1,0 +1,99 @@
+⏱ MONGODB ASSESSMENT · started 23:54:12 · finished in 2m 33s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-27T23:54:12Z
+Command:  SCOPE=gcp db-platform/mongodb/pitr/kubernetes/run_pitr_demo.sh
+==================================================
+
+== Clean start for mongodb (scope: gcp) ==
+[1/4] Platform operations still running on this machine
+  none
+[2/4] Unfinished restores
+  $ bash platform/lib/prune_test_backups.sh mongodb
+      mongodb: no test backups
+[3/4] Replication-test replicas
+    [STEP 1] Remove replication validation collection
+    MongoServerError: not authorized on assessment to execute command { drop: "replication_test", lsid: { id: UUID("e60eaf87-2346-4619-9fee-b4ecfa515c7c") }, $clusterTime: { clusterTime: Timestamp(1793145256, 1), signature: { hash: BinData(0, BDEF5C74E66CEEF965F545C0B79E076E84BCC0D2), keyId: 7701498925827489798 } }, $readPreference: { mode: "primaryPreferred" }, $db: "assessment" }
+    command terminated with exit code 1
+[4/4] Workloads
+    [INFO] resolve_scope.sh: SCOPE="gcp" -> PLATFORM_TYPE="gke", KUBE_CONTEXT="gke_database-assessment-platform_europe-west1_database-assessment-platform-gke"
+    STATUS: IDLE
+[OK] mongodb: clean start done. The database and monitoring tools were kept.
+==================================================
+ MONGODB KUBERNETES PITR DEMONSTRATION
+==================================================
+
+[OK] Cluster: mongodb-psmdb-db
+[INFO] Storage: minio-backup
+
+[STEP 1] Confirm continuous PITR archiving is enabled
+
+[OK] PITR archiving enabled
+
+[STEP 2] Schema + baseline seed
+
+Mongo schema complete
+Mongo seed complete
+[OK] Baseline seeded
+
+[STEP 3] Trigger real backup
+
+perconaservermongodbbackup.psmdb.percona.com/pitr-demo-1793145261 created
+[OK] Backup completed: pitr-demo-1793145261
+
+[STEP 4] Insert PITR marker (order 9999)
+
+Mongo PITR marker inserted
+[OK] Recovery target (9999 commit time + 1s buffer): 2026-10-27 23:54:40
+
+[STEP 5] Insert post-marker activity (orders 10000/10001 — should NOT survive recovery)
+
+Mongo post-PITR activity complete
+[OK] Post-marker orders inserted
+
+[INFO] Waiting for archived oplog to cover 2026-10-27 23:54:40 (up to 600s)
+[INFO] Oplog archived up to: nothing yet (0s)
+[INFO] Oplog archived up to: nothing yet (30s)
+[INFO] Oplog archived up to: nothing yet (60s)
+[OK] Archived oplog covers the target (2026-10-27T23:54:30 - 2026-10-27T23:55:56) after 70s
+
+[STEP 6] Real PITR restore (DESTRUCTIVE — restores in-place into mongodb-psmdb-db)
+
+perconaservermongodbrestore.psmdb.percona.com/pitr-demo-restore-1793145357 created
+[OK] Restore completed
+
+[STEP 7] Validate restored data
+
+
+==================================================
+ CUSTOMER ORDER PITR SCOREBOARD
+==================================================
+
+Platform   : MongoDB
+Assessment : customer-order-assessment
+
+Order    Expected   Actual      Status
+-----    --------   ----------  ------
+5001     Present    Present     PASS
+5002     Present    Present     PASS
+5003     Present    Present     PASS
+9999     Present    Present     PASS
+10000    Absent     Absent      PASS
+
+==================================================
+ ASSESSMENT RESULT : PASS
+==================================================
+
+
+[STEP 8] Write assessment evidence
+
+[INFO] Evidence written: /Users/<user>/platforrm-db-ob-release_v1/db-platform/mongodb/runtime/evidence/gcp/assessment_20261027_235642_result.txt
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-27T23:56:42Z
+Duration: 2m29.789674997s
+Status:   success

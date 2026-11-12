@@ -1,0 +1,274 @@
+⏱ MYSQL DEPLOY · started 11:23:51 · finished in 4m 52s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-28T11:23:51Z
+Command:  platform/cloud/aws/orchestrator/deploy.sh mysql
+==================================================
+
+[INFO] Region (aws): eu-west-2 (ADMIN)
+==================================================
+ CLOUD LOGIN (AWS) -- from setup / ADMIN
+==================================================
+  AWS CLI already logged in -- left as it is
+
+==================================================
+ DEPLOYING AS (AWS)
+==================================================
+  AWS identity:              arn:aws:iam::<account-id>:user/<user>
+  Region:                    eu-west-2
+  Account of ADMIN key:      <account-id>
+  Region in ADMIN:           eu-west-2
+    -> same account?         MATCH
+==================================================
+ OK
+
+[OK] Terraform state: S3 bucket dbplat-tfstate-<account-id>-eu-west-2
+[OK] kubectl connected to database-assessment-platform-eks
+
+[DEPENDENCY] Storage
+
+[DEPENDENCY] Kubernetes
+[OK] Kubernetes API reachable
+
+[SECURITY] Provider Kubernetes Context Guard
+[INFO] Provider : aws
+[INFO] Platform : eks
+[INFO] Context  : arn:aws:eks:eu-west-2:<account-id>:cluster/database-assessment-platform-eks
+[OK] AWS/EKS context validated
+[OK] Default StorageClass available: gp3
+
+[PLATFORM] MySQL
+==========================================
+DEPLOY PXC OPERATOR
+==========================================
+
+[STEP] Configure Helm repository
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "jetstack" chart repository
+...Successfully got an update from the "aws-ebs-csi-driver" chart repository
+...Successfully got an update from the "splunk-otel-collector-chart" chart repository
+...Successfully got an update from the "percona" chart repository
+...Successfully got an update from the "cloudnative-pg" chart repository
+...Successfully got an update from the "cnpg" chart repository
+...Successfully got an update from the "argo" chart repository
+...Successfully got an update from the "splunk" chart repository
+...Successfully got an update from the "newrelic" chart repository
+...Successfully got an update from the "grafana" chart repository
+...Successfully got an update from the "bitnami" chart repository
+Update Complete. ⎈Happy Helming!⎈
+
+[STEP] Check existing operator
+[INFO] PXC operator deployment not present
+
+[STEP] Handle stale webhook
+[INFO] Operator is absent; remove any stale webhook configuration
+
+[STEP] Deploy / reconcile PXC operator
+Release "pxc-operator" does not exist. Installing it now.
+NAME: pxc-operator
+LAST DEPLOYED: Wed Oct 28 11:24:14 2026
+NAMESPACE: mysql
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+NOTES:
+1. Percona Operator for MySQL is deployed. 
+
+  Check if operator Pod is running:
+
+    kubectl get pods -l app.kubernetes.io/name=pxc-operator --namespace mysql
+
+  Troubleshoot by checking the logs:
+
+    export POD=$(kubectl get pods -l app.kubernetes.io/name=pxc-operator --namespace mysql --output name)
+    kubectl logs $POD --namespace=mysql
+
+2. Deploy the cluster with the following command:
+
+    helm install my-db percona/pxc-db --namespace=mysql
+
+Read more in our documentation: https://docs.percona.com/percona-operator-for-mysql/pxc/
+
+[STEP] Wait for operator rollout
+Waiting for deployment "pxc-operator" rollout to finish: 0 of 1 updated replicas are available...
+deployment "pxc-operator" successfully rolled out
+
+[STEP] Verify operator
+NAME           READY   UP-TO-DATE   AVAILABLE   AGE
+pxc-operator   1/1     1            1           6s
+
+[OK] PXC operator deployment complete
+[OK] Existing MySQL/PXC pods were not deleted
+
+==========================================
+ DEPLOY PXC CLUSTER
+==========================================
+
+[INFO] Provider: aws
+[INFO] Backup provider: AWS S3
+secret/mysql-backup-s3-creds created
+
+[STEP] Render PXC manifest
+[OK] Manifest rendered:
+     storageName=s3-backup
+
+[STEP] Apply PXC manifest
+perconaxtradbcluster.pxc.percona.com/pxc-db serverside-applied
+
+[STEP] Wait for PXC CR
+
+[STEP] Wait for StatefulSet creation
+
+[STEP] Wait for PXC pod creation
+
+
+[STEP] Validate PXC cluster health
+[INFO] pxc-db-pxc-0: Pod Ready=False
+[INFO] pxc-db-pxc-1: Pod Ready=<empty>
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (4s)
+[INFO] pxc-db-pxc-0: Pod Ready=False
+[INFO] pxc-db-pxc-1: Pod Ready=<empty>
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (18s)
+[INFO] pxc-db-pxc-0: Pod Ready=False
+[INFO] pxc-db-pxc-1: Pod Ready=<empty>
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (32s)
+[INFO] pxc-db-pxc-0: Pod Ready=False
+[INFO] pxc-db-pxc-1: Pod Ready=<empty>
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (46s)
+[INFO] pxc-db-pxc-0: Pod Ready=False
+[INFO] pxc-db-pxc-1: Pod Ready=<empty>
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (60s)
+[INFO] pxc-db-pxc-0: Pod Ready=False
+[INFO] pxc-db-pxc-1: Pod Ready=<empty>
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (74s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=1
+[INFO] pxc-db-pxc-1: Pod Ready=False
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (89s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=1
+[INFO] pxc-db-pxc-1: Pod Ready=False
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (104s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=Donor/Desynced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=2
+[INFO] pxc-db-pxc-1: Pod Ready=False
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (119s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=2
+[INFO] pxc-db-pxc-1: Pod Ready=False
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (134s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=2
+[INFO] pxc-db-pxc-1: Pod Ready=False
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (149s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=2
+[INFO] pxc-db-pxc-1: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=2
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (165s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=2
+[INFO] pxc-db-pxc-1: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=2
+[INFO] pxc-db-pxc-2: Pod Ready=False
+[INFO] PXC health: 0/3 (181s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=2
+[INFO] pxc-db-pxc-1: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=2
+[INFO] pxc-db-pxc-2: Pod Ready=False
+[INFO] PXC health: 0/3 (198s)
+[OK] pxc-db-pxc-0: Synced / Primary / wsrep_ready=ON / cluster_size=3
+[OK] pxc-db-pxc-1: Synced / Primary / wsrep_ready=ON / cluster_size=3
+[INFO] pxc-db-pxc-2: Pod Ready=False
+[INFO] PXC health: 2/3 (214s)
+[OK] pxc-db-pxc-0: Synced / Primary / wsrep_ready=ON / cluster_size=3
+[OK] pxc-db-pxc-1: Synced / Primary / wsrep_ready=ON / cluster_size=3
+[INFO] pxc-db-pxc-2: Pod Ready=False
+[INFO] PXC health: 2/3 (230s)
+[OK] pxc-db-pxc-0: Synced / Primary / wsrep_ready=ON / cluster_size=3
+[OK] pxc-db-pxc-1: Synced / Primary / wsrep_ready=ON / cluster_size=3
+[OK] pxc-db-pxc-2: Synced / Primary / wsrep_ready=ON / cluster_size=3
+[INFO] PXC health: 3/3 (247s)
+[OK] PXC cluster health converged
+
+[STEP] Validate cluster
+NAME     ENDPOINT               STATUS   PXC   PROXYSQL   HAPROXY   AGE
+pxc-db   pxc-db-haproxy.mysql   ready    3                2         4m12s
+NAME                            READY   STATUS            RESTARTS   AGE
+pxc-db-haproxy-0                2/2     Running           0          4m13s
+pxc-db-haproxy-1                2/2     Running           0          2m44s
+pxc-db-pitr-7f4f796477-k6qgk    0/1     PodInitializing   0          4s
+pxc-db-pxc-0                    1/1     Running           0          4m13s
+pxc-db-pxc-1                    1/1     Running           0          2m47s
+pxc-db-pxc-2                    1/1     Running           0          86s
+pxc-operator-755bd44689-n5xvp   1/1     Running           0          4m24s
+NAME                   STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+datadir-pxc-db-pxc-0   Bound    pvc-80739d24-610d-4d21-bab2-cf6d8c9fc0e2   20Gi       RWO            gp3            <unset>                 4m14s
+datadir-pxc-db-pxc-1   Bound    pvc-96944490-a85b-4bb1-aab8-0d214f23ce19   20Gi       RWO            gp3            <unset>                 2m48s
+datadir-pxc-db-pxc-2   Bound    pvc-ab5bc0e3-28fe-43ea-b85f-1d30021c0104   20Gi       RWO            gp3            <unset>                 87s
+NAME                              TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                                          AGE
+percona-xtradb-cluster-operator   ClusterIP   172.x.x.x    <none>        443/TCP                                          4m26s
+pxc-db-haproxy                    ClusterIP   172.x.x.x     <none>        3306/TCP,3309/TCP,33062/TCP,33060/TCP,8404/TCP   4m15s
+pxc-db-haproxy-replicas           ClusterIP   172.x.x.x   <none>        3306/TCP                                         4m15s
+pxc-db-pitr                       ClusterIP   172.x.x.x    <none>        8080/TCP                                         6s
+pxc-db-pxc                        ClusterIP   None             <none>        3306/TCP,33062/TCP,33060/TCP                     4m15s
+pxc-db-pxc-unready                ClusterIP   None             <none>        3306/TCP,33062/TCP,33060/TCP                     4m15s
+
+[OK] PXC deployment complete
+[OK] Backup storage: s3-backup
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-28T11:28:41Z
+Duration: 4m50.424044005s
+Status:   success

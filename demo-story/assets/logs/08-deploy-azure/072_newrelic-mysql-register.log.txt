@@ -1,0 +1,77 @@
+⏱ NEWRELIC REGISTER · started 18:26:45 · finished in 20s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-27T18:26:45Z
+Command:  bash observability/newrelic/registration/kubernetes/mysql/register.sh
+==================================================
+
+
+==================================================
+ REGISTER MYSQL (PXC) INTO NEW RELIC
+==================================================
+
+[STEP 1] Validate prerequisites
+[OK] Kubernetes, PXC and New Relic available
+
+[STEP 2] Validate PXC cluster health
+[OK] PXC cluster ready
+[INFO] Healthy PXC pods : 3
+
+[STEP 3] Discover PXC HAProxy endpoint
+[OK] MySQL endpoint discovered
+[INFO] Host : pxc-db-haproxy.mysql.svc.cluster.local
+[INFO] Port : 3306
+
+[STEP 4] Discover PXC administrative credential
+[OK] PXC administrative credential available
+
+[STEP 5] Discover PXC pod
+[OK] Using PXC pod: pxc-db-pxc-0
+
+[STEP 6] Converge New Relic MySQL monitoring credential
+[INFO] New monitoring credential generated
+
+[STEP 7] Converge MySQL monitoring account
+[OK] MySQL monitoring account converged
+
+[STEP 8] Validate monitoring account connectivity
+[OK] Monitoring account can connect through PXC HAProxy
+
+[STEP 9] Converge New Relic MySQL telemetry secret
+secret/newrelic-mysql-secret created
+[OK] newrelic-mysql-secret ready
+
+[STEP 10] Configure New Relic MySQL integration
+configmap/newrelic-bundle-nrk8s-integrations-cfg patched
+[OK] mysql-config.yml installed
+
+[STEP 11] Restart New Relic agents
+daemonset.apps/newrelic-bundle-nrk8s-kubelet restarted
+Waiting for daemon set "newrelic-bundle-nrk8s-kubelet" rollout to finish: 0 out of 3 new pods have been updated...
+Waiting for daemon set "newrelic-bundle-nrk8s-kubelet" rollout to finish: 1 out of 3 new pods have been updated...
+Waiting for daemon set "newrelic-bundle-nrk8s-kubelet" rollout to finish: 1 out of 3 new pods have been updated...
+Waiting for daemon set "newrelic-bundle-nrk8s-kubelet" rollout to finish: 2 out of 3 new pods have been updated...
+Waiting for daemon set "newrelic-bundle-nrk8s-kubelet" rollout to finish: 2 out of 3 new pods have been updated...
+Waiting for daemon set "newrelic-bundle-nrk8s-kubelet" rollout to finish: 2 of 3 updated pods are available...
+daemon set "newrelic-bundle-nrk8s-kubelet" successfully rolled out
+[OK] New Relic agents refreshed
+
+[STEP 12] Validate registration
+[OK] nri-mysql configuration present
+[OK] PXC HAProxy endpoint present
+[OK] MySQL telemetry secret present
+[OK] New Relic MySQL registration state recorded
+
+==================================================
+ MYSQL REGISTERED INTO NEW RELIC
+==================================================
+
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-27T18:27:02Z
+Duration: 17.575708843s
+Status:   success

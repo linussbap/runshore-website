@@ -1,0 +1,122 @@
+⏱ POSTGRESQL DEPLOY REPLICA · started 13:13:38 · finished in 12s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-26T13:13:38Z
+Command:  SCOPE=kubernetes db-platform/postgres/replication/kubernetes/run_replication.sh
+==================================================
+
+== Clean start for postgres (scope: kubernetes) ==
+[1/4] Platform operations still running on this machine
+  none
+[2/4] Unfinished restores
+  $ kubectl delete cluster.postgresql.cnpg.io platform-postgres-pitr -n postgres --wait=false
+    cluster.postgresql.cnpg.io "platform-postgres-pitr" deleted from postgres namespace
+  $ bash platform/lib/prune_test_backups.sh postgres
+      postgres: keep newest test backup pitr-demo-platform-postgres-1793020286 (2026-10-26T13:11:26Z)
+[3/4] Replication-test replicas
+    
+    [OK] POSTGRESQL REPLICATION TEST STOPPED
+    [OK] Native CNPG replication was not modified.
+[4/4] Workloads
+    [OK] PostgreSQL Kubernetes workload stopped
+    STATUS: STOPPED
+[OK] postgres: clean start done. The database and monitoring tools were kept.
+[2026-10-26 13:13:40] 
+[2026-10-26 13:13:40] ==================================================
+[2026-10-26 13:13:40]  POSTGRESQL CNPG KUBERNETES — ASYNC REPLICATION
+[2026-10-26 13:13:40] ==================================================
+[2026-10-26 13:13:40] 
+[2026-10-26 13:13:40] Namespace : postgres
+[2026-10-26 13:13:40] Cluster   : platform-postgres
+[2026-10-26 13:13:40] Database  : appdb
+[2026-10-26 13:13:40] 
+[2026-10-26 13:13:40] [STEP 1] Verify three-instance CNPG replication topology
+[2026-10-26 13:13:41] [INFO] Requested instances : 3
+[2026-10-26 13:13:41] [INFO] Ready instances     : 3
+[2026-10-26 13:13:41] [INFO] Cluster phase       : Cluster in healthy state
+[2026-10-26 13:13:41] [INFO] CNPG current primary : platform-postgres-2
+[2026-10-26 13:13:41] [INFO] Primary pod         : platform-postgres-2
+[2026-10-26 13:13:41] [INFO] Replica pod         : platform-postgres-1
+[2026-10-26 13:13:41] [OK] Three-instance CNPG topology is healthy
+[2026-10-26 13:13:41] [OK] PRIMARY: platform-postgres-2
+[2026-10-26 13:13:41] [OK] REPLICA: platform-postgres-1
+[2026-10-26 13:13:41] 
+[2026-10-26 13:13:41] [STEP 2] Verify PostgreSQL connectivity
+[2026-10-26 13:13:42] [OK] PRIMARY connectivity verified
+[2026-10-26 13:13:42] [OK] REPLICA connectivity verified
+[2026-10-26 13:13:42] 
+[2026-10-26 13:13:42] [STEP 3] Verify replica recovery state
+[2026-10-26 13:13:42] [OK] Replica is in recovery mode
+[2026-10-26 13:13:42] 
+[2026-10-26 13:13:42] [STEP 4] Capture WAL replication state before test transaction
+[2026-10-26 13:13:43] [INFO] Primary WAL LSN  : 0/9000060
+[2026-10-26 13:13:43] [INFO] Replica replay LSN: 0/9000060
+[2026-10-26 13:13:43] 
+[2026-10-26 13:13:43] [STEP 5] SELECT from replication_test on PRIMARY before INSERT
+NOTICE:  table "replication_test" does not exist, skipping
+DROP TABLE
+CREATE TABLE
+ id | created_at | test_value 
+----+------------+------------
+(0 rows)
+
+[2026-10-26 13:13:43] [STEP 5] INSERT replication row on PRIMARY
+INSERT 0 1
+ id |         created_at         |              test_value              
+----+----------------------------+--------------------------------------
+  1 | 2026-10-26 13:13:44.134771 | postgres-replication-20261026_131343
+(1 row)
+
+[2026-10-26 13:13:44] [OK] Replication marker committed on PRIMARY
+[2026-10-26 13:13:44] [INFO] Marker: postgres-replication-20261026_131343
+[2026-10-26 13:13:44] 
+[2026-10-26 13:13:44] [STEP 6] Wait for WAL replay on REPLICA
+[2026-10-26 13:13:44] [OK] Replication marker reached REPLICA
+[2026-10-26 13:13:44] 
+[2026-10-26 13:13:44] [STEP 7] Validate replicated data
+ id |         created_at         |              test_value              
+----+----------------------------+--------------------------------------
+  1 | 2026-10-26 13:13:44.134771 | postgres-replication-20261026_131343
+(1 row)
+
+[2026-10-26 13:13:45] [OK] PRIMARY marker: 1|postgres-replication-20261026_131343
+[2026-10-26 13:13:45] [OK] REPLICA marker: 1|postgres-replication-20261026_131343
+[2026-10-26 13:13:45] [OK] Replicated data matches
+[2026-10-26 13:13:45] 
+[2026-10-26 13:13:45] [STEP 8] Capture final replication state
+[2026-10-26 13:13:47] [INFO] Primary WAL LSN after marker  : 0/9011290
+[2026-10-26 13:13:47] [INFO] Replica replay LSN after marker: 0/9011290
+[2026-10-26 13:13:47] [INFO] Replay delay                   : 00:00:02.153006
+[2026-10-26 13:13:47] 
+[2026-10-26 13:13:47] [STEP 9] Write assessment evidence
+[2026-10-26 13:13:47] [OK] WAL replication verified
+[2026-10-26 13:13:47] [OK] Replica recovery state verified
+[2026-10-26 13:13:47] [OK] Replication marker reached replica
+[2026-10-26 13:13:47] [OK] Replicated data matches
+[2026-10-26 13:13:47] [OK] POSTGRESQL ASYNC REPLICATION: PASS
+[2026-10-26 13:13:47] [OK] Evidence: /Users/<user>/platforrm-db-ob-release_v1/runtime/replication/postgres/kubernetes/replication_20261026_131340/result.txt
+
+==================================================
+ REPLICATION SCORECARD
+==================================================
+
+Platform : PostgreSQL (CNPG primary -> streaming replica)
+
+Check                          Primary    Replica    Status
+-----                          -------    -------    ------
+Test row before insert         absent     -          PASS
+Test row after insert          present    present    PASS
+Rows identical                 yes        yes        PASS
+Seen on replica after          -          0s         PASS
+Replica read-only (recovery)   -          yes        PASS
+
+==================================================
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-26T13:13:47Z
+Duration: 8.977159066s
+Status:   success

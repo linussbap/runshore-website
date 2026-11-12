@@ -1,0 +1,32 @@
+⏱ SPLUNK UNREGISTER · started 12:07:45 · finished in 4s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-27T12:07:45Z
+Command:  bash observability/splunk/registration/kubernetes/mysql/unregister.sh
+==================================================
+
+
+==================================================
+ UNREGISTER MYSQL FROM SPLUNK
+==================================================
+
+============================================================
+ RESET MYSQL -> SPLUNK INTEGRATION
+============================================================
+perconaxtradbcluster.pxc.percona.com/pxc-db patched
+secret "mysql-splunk-hec" deleted from mysql namespace
+[OK] Percona LogCollector configuration disabled
+[OK] MySQL-local Splunk HEC Secret removed
+[INFO] Splunk server and platform-owned credential were left untouched
+
+[OK] MySQL -> Splunk OTel registration removed
+[OK] Registration state cleared
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-27T12:07:46Z
+Duration: 1.15881064s
+Status:   success

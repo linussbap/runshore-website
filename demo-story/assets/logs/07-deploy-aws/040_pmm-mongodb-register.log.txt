@@ -1,0 +1,139 @@
+⏱ PMM REGISTER · started 10:21:07 · finished in 44s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-28T10:21:07Z
+Command:  bash observability/pmm/registration/kubernetes/mongodb/register_mongodb_replicaset.sh
+==================================================
+
+
+==================================================
+ REGISTER MONGODB REPLICA SET INTO PMM
+==================================================
+
+[STEP 1] Discover MongoDB
+[OK] MongoDB namespace : mongodb
+[OK] MongoDB cluster   : mongodb-psmdb-db
+[OK] Replica set       : rs0
+
+[STEP 2] Validate MongoDB
+[OK] Running MongoDB members: 3
+
+[STEP 3] Discover MongoDB replica-set service
+[OK] MongoDB service : mongodb-psmdb-db-rs0
+[OK] MongoDB host    : mongodb-psmdb-db-rs0.mongodb.svc.cluster.local
+[OK] MongoDB port    : 27017
+
+[STEP 4] Discover PMM client
+[OK] PMM client: pmm-client-54d5457798-l874q
+
+[STEP 5] Validate PMM client
+Defaulted container "pmm-client" out of: pmm-client, set-tmp-permissions (init)
+Agent ID : 8d144df4-0ba7-4f64-a2d8-f1ddb98b4a69
+Node ID  : 10a727ae-707b-43f6-8052-c5bacb1ea8b1
+Node name: pmm-client-54d5457798-l874q
+
+PMM Server:
+	URL    : https://monitoring-service.pmm.svc.cluster.local:443/
+	Version: 3.10.0
+
+PMM Client:
+	Connected        : true
+	Time drift       : 76.159µs
+	Latency          : 505.69µs
+	Connection uptime: 100
+	pmm-admin version: 3.10.0
+	pmm-agent version: 3.10.0
+Agents:
+	429fc498-88e7-4012-bfc8-11d672ee7610 node_exporter                  Running        42000
+	bad95753-dd75-4af4-8002-fb6644ffa6a0 vmagent                        Running        42001
+
+[OK] PMM client operational
+
+[STEP 6] Retrieve PMM credentials
+[OK] PMM administrator credentials retrieved
+
+[STEP 7] Configure PMM client
+Defaulted container "pmm-client" out of: pmm-client, set-tmp-permissions (init)
+Checking local pmm-agent status...
+pmm-agent is running.
+Registering pmm-agent on PMM Server...
+Registered.
+Configuration file /usr/local/percona/pmm/config/pmm-agent.yaml updated.
+Reloading pmm-agent configuration...
+Configuration reloaded.
+Checking local pmm-agent status...
+pmm-agent is running.
+[OK] PMM client configured
+
+[STEP 8] Retrieve MongoDB clusterMonitor credentials
+[OK] MongoDB clusterMonitor credentials retrieved
+
+[STEP 9] Prepare MongoDB TLS client certificate for PMM
+Defaulted container "pmm-client" out of: pmm-client, set-tmp-permissions (init)
+Defaulted container "pmm-client" out of: pmm-client, set-tmp-permissions (init)
+[OK] MongoDB TLS client certificate staged in PMM client pod
+
+[STEP 10] Remove existing MongoDB PMM registration
+[OK] Existing registration removed or was absent
+
+[STEP 11] Register MongoDB with PMM
+Defaulted container "pmm-client" out of: pmm-client, set-tmp-permissions (init)
+MongoDB Service added.
+Service ID  : 511d9561-0e76-4094-b181-3c1ae6702fc5
+Service name: mongodb-psmdb-db
+
+[OK] MongoDB registration completed
+
+[STEP 12] Clean up staged TLS material
+Defaulted container "pmm-client" out of: pmm-client, set-tmp-permissions (init)
+[OK] Cleanup complete
+
+[STEP 13] Validate PMM inventory
+Defaulted container "pmm-client" out of: pmm-client, set-tmp-permissions (init)
+Service type        Service name            Address and port                                            Service ID
+MongoDB             mongodb-psmdb-db        mongodb-psmdb-db-rs0.mongodb.svc.cluster.local:27017        511d9561-0e76-4094-b181-3c1ae6702fc5
+
+Agent type                    Status           Metrics Mode        Agent ID                                    Service ID                                  Port
+pmm_agent                     Connected                            6f0c481c-153d-4387-9979-af3b90cc4c44                                                    0 
+node_exporter                 Running          push                479d73db-d6c4-4d82-8e4e-52f901add139                                                    42000 
+mongodb_exporter              Running          push                f111d42f-97ba-465a-ba97-4e6598b016ac        511d9561-0e76-4094-b181-3c1ae6702fc5        42002 
+mongodb_profiler_agent        Running                              3071613e-4335-4a4d-8baa-4779c141d1c7        511d9561-0e76-4094-b181-3c1ae6702fc5        0 
+vmagent                       Running          push                99f03f73-4007-4973-a97d-7f48b3234291                                                    42001
+[OK] MongoDB service present in PMM inventory
+
+[STEP 14] Validate PMM client
+Defaulted container "pmm-client" out of: pmm-client, set-tmp-permissions (init)
+Agent ID : 6f0c481c-153d-4387-9979-af3b90cc4c44
+Node ID  : fa610c55-b7c1-41a8-9e66-943faab3aa8c
+Node name: pmm-client-54d5457798-l874q
+
+PMM Server:
+	URL    : https://monitoring-service.pmm.svc.cluster.local:443/
+	Version: 3.10.0
+
+PMM Client:
+	Connected        : true
+	Time drift       : 68.903µs
+	Latency          : 477.151µs
+	Connection uptime: 100
+	pmm-admin version: 3.10.0
+	pmm-agent version: 3.10.0
+Agents:
+	3071613e-4335-4a4d-8baa-4779c141d1c7 mongodb_profiler_agent         Running        0
+	479d73db-d6c4-4d82-8e4e-52f901add139 node_exporter                  Running        42000
+	99f03f73-4007-4973-a97d-7f48b3234291 vmagent                        Running        42001
+	f111d42f-97ba-465a-ba97-4e6598b016ac mongodb_exporter               Running        42002
+
+
+==================================================
+ [OK] MONGODB REPLICA SET REGISTERED INTO PMM
+==================================================
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-28T10:21:47Z
+Duration: 40.046993831s
+Status:   success

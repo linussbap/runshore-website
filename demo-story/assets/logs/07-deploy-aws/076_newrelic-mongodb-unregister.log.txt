@@ -1,0 +1,65 @@
+⏱ NEWRELIC UNREGISTER · started 18:11:04 · finished in 24s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-28T18:11:04Z
+Command:  bash observability/newrelic/registration/kubernetes/mongodb/unregister.sh
+==================================================
+
+
+==================================================
+ UNREGISTER MONGODB FROM NEW RELIC
+==================================================
+
+[STEP 1] Validate tooling and Kubernetes API
+[OK] Kubernetes API reachable
+
+[STEP 1b] Remove the MongoDB exporter
+[OK] MongoDB New Relic registration state removed
+[OK] Removed Deployment/mongodb-newrelic-exporter (namespace mongodb)
+[OK] Removed Service/mongodb-newrelic-exporter (namespace mongodb)
+
+[STEP 2] Validate New Relic namespace
+[OK] New Relic namespace available: newrelic
+
+[STEP 3] Inspect MongoDB integration configuration
+[INFO] MongoDB integration configuration already absent
+
+[STEP 4] Remove MongoDB integration configuration
+[OK] mongodb-config.yml already absent
+
+[STEP 5] Remove MongoDB New Relic credential secret
+[OK] newrelic-mongodb-secret already absent
+
+[STEP 6] Refresh New Relic kubelet agents
+daemonset.apps/newrelic-bundle-nrk8s-kubelet restarted
+Waiting for daemon set "newrelic-bundle-nrk8s-kubelet" rollout to finish: 0 out of 3 new pods have been updated...
+Waiting for daemon set "newrelic-bundle-nrk8s-kubelet" rollout to finish: 1 out of 3 new pods have been updated...
+Waiting for daemon set "newrelic-bundle-nrk8s-kubelet" rollout to finish: 1 out of 3 new pods have been updated...
+Waiting for daemon set "newrelic-bundle-nrk8s-kubelet" rollout to finish: 2 out of 3 new pods have been updated...
+Waiting for daemon set "newrelic-bundle-nrk8s-kubelet" rollout to finish: 2 out of 3 new pods have been updated...
+Waiting for daemon set "newrelic-bundle-nrk8s-kubelet" rollout to finish: 2 of 3 updated pods are available...
+daemon set "newrelic-bundle-nrk8s-kubelet" successfully rolled out
+[OK] New Relic kubelet agents refreshed
+
+[STEP 7] Validate MongoDB integration removal
+[OK] mongodb-config.yml absent
+
+[STEP 8] Validate MongoDB credential removal
+[OK] newrelic-mongodb-secret absent
+
+[STEP 9] Show remaining New Relic integrations
+  (none)
+
+==================================================
+ MONGODB REGISTRATION REMOVED FROM NEW RELIC
+==================================================
+
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-28T18:11:26Z
+Duration: 21.717646289s
+Status:   success

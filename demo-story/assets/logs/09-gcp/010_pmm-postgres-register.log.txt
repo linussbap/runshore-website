@@ -1,0 +1,66 @@
+⏱ PMM REGISTER · started 21:31:19 · finished in 24s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-27T21:31:19Z
+Command:  bash observability/pmm/registration/kubernetes/postgres/register_cnpg_service.sh
+==================================================
+
+
+==================================================
+ REGISTER POSTGRESQL (CNPG) INTO PMM
+==================================================
+[INFO] Postgres namespace : postgres
+[INFO] Postgres cluster   : platform-postgres
+[INFO] Postgres host      : platform-postgres-rw.postgres.svc.cluster.local
+
+[STEP 1] Retrieve PostgreSQL credentials
+[OK] Credentials loaded
+
+[STEP 2] Discover PMM pod
+[OK] pmm-0
+
+[STEP 3] Authenticate pmm-agent to PMM Server
+Defaulted container "pmm" out of: pmm, encryption-key-generate (init), encryption-key-reconcile (init)
+Checking local pmm-agent status...
+pmm-agent is running.
+PMM Server at 127.0.0.1:8443 does not know pmm-agent pmm-server, registering the Node again.
+Registering pmm-agent on PMM Server...
+Registered.
+Configuration file /usr/local/percona/pmm/config/pmm-agent.yaml updated.
+Reloading pmm-agent configuration...
+Configuration reloaded.
+Checking local pmm-agent status...
+pmm-agent is running.
+
+[STEP 4] Remove existing registration
+
+[STEP 5] Register PostgreSQL
+Defaulted container "pmm" out of: pmm, encryption-key-generate (init), encryption-key-reconcile (init)
+PostgreSQL Service added.
+Service ID  : 0fcd1369-cbc8-4ba8-a59d-8330413e702e
+Service name: platform-postgres
+
+
+[STEP 6] Verify registration
+Defaulted container "pmm" out of: pmm, encryption-key-generate (init), encryption-key-reconcile (init)
+Service type        Service name             Address and port                                            Service ID
+PostgreSQL          platform-postgres        platform-postgres-rw.postgres.svc.cluster.local:5432        0fcd1369-cbc8-4ba8-a59d-8330413e702e
+
+Agent type                           Status           Metrics Mode        Agent ID                                    Service ID                                  Port
+pmm_agent                            Connected                            d9ddd9c6-4766-4c4e-888f-9e9d1ecd456a                                                    0 
+node_exporter                        Running          push                54bdf351-ab8e-4859-94cb-a2ca4423da81                                                    42001 
+postgres_exporter                    Running          push                9b6ff11d-206a-4184-b7f8-e86e8dd26e33        0fcd1369-cbc8-4ba8-a59d-8330413e702e        42002 
+postgresql_pgstatements_agent        Running                              da3ec646-3f2c-468c-a2ff-d12847ab46a7        0fcd1369-cbc8-4ba8-a59d-8330413e702e        0 
+vmagent                              Running          push                14184c97-0558-4a70-adcf-dd883dd75370                                                    42000
+
+
+[OK] PostgreSQL successfully registered into PMM
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-27T21:31:39Z
+Duration: 20.614539576s
+Status:   success

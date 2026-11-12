@@ -1,0 +1,19 @@
+⏱ MYSQL STOP WORKLOAD · started 01:59:58 · finished in 4s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-27T01:59:58Z
+Command:  bash db-platform/mysql/workload/stop.sh
+==================================================
+
+[INFO] resolve_scope.sh: SCOPE="kubernetes" -> PLATFORM_TYPE="kubeadm", KUBE_CONTEXT="minikube"
+pod "mysql-sysbench-workload" deleted from mysql namespace
+STATUS: STOPPING
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-27T01:59:59Z
+Duration: 741.063237ms
+Status:   success

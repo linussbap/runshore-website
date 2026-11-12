@@ -1,0 +1,124 @@
+⏱ SPLUNK DEPLOY · started 19:42:03 · finished in 8s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-24T19:42:03+01:00
+Command:  SCOPE=kubernetes observability/splunk/deploy/kubernetes/deploy.sh
+==================================================
+
+
+==================================================
+ DEPLOY SPLUNK ENTERPRISE
+==================================================
+
+Architecture : Splunk Operator for Kubernetes
+Operator     : 3.1.0
+Namespace    : splunk
+Standalone   : s1
+Web URL      : http://localhost:18000/
+
+[STEP 1] Validate prerequisites
+[OK] Kubernetes API reachable
+[OK] Required tooling available
+
+[STEP 2] Converge Splunk Operator for Kubernetes
+[OK] Splunk Operator deployment already installed
+
+[STEP 3] Configure Splunk Operator
+[OK] SPLUNK_GENERAL_TERMS configured on Operator
+deployment "splunk-operator-controller-manager" successfully rolled out
+[OK] Splunk Operator deployment ready
+[OK] Required Standalone CRD available
+
+[STEP 4] Converge Splunk namespace
+namespace/splunk unchanged
+[OK] Namespace available: splunk
+
+[STEP 5] Resolve storage
+[OK] Splunk StorageClass (auto-detected default): standard
+
+[STEP 5b] Resolve license configuration
+[INFO] No license file found
+[INFO] Using Splunk Operator supported default trial license
+
+[STEP 6] Apply Splunk Standalone Custom Resource
+standalone.enterprise.splunk.com/s1 unchanged
+[OK] Standalone Custom Resource applied
+
+[STEP 7] Wait for Splunk Enterprise readiness
+[INFO] Waiting for Standalone/s1 to report phase=Ready
+[INFO] Timeout: 600s
+[OK] Standalone/s1 is Ready
+
+[STEP 8] Resolve Splunk Operator-managed credentials
+
+[INFO] Discovering Splunk Operator-managed admin credential Secret
+[OK] Authoritative Splunk admin Secret: splunk-s1-standalone-secret-v1
+
+[STEP 9] Ensure Splunk Web access
+[OK] Splunk Web forwarding healthy
+[OK] PID: 90460
+[OK] HTTP: 303
+[OK] URL: http://localhost:18000/
+[OK] Workload feed to Splunk running (PID 8146)
+[OK] Dashboard dbplat_database_overview: http://localhost:18000/en-US/app/search/dbplat_database_overview
+[OK] Dashboard dbplat_workload_mongodb: http://localhost:18000/en-US/app/search/dbplat_workload_mongodb
+[OK] Dashboard dbplat_workload_mysql: http://localhost:18000/en-US/app/search/dbplat_workload_mysql
+[OK] Dashboard dbplat_workload_postgres: http://localhost:18000/en-US/app/search/dbplat_workload_postgres
+[OK] Dashboard dbplat_workload_sybase: http://localhost:18000/en-US/app/search/dbplat_workload_sybase
+[OK] Dashboard links for CONNECTION INFO: runtime/state/splunk/dashboards.json
+
+[STEP 10] Validate Splunk deployment
+
+==================================================
+ VALIDATE SPLUNK
+==================================================
+
+[STEP 1] Validate namespace
+[OK] Namespace present
+
+[STEP 2] Wait for DaemonSets to become ready
+[WARN] No DaemonSets found in splunk
+
+[STEP 3] Wait for Deployments to become ready
+[WARN] No Deployments found in splunk
+
+[STEP 4] Verify no pods are in a failed/backoff state
+[OK] No pods in a failed state
+
+[STEP 4b] Validate Splunk accepts a HEC test event
+[OK] Splunk accepted a HEC test event
+
+[STEP 5] Evidence
+NAME                     READY   STATUS    RESTARTS   AGE   IP             NODE       NOMINATED NODE   READINESS GATES
+splunk-s1-standalone-0   1/1     Running   0          69m   10.x.x.x   minikube   <none>           <none>
+No resources found in splunk namespace.
+No resources found in splunk namespace.
+
+[OK] Splunk validation complete
+
+==================================================
+ SPLUNK ENTERPRISE DEPLOYMENT COMPLETE
+==================================================
+
+Splunk Web
+  URL      : http://localhost:18000/
+  Username : admin
+  Password : stored in splunk-s1-standalone-secret-v1
+
+Retrieve the current password with:
+  kubectl get secret splunk-s1-standalone-secret-v1 \
+    -n splunk \
+    -o jsonpath='{.data.password}' | base64 -d
+
+Web access is managed by the Splunk deployment lifecycle.
+Destroying Splunk will stop the managed port-forward.
+
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-24T19:42:08+01:00
+Duration: 4.434367504s
+Status:   success

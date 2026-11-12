@@ -1,0 +1,131 @@
+⏱ POSTGRESQL DESTROY · started 21:54:58 · finished in 1m 29s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-27T21:54:58Z
+Command:  platform/cloud/gcp/orchestrator/destroy.sh postgres
+==================================================
+
+[INFO] Region (gcp): europe-west1 (ADMIN)
+==================================================
+ CLOUD LOGIN (GCP) -- from setup / ADMIN
+==================================================
+  gcloud already logged in (<email>) -- left as it is
+
+==================================================
+ DESTROYING AS (GCP)
+==================================================
+  Google account:            <email>
+  Project (gcloud):          database-assessment-platform
+  Default region (gcloud):   not set (Terraform uses its own region)
+  Project in ADMIN:          database-assessment-platform
+    -> same project?         MATCH
+==================================================
+ OK
+
+[OK] Terraform state: GCS bucket dbplat-tfstate-database-assessment-platform
+[OK] kubectl connected to database-assessment-platform-gke
+
+[DEPENDENCY] Kubernetes
+[OK] Kubernetes API reachable
+
+[SECURITY] Provider Kubernetes Context Guard
+[INFO] Provider : gcp
+[INFO] Platform : gke
+[INFO] Context  : gke_database-assessment-platform_europe-west1_database-assessment-platform-gke
+[OK] GCP/GKE context validated
+
+[PLATFORM] PostgreSQL
+[INFO] Stopping postgres workload (gcp) via db-platform/postgres/workload/kubernetes/stop.sh before destroy...
+[OK] PostgreSQL Kubernetes workload stopped
+STATUS: STOPPED
+
+==================================================
+ POSTGRES PLATFORM DESTROY
+==================================================
+
+[STEP 1] Validate Kubernetes API
+[OK] Kubernetes API reachable
+
+[STEP 2] Remove PostgreSQL clusters
+[INFO] Deleting postgres/platform-postgres
+cluster.postgresql.cnpg.io "platform-postgres" deleted from postgres namespace
+[INFO] Waiting for PostgreSQL clusters to terminate
+[OK] All PostgreSQL clusters removed
+
+[INFO] Waiting for PostgreSQL pods to stop
+[INFO] Still stopping: platform-postgres-1 platform-postgres-2 platform-postgres-3 (0s)
+[INFO] Still stopping: platform-postgres-2 (15s)
+[OK] PostgreSQL pods stopped (25s)
+[STEP 3] Remove CloudNativePG operator
+[INFO] PostgreSQL platform owns the CloudNativePG operator
+[INFO] Uninstalling Helm release cnpg
+These resources were kept due to the resource policy:
+[CustomResourceDefinition] poolers.postgresql.cnpg.io
+[CustomResourceDefinition] publications.postgresql.cnpg.io
+[CustomResourceDefinition] scheduledbackups.postgresql.cnpg.io
+[CustomResourceDefinition] subscriptions.postgresql.cnpg.io
+[CustomResourceDefinition] backups.postgresql.cnpg.io
+[CustomResourceDefinition] clusterimagecatalogs.postgresql.cnpg.io
+[CustomResourceDefinition] clusters.postgresql.cnpg.io
+[CustomResourceDefinition] databaseroles.postgresql.cnpg.io
+[CustomResourceDefinition] databases.postgresql.cnpg.io
+[CustomResourceDefinition] failoverquorums.postgresql.cnpg.io
+[CustomResourceDefinition] imagecatalogs.postgresql.cnpg.io
+
+release "cnpg" uninstalled
+[INFO] Removing cnpg-system namespace
+namespace "cnpg-system" deleted
+[INFO] Waiting for cnpg-system namespace removal (0s)
+[INFO] Waiting for cnpg-system namespace removal (5s)
+[INFO] Waiting for cnpg-system namespace removal (10s)
+[OK] CloudNativePG operator removed
+
+[STEP 4] Remove PostgreSQL namespace
+namespace "postgres" deleted
+[INFO] Waiting for namespace removal (0s)
+[INFO] Waiting for namespace removal (5s)
+[INFO] Waiting for namespace removal (10s)
+[OK] PostgreSQL namespace removed
+
+==================================================
+ POSTGRES PLATFORM DESTROY COMPLETE
+==================================================
+
+[PLATFORM] PostgreSQL GCP backup resources
+
+==================================================
+ PostgreSQL GCP Resource Cleanup
+==================================================
+
+[INFO] Project         : database-assessment-platform
+[INFO] Service account : <email>
+
+[1/3] Checking PostgreSQL backup service account...
+[FOUND] <email>
+
+[2/3] Removing PostgreSQL GCP service account...
+deleted service account [<email>]
+[OK] PostgreSQL GCP service account deleted.
+
+[3/3] Removing local PostgreSQL GCP credential artifact...
+[OK] Removed /Users/<user>/platforrm-db-ob-release_v1/shared/secrets/runtime/postgres_gcp_backup_key.json
+
+==================================================
+ Verification
+==================================================
+[PASS] PostgreSQL GCP service account absent.
+[PASS] PostgreSQL GCP credential artifact absent.
+
+==================================================
+ POSTGRES GCP CLEANUP PASSED
+==================================================
+
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-27T21:56:24Z
+Duration: 1m25.994692313s
+Status:   success

@@ -1,0 +1,208 @@
+⏱ NEWRELIC DEPLOY · started 23:21:38 · finished in 1m 16s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-27T23:21:38Z
+Command:  platform/cloud/gcp/orchestrator/deploy.sh newrelic
+==================================================
+
+[INFO] Region (gcp): europe-west1 (ADMIN)
+==================================================
+ CLOUD LOGIN (GCP) -- from setup / ADMIN
+==================================================
+  gcloud already logged in (<email>) -- left as it is
+
+==================================================
+ DEPLOYING AS (GCP)
+==================================================
+  Google account:            <email>
+  Project (gcloud):          database-assessment-platform
+  Default region (gcloud):   not set (Terraform uses its own region)
+  Project in ADMIN:          database-assessment-platform
+    -> same project?         MATCH
+==================================================
+ OK
+
+[OK] Terraform state: GCS bucket dbplat-tfstate-database-assessment-platform
+[OK] kubectl connected to database-assessment-platform-gke
+
+[DEPENDENCY] Kubernetes
+[OK] Kubernetes API reachable
+
+[SECURITY] Provider Kubernetes Context Guard
+[INFO] Provider : gcp
+[INFO] Platform : gke
+[INFO] Context  : gke_database-assessment-platform_europe-west1_database-assessment-platform-gke
+[OK] GCP/GKE context validated
+
+[PLATFORM] New Relic
+
+==================================================
+ DEPLOY NEW RELIC STACK
+==================================================
+
+[STEP 1] Validate Kubernetes
+[OK] Kubernetes reachable
+
+[STEP 2] Validate Helm
+[OK] Helm available
+
+[STEP 3] Validate registration workflows
+[OK] Kubernetes MySQL registration script found
+
+[STEP 4] Create Namespace
+namespace/newrelic created
+[OK] Namespace newrelic ready
+
+[STEP 5] Create License Secret
+secret/newrelic-license-key created
+[OK] New Relic license secret ready
+
+[STEP 6] Configure Helm Repository
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "jetstack" chart repository
+...Successfully got an update from the "aws-ebs-csi-driver" chart repository
+...Successfully got an update from the "percona" chart repository
+...Successfully got an update from the "cloudnative-pg" chart repository
+...Successfully got an update from the "splunk" chart repository
+...Successfully got an update from the "splunk-otel-collector-chart" chart repository
+...Successfully got an update from the "cnpg" chart repository
+...Successfully got an update from the "argo" chart repository
+...Successfully got an update from the "newrelic" chart repository
+...Successfully got an update from the "grafana" chart repository
+...Successfully got an update from the "bitnami" chart repository
+Update Complete. ⎈Happy Helming!⎈
+[OK] New Relic Helm repository ready
+
+[STEP 7] Deploy New Relic
+Release "newrelic-bundle" does not exist. Installing it now.
+NAME: newrelic-bundle
+LAST DEPLOYED: Tue Oct 27 23:21:58 2026
+NAMESPACE: newrelic
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+[OK] New Relic Helm release deployed
+
+[STEP 8] Validate New Relic
+NAME                                                      READY   STATUS    RESTARTS   AGE
+newrelic-bundle-kube-state-metrics-5556bb846-6mvjd        1/1     Running   0          25s
+newrelic-bundle-newrelic-logging-4t626                    1/1     Running   0          25s
+newrelic-bundle-newrelic-logging-gmcm7                    1/1     Running   0          25s
+newrelic-bundle-newrelic-logging-zfthw                    1/1     Running   0          25s
+newrelic-bundle-nri-metadata-injection-558c65f768-np6q7   1/1     Running   0          25s
+newrelic-bundle-nrk8s-ksm-846f7d7544-xp2bl                2/2     Running   0          25s
+newrelic-bundle-nrk8s-kubelet-m5krl                       2/2     Running   0          25s
+newrelic-bundle-nrk8s-kubelet-rbc8x                       2/2     Running   0          25s
+newrelic-bundle-nrk8s-kubelet-sbs44                       2/2     Running   0          25s
+pod/newrelic-bundle-kube-state-metrics-5556bb846-6mvjd condition met
+pod/newrelic-bundle-newrelic-logging-4t626 condition met
+pod/newrelic-bundle-newrelic-logging-gmcm7 condition met
+pod/newrelic-bundle-newrelic-logging-zfthw condition met
+pod/newrelic-bundle-nri-metadata-injection-558c65f768-np6q7 condition met
+pod/newrelic-bundle-nrk8s-ksm-846f7d7544-xp2bl condition met
+pod/newrelic-bundle-nrk8s-kubelet-m5krl condition met
+pod/newrelic-bundle-nrk8s-kubelet-rbc8x condition met
+pod/newrelic-bundle-nrk8s-kubelet-sbs44 condition met
+[OK] New Relic agents ready
+
+[STEP 9] Converge MySQL collection
+[INFO] PXC detected: mysql/pxc-db
+[INFO] Registering PXC MySQL telemetry into New Relic...
+
+==================================================
+ REGISTER MYSQL (PXC) INTO NEW RELIC
+==================================================
+
+[STEP 1] Validate prerequisites
+[OK] Kubernetes, PXC and New Relic available
+
+[STEP 2] Validate PXC cluster health
+[OK] PXC cluster ready
+[INFO] Healthy PXC pods : 3
+
+[STEP 3] Discover PXC HAProxy endpoint
+[OK] MySQL endpoint discovered
+[INFO] Host : pxc-db-haproxy.mysql.svc.cluster.local
+[INFO] Port : 3306
+
+[STEP 4] Discover PXC administrative credential
+[OK] PXC administrative credential available
+
+[STEP 5] Discover PXC pod
+[OK] Using PXC pod: pxc-db-pxc-0
+
+[STEP 6] Converge New Relic MySQL monitoring credential
+[INFO] New monitoring credential generated
+
+[STEP 7] Converge MySQL monitoring account
+[OK] MySQL monitoring account converged
+
+[STEP 8] Validate monitoring account connectivity
+[OK] Monitoring account can connect through PXC HAProxy
+
+[STEP 9] Converge New Relic MySQL telemetry secret
+secret/newrelic-mysql-secret created
+[OK] newrelic-mysql-secret ready
+
+[STEP 10] Configure New Relic MySQL integration
+configmap/newrelic-bundle-nrk8s-integrations-cfg patched
+[OK] mysql-config.yml installed
+
+[STEP 11] Restart New Relic agents
+daemonset.apps/newrelic-bundle-nrk8s-kubelet restarted
+Waiting for daemon set "newrelic-bundle-nrk8s-kubelet" rollout to finish: 0 out of 3 new pods have been updated...
+Waiting for daemon set "newrelic-bundle-nrk8s-kubelet" rollout to finish: 0 out of 3 new pods have been updated...
+Waiting for daemon set "newrelic-bundle-nrk8s-kubelet" rollout to finish: 1 out of 3 new pods have been updated...
+Waiting for daemon set "newrelic-bundle-nrk8s-kubelet" rollout to finish: 1 out of 3 new pods have been updated...
+Waiting for daemon set "newrelic-bundle-nrk8s-kubelet" rollout to finish: 1 out of 3 new pods have been updated...
+Waiting for daemon set "newrelic-bundle-nrk8s-kubelet" rollout to finish: 2 out of 3 new pods have been updated...
+Waiting for daemon set "newrelic-bundle-nrk8s-kubelet" rollout to finish: 2 out of 3 new pods have been updated...
+Waiting for daemon set "newrelic-bundle-nrk8s-kubelet" rollout to finish: 2 out of 3 new pods have been updated...
+Waiting for daemon set "newrelic-bundle-nrk8s-kubelet" rollout to finish: 2 of 3 updated pods are available...
+daemon set "newrelic-bundle-nrk8s-kubelet" successfully rolled out
+[OK] New Relic agents refreshed
+
+[STEP 12] Validate registration
+[OK] nri-mysql configuration present
+[OK] PXC HAProxy endpoint present
+[OK] MySQL telemetry secret present
+[OK] New Relic MySQL registration state recorded
+
+==================================================
+ MYSQL REGISTERED INTO NEW RELIC
+==================================================
+
+[OK] MySQL collection converged
+
+[STEP 10] Final validation
+NAME                                                      READY   STATUS    RESTARTS   AGE
+newrelic-bundle-kube-state-metrics-5556bb846-6mvjd        1/1     Running   0          44s
+newrelic-bundle-newrelic-logging-4t626                    1/1     Running   0          44s
+newrelic-bundle-newrelic-logging-gmcm7                    1/1     Running   0          44s
+newrelic-bundle-newrelic-logging-zfthw                    1/1     Running   0          44s
+newrelic-bundle-nri-metadata-injection-558c65f768-np6q7   1/1     Running   0          44s
+newrelic-bundle-nrk8s-ksm-846f7d7544-xp2bl                2/2     Running   0          44s
+newrelic-bundle-nrk8s-kubelet-gjz9g                       2/2     Running   0          9s
+newrelic-bundle-nrk8s-kubelet-pxk9k                       2/2     Running   0          6s
+newrelic-bundle-nrk8s-kubelet-tdhgm                       2/2     Running   0          2s
+NAME                            DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR            AGE
+newrelic-bundle-nrk8s-kubelet   3         3         3       3            3           kubernetes.io/os=linux   44s
+[OK] nri-mysql configuration validated
+
+==================================================
+ NEW RELIC STACK READY
+==================================================
+[INFO] Namespace : newrelic
+[INFO] Release   : newrelic-bundle
+[INFO] Log       : /Users/<user>/platforrm-db-ob-release_v1/runtime/logs/newrelic/deploy_newrelic_20261027_232152.log
+==================================================
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-27T23:22:54Z
+Duration: 1m15.913268047s
+Status:   success

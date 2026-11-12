@@ -1,0 +1,104 @@
+⏱ NEWRELIC REGISTER · started 17:11:41 · finished in 1m 12s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-27T17:11:41Z
+Command:  bash observability/newrelic/registration/kubernetes/mongodb/register.sh
+==================================================
+
+
+==================================================
+ REGISTER MONGODB INTO NEW RELIC
+==================================================
+
+[STEP 1] Validate tooling
+[OK] Kubernetes API reachable
+
+[STEP 2] Validate New Relic deployment
+[OK] New Relic deployment available
+
+[STEP 3] Discover MongoDB PSMDB cluster
+[OK] MongoDB cluster : mongodb-psmdb-db
+[OK] MongoDB namespace: mongodb
+[OK] Replica set     : rs0
+
+[STEP 4] Discover MongoDB service
+[OK] MongoDB endpoint: mongodb-psmdb-db-rs0.mongodb.svc.cluster.local:27017
+
+[STEP 5] Discover MongoDB cluster-monitor credentials
+[OK] MongoDB cluster-monitor credentials available
+[INFO] Monitoring username: clusterMonitor
+
+[STEP 6] Converge MongoDB exporter
+deployment.apps/mongodb-newrelic-exporter unchanged
+service/mongodb-newrelic-exporter unchanged
+[OK] MongoDB exporter resources converged
+
+[STEP 7] Wait for MongoDB exporter
+deployment "mongodb-newrelic-exporter" successfully rolled out
+[OK] MongoDB exporter ready: mongodb-newrelic-exporter-5d7768f7dc-4wrjt
+
+[STEP 8] Validate MongoDB exporter metrics
+[OK] MongoDB exporter is connected to MongoDB (mongodb_up 1)
+[OK] Database activity metrics present (serverStatus). Key values now:
+       mongodb_ss_connections{cl_id="6ae0d73960737a492665a34d",cl_role="",conn_type="active",rs_nm="rs0",rs_state="2"} 8
+       mongodb_ss_connections{cl_id="6ae0d73960737a492665a34d",cl_role="",conn_type="available",rs_nm="rs0",rs_state="2"} 13079
+       mongodb_ss_connections{cl_id="6ae0d73960737a492665a34d",cl_role="",conn_type="awaitingTopologyChanges",rs_nm="rs0",rs_state="2"} 8
+       mongodb_ss_connections{cl_id="6ae0d73960737a492665a34d",cl_role="",conn_type="current",rs_nm="rs0",rs_state="2"} 28
+       mongodb_ss_connections{cl_id="6ae0d73960737a492665a34d",cl_role="",conn_type="exhaustHello",rs_nm="rs0",rs_state="2"} 8
+       mongodb_ss_connections{cl_id="6ae0d73960737a492665a34d",cl_role="",conn_type="exhaustIsMaster",rs_nm="rs0",rs_state="2"} 0
+       mongodb_ss_connections{cl_id="6ae0d73960737a492665a34d",cl_role="",conn_type="loadBalanced",rs_nm="rs0",rs_state="2"} 0
+       mongodb_ss_connections{cl_id="6ae0d73960737a492665a34d",cl_role="",conn_type="queuedForEstablishment",rs_nm="rs0",rs_state="2"} 0
+       mongodb_ss_connections{cl_id="6ae0d73960737a492665a34d",cl_role="",conn_type="rejected",rs_nm="rs0",rs_state="2"} 0
+       mongodb_ss_connections{cl_id="6ae0d73960737a492665a34d",cl_role="",conn_type="threaded",rs_nm="rs0",rs_state="2"} 28
+       mongodb_ss_connections{cl_id="6ae0d73960737a492665a34d",cl_role="",conn_type="totalCreated",rs_nm="rs0",rs_state="2"} 3013
+       mongodb_ss_mem_resident{cl_id="6ae0d73960737a492665a34d",cl_role="",rs_nm="rs0",rs_state="2"} 300
+       mongodb_ss_network_bytesIn{cl_id="6ae0d73960737a492665a34d",cl_role="",rs_nm="rs0",rs_state="2"} 2.894492e+06
+       mongodb_ss_network_bytesOut{cl_id="6ae0d73960737a492665a34d",cl_role="",rs_nm="rs0",rs_state="2"} 2.8037369e+07
+
+[STEP 9] Converge New Relic Prometheus MongoDB target
+level=WARN msg="upgrade failed" name=newrelic-bundle error="conflict occurred while applying object /newrelic-bundle-nri-metadata-injection admissionregistration.k8s.io/v1, Kind=MutatingWebhookConfiguration: Apply failed with 2 conflicts: conflicts with \"admissionsenforcer\" using admissionregistration.k8s.io/v1:\n- .webhooks[name=\"metadata-injection.newrelic.com\"].namespaceSelector\nconflicts with \"kube-webhook-certgen\" using admissionregistration.k8s.io/v1:\n- .webhooks[name=\"metadata-injection.newrelic.com\"].clientConfig.caBundle"
+Error: UPGRADE FAILED: conflict occurred while applying object /newrelic-bundle-nri-metadata-injection admissionregistration.k8s.io/v1, Kind=MutatingWebhookConfiguration: Apply failed with 2 conflicts: conflicts with "admissionsenforcer" using admissionregistration.k8s.io/v1:
+- .webhooks[name="metadata-injection.newrelic.com"].namespaceSelector
+conflicts with "kube-webhook-certgen" using admissionregistration.k8s.io/v1:
+- .webhooks[name="metadata-injection.newrelic.com"].clientConfig.caBundle
+[INFO] Helm 4 field-ownership conflict on a field the chart's own job manages -- retrying with --force-conflicts
+Release "newrelic-bundle" has been upgraded. Happy Helming!
+NAME: newrelic-bundle
+LAST DEPLOYED: Tue Oct 27 17:11:55 2026
+NAMESPACE: newrelic
+STATUS: deployed
+REVISION: 5
+DESCRIPTION: Upgrade complete
+TEST SUITE: None
+[OK] New Relic Prometheus MongoDB target converged
+
+[STEP 10] Validate nri-prometheus
+pod/newrelic-bundle-nri-prometheus-7946f5db47-mn87w condition met
+[OK] nri-prometheus ready: newrelic-bundle-nri-prometheus-7946f5db47-mn87w
+
+[STEP 11] Validate New Relic can scrape MongoDB
+[OK] Exporter reachable inside the cluster: http://mongodb-newrelic-exporter.mongodb.svc.cluster.local:9216/metrics (mongodb_up 1)
+[INFO] Waiting one scrape cycle (35 s)...
+[OK] New Relic scraped MongoDB with no errors since 2026-10-27T17:12:09Z
+[INFO] Check in New Relic: FROM Metric SELECT latest(mongodb_up) SINCE 10 minutes ago
+[OK] New Relic MongoDB registration state recorded
+
+==================================================
+ MONGODB REGISTERED INTO NEW RELIC
+==================================================
+
+MongoDB cluster : mongodb-psmdb-db
+Replica set     : rs0
+Exporter        : mongodb-newrelic-exporter
+Metrics port    : 9216
+Monitor user    : clusterMonitor
+
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-27T17:12:51Z
+Duration: 1m10.138964401s
+Status:   success

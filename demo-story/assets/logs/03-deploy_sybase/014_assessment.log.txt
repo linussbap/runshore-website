@@ -1,0 +1,801 @@
+⏱ SYBASE ASSESSMENT · started 07:07:00 · finished in 33s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-25T07:07:00Z
+Command:  SCOPE=kubernetes db-platform/sybase/assessment/kubernetes/run_assessment.sh
+==================================================
+
+
+==================================================
+ SYBASE ASE KUBERNETES PITR ASSESSMENT
+==================================================
+
+Role       : migration-source
+Assessment : customer-order-assessment
+Scope      : kubernetes
+Runtime    : kubernetes
+Database   : assessmentdb
+Namespace  : sybase
+Deployment : platform-sybase
+Run ID     : assessment_20261025_070701
+
+==================================================
+ 1/5 VALIDATING KUBERNETES PLATFORM
+==================================================
+
+[INFO] Kubernetes context: minikube
+[PASS] Minikube is running.
+[PASS] Kubernetes API available.
+
+[INFO] Validating assessment environment...
+[PASS] Kubernetes platform is available.
+[PASS] Sybase deployment is available.
+[PASS] Assessment database exists: assessmentdb
+[PASS] Assessment environment validated.
+
+==================================================
+ 2/5 VALIDATING ASSESSMENT COMPONENTS
+==================================================
+
+[PASS] prepare_assessment.sh
+[PASS] pitr_workload.sh
+[PASS] pitr_recovery.sh
+
+[PASS] Kubernetes PITR assessment components available.
+
+==================================================
+ 3/5 PREPARING ASSESSMENT BASELINE
+==================================================
+
+
+==================================================
+ 1/4 CONVERGING DATABASE BASELINE
+==================================================
+
+
+==================================================
+ SYBASE ASE DATABASE PREPARATION
+==================================================
+
+Namespace : sybase
+Database  : assessmentdb
+
+Assessment device policy:
+  DATA -> data_dev
+  LOG  -> log_dev
+
+Physical device creation:
+  DISABLED
+
+==================================================
+ 1/6 VALIDATING ASE RUNTIME
+==================================================
+
+pod/platform-sybase-74b59d4bcd-djznx condition met
+[PASS] ASE Pod Ready: platform-sybase-74b59d4bcd-djznx
+
+==================================================
+ 2/6 VALIDATING ASE PHYSICAL DEVICES
+==================================================
+
+(1 row affected)
+==================================================
+ REQUIRED ASE PHYSICAL DEVICES
+==================================================
+PASS: sybsystemprocs_data_dev exists
+PASS: sybsystemprocs_log_dev exists
+PASS: sybsystemdb_data_dev exists
+PASS: sybsystemdb_log_dev exists
+PASS: tempdb_data_dev exists
+PASS: tempdb_log_dev exists
+PASS: data_dev exists
+PASS: log_dev exists
+PASS: all required ASE physical devices exist
+==================================================
+ PHYSICAL DEVICE TOPOLOGY
+==================================================
+ data_dev                       /opt/sap/platform-data/assessment_data.dat                                                                                       16386 
+ log_dev                        /opt/sap/platform-log/assessment_log.dat                                                                                         16386 
+ sybsystemdb_data_dev           /opt/sap/platform-system-data/sybsystemdb_data.dat                                                                               16386 
+ sybsystemdb_log_dev            /opt/sap/platform-system-log/sybsystemdb_log.dat                                                                                 16386 
+ sybsystemprocs_data_dev        /opt/sap/platform-system-data/sybsystemprocs_data.dat                                                                            16386 
+ sybsystemprocs_log_dev         /opt/sap/platform-system-log/sybsystemprocs_log.dat                                                                              16386 
+ tempdb_data_dev                /opt/sap/platform-temp-data/tempdb_data.dat                                                                                      16386 
+ tempdb_log_dev                 /opt/sap/platform-temp-log/tempdb_log.dat                                                                                        16386 
+
+(8 rows affected)
+
+==================================================
+ APPLYING ASE DEVICE PERMISSIONS
+==================================================
+
+[PASS] ASE device ownership and permissions applied.
+[PASS] Required ASE physical devices validated.
+
+==================================================
+ 3/6 VALIDATING SYSTEM DATABASE ALLOCATIONS
+==================================================
+
+ sybsystemdb                    master                                   7       1536 
+ sybsystemdb                    sybsystemdb_data_dev                     7      32768 
+ sybsystemdb                    sybsystemdb_log_dev                      4      16384 
+ sybsystemdb                    systemdbdev                              7       1536 
+ sybsystemdb                    tapedump1                                7       1536 
+ sybsystemdb                    tapedump2                                7       1536 
+ sybsystemprocs                 sybsystemprocs_data_dev                  7      65536 
+ sybsystemprocs                 sybsystemprocs_log_dev                   4      32768 
+ sybsystemprocs                 sysprocsdev                              7      50176 
+ tempdb                         master                                   7       1536 
+ tempdb                         tapedump1                                7       1536 
+ tempdb                         tapedump2                                7       1536 
+ tempdb                         tempdb_data_dev                          7      65536 
+ tempdb                         tempdb_log_dev                           4      32768 
+ tempdb                         tempdbdev                                7      25600 
+
+(15 rows affected)
+[PASS] System database allocations validated.
+
+==================================================
+ 4/6 RECREATING ASSESSMENT DATABASE
+==================================================
+
+Dropping existing assessmentdb
+Creating assessmentdb
+CREATE DATABASE: allocating 102400 logical pages (400.0 megabytes) on disk 'data_dev' (102400 logical pages requested).
+CREATE DATABASE: allocating 51200 logical pages (200.0 megabytes) on disk 'log_dev' (51200 logical pages requested).
+Database 'assessmentdb' is now online.
+Database 'assessmentdb' has been created with success.
+PASS: assessmentdb exists after CREATE DATABASE
+[PASS] assessmentdb recreated.
+
+==================================================
+ 5/6 VALIDATING DATABASE TOPOLOGY
+==================================================
+
+DATABASE= assessmentdb
+==================================================
+ DATABASE INVENTORY
+==================================================
+   0    1 sleeping   NULL     NULL     NULL                                  0 master    master     MEMORY TUNE                 0 syb_default_pool 
+   0    3 sleeping   NULL     NULL     NULL                                  0 master    tempdb     DEADLOCK TUNE               0 syb_default_pool 
+   0    4 sleeping   NULL     NULL     NULL                                  0 master    tempdb     SHUTDOWN HANDLER            0 syb_default_pool 
+   0    5 sleeping   NULL     NULL     NULL                                  0 master    tempdb     KPP HANDLER                 0 syb_default_pool 
+   0    6 sleeping   NULL     NULL     NULL                                  0 master    tempdb     ASTC HANDLER                0 syb_default_pool 
+   0    7 sleeping   NULL     NULL     NULL                                  0 master    tempdb     CHECKPOINT SLEEP            0 syb_default_pool 
+   0    8 sleeping   NULL     NULL     NULL                                  0 master    tempdb     HK WASH                     0 syb_default_pool 
+   0    9 sleeping   NULL     NULL     NULL                                  0 master    tempdb     HK GC                       0 syb_default_pool 
+   0   10 sleeping   NULL     NULL     NULL                                  0 master    tempdb     HK CHORES                   0 syb_default_pool 
+   0   11 sleeping   NULL     NULL     NULL                                  0 master    tempdb     PORT MANAGER                0 syb_default_pool 
+   0   12 sleeping   NULL     NULL     NULL                                  0 master    tempdb     NETWORK HANDLER             0 syb_default_pool 
+   0   13 sleeping   NULL     NULL     NULL                                  0 sybmgmtdb tempdb     JOB SCHEDULER               0 NULL             
+   0   14 running    sa       sa       platform-sybase-74b59d4bcd-djz        0 master    tempdb     INSERT                      0 syb_default_pool 
+   0   16 sleeping   NULL     NULL     NULL                                  0 master    tempdb     LICENSE HEARTBEAT           0 syb_default_pool 
+   0   17 recv sleep jstask   jstask   NULL                                  0 sybmgmtdb tempdb     AWAITING COMMAND            0 syb_default_pool 
+   0   18 recv sleep jstask   jstask   NULL                                  0 sybmgmtdb tempdb     AWAITING COMMAND            0 syb_default_pool 
+   0   19 recv sleep jstask   jstask   NULL                                  0 sybmgmtdb tempdb     AWAITING COMMAND            0 syb_default_pool 
+   0   20 recv sleep jstask   jstask   NULL                                  0 sybmgmtdb tempdb     AWAITING COMMAND            0 syb_default_pool 
+   0   21 recv sleep jstask   jstask   NULL                                  0 sybmgmtdb tempdb     AWAITING COMMAND            0 syb_default_pool 
+   0   22 recv sleep jstask   jstask   NULL                                  0 sybmgmtdb tempdb     AWAITING COMMAND            0 syb_default_pool 
+   0   23 recv sleep jstask   jstask   NULL                                  0 sybmgmtdb tempdb     AWAITING COMMAND            0 syb_default_pool 
+   0   24 recv sleep jstask   jstask   NULL                                  0 sybmgmtdb tempdb     AWAITING COMMAND            0 syb_default_pool 
+   0   28 recv sleep NULL     NULL     SYB_BACKUP                            0 master    tempdb     SITE HANDLER                0 syb_default_pool 
+
+(23 rows affected)
+(return status = 0)
+ assessmentdb      600.0 MB sa       4 Oct 25, 2026 full                0     NULL no options set 
+
+(1 row affected)
+ 
+ data_dev              400.0 MB data only Oct 25 2026  7:07AM              395 
+ log_dev               200.0 MB log only  Oct 25 2026  7:07AM not applicable   
+ log only free mb = 199                                                                                         
+(return status = 0)
+==================================================
+ PLATFORM DATABASE ALLOCATIONS
+==================================================
+ assessmentdb                   data_dev                                 3     102400 
+ assessmentdb                   log_dev                                  4      51200 
+ sybsystemdb                    master                                   7       1536 
+ sybsystemdb                    sybsystemdb_data_dev                     7      32768 
+ sybsystemdb                    sybsystemdb_log_dev                      4      16384 
+ sybsystemdb                    systemdbdev                              7       1536 
+ sybsystemdb                    tapedump1                                7       1536 
+ sybsystemdb                    tapedump2                                7       1536 
+ sybsystemprocs                 sybsystemprocs_data_dev                  7      65536 
+ sybsystemprocs                 sybsystemprocs_log_dev                   4      32768 
+ sybsystemprocs                 sysprocsdev                              7      50176 
+ tempdb                         master                                   7       1536 
+ tempdb                         tapedump1                                7       1536 
+ tempdb                         tapedump2                                7       1536 
+ tempdb                         tempdb_data_dev                          7      65536 
+ tempdb                         tempdb_log_dev                           4      32768 
+ tempdb                         tempdbdev                                7      25600 
+
+(17 rows affected)
+
+==================================================
+ 6/6 ENFORCING DATABASE ALLOCATION CONTRACT
+==================================================
+
+(1 row affected)
+PASS: database allocation contract satisfied
+
+==================================================
+ SYBASE DATABASE BASELINE READY
+==================================================
+
+Database:
+  assessmentdb
+
+Assessment storage:
+  DATA -> data_dev
+  LOG  -> log_dev
+
+Physical device creation:
+  NONE - existing devices validated only
+
+System database storage:
+  sybsystemprocs -> existing dedicated DATA/LOG
+  sybsystemdb    -> existing dedicated DATA/LOG
+  tempdb         -> existing dedicated DATA/LOG
+
+Log:
+  /Users/<user>/platforrm-db-ob-release_v1/db-platform/sybase/runtime/logs/prepare_databases_kubernetes_20261025_070702.log
+
+[PASS] Sybase assessment database preparation converged.
+
+==================================================
+ 2/4 APPLYING ASSESSMENT SCHEMA
+==================================================
+
+
+
+Evidence Written:
+/Users/<user>/platforrm-db-ob-release_v1/db-platform/sybase/runtime/assessment/evidence/schema.txt
+
+[PASS] SQL execution completed: schema.sql
+[PASS] Assessment schema applied.
+
+==================================================
+ 3/4 SEEDING ASSESSMENT DATA
+==================================================
+
+(1 row affected)
+(1 row affected)
+(1 row affected)
+(1 row affected)
+(1 row affected)
+(1 row affected)
+(1 row affected)
+(1 row affected)
+(1 row affected)
+
+Evidence Written:
+/Users/<user>/platforrm-db-ob-release_v1/db-platform/sybase/runtime/assessment/evidence/seed.txt
+
+[PASS] SQL execution completed: seed.sql
+[PASS] Assessment baseline seeded.
+
+==================================================
+ 4/4 VALIDATING ASSESSMENT BASELINE
+==================================================
+
+==================================================
+ ASSESSMENT BASELINE VALIDATION
+==================================================
+(1 row affected)
+PASS: baseline order 5001 exists
+PASS: baseline order 5002 exists
+PASS: baseline order 5003 exists
+PASS: assessment baseline contract satisfied
+        5001           1         1200.00             Oct 25 2026  7:07AM 
+        5002           2          350.00             Oct 25 2026  7:07AM 
+        5003           3           80.00             Oct 25 2026  7:07AM 
+
+(3 rows affected)
+
+Evidence Written:
+/Users/<user>/platforrm-db-ob-release_v1/db-platform/sybase/runtime/assessment/evidence/baseline.txt
+
+[PASS] SQL execution completed: baseline_validation.sql
+
+==================================================
+ SYBASE ASSESSMENT BASELINE READY
+==================================================
+
+Database : assessmentdb
+Orders   : 5001, 5002, 5003
+
+[PASS] Assessment preparation complete.
+
+
+[PASS] Assessment baseline prepared.
+
+==================================================
+ 4/5 EXECUTING PITR WORKLOAD
+==================================================
+
+
+==================================================
+ SYBASE KUBERNETES PITR FORWARD WORKLOAD
+==================================================
+
+Database         : assessmentdb
+Recovery marker  : 9999
+Recovery log     : TLOG2
+Post-PITR orders : 10000, 10001
+
+
+==================================================
+ 1/7 FULL DATABASE BACKUP
+==================================================
+
+
+==================================================
+ SYBASE FULL DATABASE BACKUP
+==================================================
+
+[INFO] Validating Backup Server...
+[PASS] Backup Server already running.
+Backup Server: 4.172.1.4: The value of 'allocated pages threshold' has been set to 40%.
+Backup Server session id is: 24. Use this value when executing the 'sp_volchanged' system stored procedure after fulfilling any volume change request from the Backup Server.
+Backup Server: 4.41.1.1: Creating new disk file /opt/sap/platform-backup/assessmentdb_full.dmp.
+Backup Server: 1.70.1.2: Configuring the shared memory per stripe to 786432 bytes.
+Backup Server: 6.28.1.1: Dumpfile name 'smentdb2629806421' section number 1 mounted on disk file '/opt/sap/platform-backup/assessmentdb_full.dmp'
+Backup Server: 4.166.1.1: Using dbiosize of 131072 bytes for device /opt/sap/platform-backup/assessmentdb_full.dmp.
+Backup Server: 4.165.1.1: Using iocount of 2 for device /opt/sap/platform-backup/assessmentdb_full.dmp.
+Backup Server: 4.166.1.2: Using zonesize of 262144 bytes for device /opt/sap/platform-backup/assessmentdb_full.dmp.
+Backup Server: 4.166.1.3: Using blocksize of 65536 bytes for device /opt/sap/platform-backup/assessmentdb_full.dmp.
+Backup Server: 4.165.1.2: Using numzones of 3 for device /opt/sap/platform-backup/assessmentdb_full.dmp.
+Backup Server: 4.165.1.3: Using archcnt of 1 for device /opt/sap/platform-backup/assessmentdb_full.dmp.
+Backup Server: 4.165.1.4: Using dbdevcnt of 2 for device /opt/sap/platform-backup/assessmentdb_full.dmp.
+Backup Server: 4.166.1.4: Using pagesize of 4096 bytes for device /opt/sap/platform-backup/assessmentdb_full.dmp.
+Backup Server: 4.188.1.1: Database assessmentdb: 816 kilobytes (1%) DUMPED.
+Backup Server: 4.188.1.1: Database assessmentdb: 1318 kilobytes (10%) DUMPED.
+Backup Server: 4.188.1.1: Database assessmentdb: 1656 kilobytes (24%) DUMPED.
+Backup Server: 4.188.1.1: Database assessmentdb: 1994 kilobytes (38%) DUMPED.
+Backup Server: 4.188.1.1: Database assessmentdb: 2332 kilobytes (52%) DUMPED.
+Backup Server: 4.188.1.1: Database assessmentdb: 2670 kilobytes (66%) DUMPED.
+Backup Server: 4.188.1.1: Database assessmentdb: 3008 kilobytes (80%) DUMPED.
+Backup Server: 4.188.1.1: Database assessmentdb: 3346 kilobytes (94%) DUMPED.
+Backup Server: 4.188.1.1: Database assessmentdb: 3492 kilobytes (100%) DUMPED.
+Backup Server: 3.43.1.1: Dump phase number 1 completed.
+Backup Server: 3.43.1.1: Dump phase number 2 completed.
+Backup Server: 3.43.1.1: Dump phase number 3 completed.
+Backup Server: 4.188.1.1: Database assessmentdb: 3506 kilobytes (100%) DUMPED.
+Backup Server: 3.42.1.1: DUMP is complete (database assessmentdb).
+
+[PASS] Full database backup created:
+       /opt/sap/platform-backup/assessmentdb_full.dmp
+
+[PASS] Full database backup complete.
+
+==================================================
+ 2/7 TRANSACTION LOG BACKUP TLOG1
+==================================================
+
+Backup Server session id is: 27. Use this value when executing the 'sp_volchanged' system stored procedure after fulfilling any volume change request from the Backup Server.
+Backup Server: 4.41.1.1: Creating new disk file /opt/sap/platform-backup/assessmentdb_tlog1.dmp.
+Backup Server: 1.70.1.2: Configuring the shared memory per stripe to 786432 bytes.
+Backup Server: 6.28.1.1: Dumpfile name 'smentdb2629806426' section number 1 mounted on disk file '/opt/sap/platform-backup/assessmentdb_tlog1.dmp'
+Backup Server: 4.166.1.1: Using dbiosize of 262144 bytes for device /opt/sap/platform-backup/assessmentdb_tlog1.dmp.
+Backup Server: 4.165.1.1: Using iocount of 1 for device /opt/sap/platform-backup/assessmentdb_tlog1.dmp.
+Backup Server: 4.166.1.2: Using zonesize of 262144 bytes for device /opt/sap/platform-backup/assessmentdb_tlog1.dmp.
+Backup Server: 4.166.1.3: Using blocksize of 65536 bytes for device /opt/sap/platform-backup/assessmentdb_tlog1.dmp.
+Backup Server: 4.165.1.2: Using numzones of 3 for device /opt/sap/platform-backup/assessmentdb_tlog1.dmp.
+Backup Server: 4.165.1.3: Using archcnt of 1 for device /opt/sap/platform-backup/assessmentdb_tlog1.dmp.
+Backup Server: 4.165.1.4: Using dbdevcnt of 1 for device /opt/sap/platform-backup/assessmentdb_tlog1.dmp.
+Backup Server: 4.166.1.4: Using pagesize of 4096 bytes for device /opt/sap/platform-backup/assessmentdb_tlog1.dmp.
+Backup Server: 4.58.1.1: Database assessmentdb: 40 kilobytes DUMPED.
+Backup Server: 4.58.1.1: Database assessmentdb: 46 kilobytes DUMPED.
+Backup Server: 3.43.1.1: Dump phase number 3 completed.
+Backup Server: 4.58.1.1: Database assessmentdb: 50 kilobytes DUMPED.
+Backup Server: 3.42.1.1: DUMP is complete (database assessmentdb).
+
+[PASS] Transaction log backup tlog1:
+       /opt/sap/platform-backup/assessmentdb_tlog1.dmp
+
+[PASS] TLOG1 complete.
+
+==================================================
+ 3/7 CREATING PITR MARKER 9999
+==================================================
+
+==================================================
+ CREATING PITR MARKER
+==================================================
+(1 row affected)
+        9999           1         9999.99             Oct 25 2026  7:07AM 
+
+(1 row affected)
+
+Evidence Written:
+/Users/<user>/platforrm-db-ob-release_v1/db-platform/sybase/runtime/assessment/evidence/pitr_marker.txt
+
+[PASS] SQL execution completed: pitr_marker.sql
+[PASS] PITR marker 9999 created.
+
+==================================================
+ 4/7 TRANSACTION LOG BACKUP TLOG2
+==================================================
+
+Backup Server session id is: 29. Use this value when executing the 'sp_volchanged' system stored procedure after fulfilling any volume change request from the Backup Server.
+Backup Server: 4.41.1.1: Creating new disk file /opt/sap/platform-backup/assessmentdb_tlog2.dmp.
+Backup Server: 1.70.1.2: Configuring the shared memory per stripe to 786432 bytes.
+Backup Server: 6.28.1.1: Dumpfile name 'smentdb2629806428' section number 1 mounted on disk file '/opt/sap/platform-backup/assessmentdb_tlog2.dmp'
+Backup Server: 4.166.1.1: Using dbiosize of 262144 bytes for device /opt/sap/platform-backup/assessmentdb_tlog2.dmp.
+Backup Server: 4.165.1.1: Using iocount of 1 for device /opt/sap/platform-backup/assessmentdb_tlog2.dmp.
+Backup Server: 4.166.1.2: Using zonesize of 262144 bytes for device /opt/sap/platform-backup/assessmentdb_tlog2.dmp.
+Backup Server: 4.166.1.3: Using blocksize of 65536 bytes for device /opt/sap/platform-backup/assessmentdb_tlog2.dmp.
+Backup Server: 4.165.1.2: Using numzones of 3 for device /opt/sap/platform-backup/assessmentdb_tlog2.dmp.
+Backup Server: 4.165.1.3: Using archcnt of 1 for device /opt/sap/platform-backup/assessmentdb_tlog2.dmp.
+Backup Server: 4.165.1.4: Using dbdevcnt of 1 for device /opt/sap/platform-backup/assessmentdb_tlog2.dmp.
+Backup Server: 4.166.1.4: Using pagesize of 4096 bytes for device /opt/sap/platform-backup/assessmentdb_tlog2.dmp.
+Backup Server: 3.43.1.1: Dump phase number 3 completed.
+Backup Server: 4.58.1.1: Database assessmentdb: 12 kilobytes DUMPED.
+Backup Server: 3.42.1.1: DUMP is complete (database assessmentdb).
+
+[PASS] Transaction log backup tlog2:
+       /opt/sap/platform-backup/assessmentdb_tlog2.dmp
+
+[PASS] TLOG2 complete.
+[PASS] PITR recovery boundary captured.
+
+==================================================
+ 5/7 CREATING POST-PITR ACTIVITY
+==================================================
+
+==================================================
+ CREATING POST-PITR ACTIVITY
+==================================================
+(1 row affected)
+(1 row affected)
+       10000           1        10000.00             Oct 25 2026  7:07AM 
+       10001           1        10001.00             Oct 25 2026  7:07AM 
+
+(2 rows affected)
+
+Evidence Written:
+/Users/<user>/platforrm-db-ob-release_v1/db-platform/sybase/runtime/assessment/evidence/post_pitr.txt
+
+[PASS] SQL execution completed: post_pitr.sql
+[PASS] Post-PITR orders 10000 and 10001 created.
+
+==================================================
+ 6/7 TRANSACTION LOG BACKUP TLOG3
+==================================================
+
+Backup Server session id is: 31. Use this value when executing the 'sp_volchanged' system stored procedure after fulfilling any volume change request from the Backup Server.
+Backup Server: 4.41.1.1: Creating new disk file /opt/sap/platform-backup/assessmentdb_tlog3.dmp.
+Backup Server: 1.70.1.2: Configuring the shared memory per stripe to 786432 bytes.
+Backup Server: 6.28.1.1: Dumpfile name 'smentdb262980642A' section number 1 mounted on disk file '/opt/sap/platform-backup/assessmentdb_tlog3.dmp'
+Backup Server: 4.166.1.1: Using dbiosize of 262144 bytes for device /opt/sap/platform-backup/assessmentdb_tlog3.dmp.
+Backup Server: 4.165.1.1: Using iocount of 1 for device /opt/sap/platform-backup/assessmentdb_tlog3.dmp.
+Backup Server: 4.166.1.2: Using zonesize of 262144 bytes for device /opt/sap/platform-backup/assessmentdb_tlog3.dmp.
+Backup Server: 4.166.1.3: Using blocksize of 65536 bytes for device /opt/sap/platform-backup/assessmentdb_tlog3.dmp.
+Backup Server: 4.165.1.2: Using numzones of 3 for device /opt/sap/platform-backup/assessmentdb_tlog3.dmp.
+Backup Server: 4.165.1.3: Using archcnt of 1 for device /opt/sap/platform-backup/assessmentdb_tlog3.dmp.
+Backup Server: 4.165.1.4: Using dbdevcnt of 1 for device /opt/sap/platform-backup/assessmentdb_tlog3.dmp.
+Backup Server: 4.166.1.4: Using pagesize of 4096 bytes for device /opt/sap/platform-backup/assessmentdb_tlog3.dmp.
+Backup Server: 4.58.1.1: Database assessmentdb: 14 kilobytes DUMPED.
+Backup Server: 3.43.1.1: Dump phase number 3 completed.
+Backup Server: 4.58.1.1: Database assessmentdb: 18 kilobytes DUMPED.
+Backup Server: 3.42.1.1: DUMP is complete (database assessmentdb).
+
+[PASS] Transaction log backup tlog3:
+       /opt/sap/platform-backup/assessmentdb_tlog3.dmp
+
+[PASS] TLOG3 complete.
+
+==================================================
+ 7/7 VALIDATING FORWARD PITR STATE
+==================================================
+
+==================================================
+ FORWARD PITR WORKLOAD VALIDATION
+==================================================
+(1 row affected)
+PASS: baseline order 5001 exists
+PASS: baseline order 5002 exists
+PASS: baseline order 5003 exists
+PASS: PITR marker 9999 exists
+PASS: post-PITR order 10000 exists
+PASS: post-PITR order 10001 exists
+PASS: forward PITR workload contract satisfied
+        5001           1         1200.00             Oct 25 2026  7:07AM 
+        5002           2          350.00             Oct 25 2026  7:07AM 
+        5003           3           80.00             Oct 25 2026  7:07AM 
+        9999           1         9999.99             Oct 25 2026  7:07AM 
+       10000           1        10000.00             Oct 25 2026  7:07AM 
+       10001           1        10001.00             Oct 25 2026  7:07AM 
+
+(6 rows affected)
+
+Evidence Written:
+/Users/<user>/platforrm-db-ob-release_v1/db-platform/sybase/runtime/assessment/evidence/forward_pitr.txt
+
+[PASS] SQL execution completed: forward_pitr_validation.sql
+
+==================================================
+ SYBASE PITR FORWARD STATE READY
+==================================================
+
+Baseline:
+  5001
+  5002
+  5003
+
+PITR marker:
+  9999
+
+Recovery boundary:
+  TLOG2
+
+Post-PITR:
+  10000
+  10001
+
+[PASS] PITR forward workload complete.
+
+
+[PASS] PITR forward workload completed.
+
+==================================================
+ 5/5 EXECUTING PITR RECOVERY
+==================================================
+
+
+==================================================
+ SYBASE KUBERNETES PITR RECOVERY
+==================================================
+
+Database          : assessmentdb
+Recovery marker   : 9999
+Recovery boundary : TLOG2
+Excluded log      : TLOG3
+
+
+==================================================
+ 1/7 VALIDATING PITR BACKUP CHAIN
+==================================================
+
+[PASS] ASE Pod Ready: platform-sybase-74b59d4bcd-djznx
+[PASS] /opt/sap/platform-backup/assessmentdb_full.dmp
+       3604480 bytes
+[PASS] /opt/sap/platform-backup/assessmentdb_tlog1.dmp
+       65536 bytes
+[PASS] /opt/sap/platform-backup/assessmentdb_tlog2.dmp
+       26624 bytes
+
+[PASS] PITR recovery chain available.
+
+==================================================
+ 2/7 PREPARING DATABASE FOR RECOVERY
+==================================================
+
+Preparing assessmentdb for LOAD DATABASE
+[PASS] Recovery preparation complete.
+
+==================================================
+ 3/7 LOADING FULL DATABASE BACKUP
+==================================================
+
+Backup Server session id is: 33. Use this value when executing the 'sp_volchanged' system stored procedure after fulfilling any volume change request from the Backup Server.
+Backup Server: 6.28.1.1: Dumpfile name 'smentdb2629806421' section number 1 mounted on disk file '/opt/sap/platform-backup/assessmentdb_full.dmp'
+Backup Server: 4.166.1.1: Using dbiosize of 131072 bytes for device /opt/sap/platform-backup/assessmentdb_full.dmp.
+Backup Server: 4.165.1.1: Using iocount of 2 for device /opt/sap/platform-backup/assessmentdb_full.dmp.
+Backup Server: 4.166.1.2: Using zonesize of 262144 bytes for device /opt/sap/platform-backup/assessmentdb_full.dmp.
+Backup Server: 4.166.1.3: Using blocksize of 65536 bytes for device /opt/sap/platform-backup/assessmentdb_full.dmp.
+Backup Server: 4.165.1.2: Using numzones of 3 for device /opt/sap/platform-backup/assessmentdb_full.dmp.
+Backup Server: 4.165.1.3: Using archcnt of 1 for device /opt/sap/platform-backup/assessmentdb_full.dmp.
+Backup Server: 4.165.1.4: Using dbdevcnt of 2 for device /opt/sap/platform-backup/assessmentdb_full.dmp.
+Backup Server: 4.166.1.4: Using pagesize of 4096 bytes for device /opt/sap/platform-backup/assessmentdb_full.dmp.
+Backup Server: 4.188.1.1: Database assessmentdb: 60426 kilobytes (9%) LOADED.
+Backup Server: 4.188.1.1: Database assessmentdb: 146444 kilobytes (23%) LOADED.
+Backup Server: 4.188.1.1: Database assessmentdb: 232462 kilobytes (37%) LOADED.
+Backup Server: 4.188.1.1: Database assessmentdb: 318480 kilobytes (51%) LOADED.
+Backup Server: 4.188.1.1: Database assessmentdb: 404498 kilobytes (65%) LOADED.
+Backup Server: 4.188.1.1: Database assessmentdb: 490516 kilobytes (79%) LOADED.
+Backup Server: 4.188.1.1: Database assessmentdb: 576534 kilobytes (93%) LOADED.
+Backup Server: 4.188.1.1: Database assessmentdb: 614420 kilobytes (100%) LOADED.
+Backup Server: 4.188.1.1: Database assessmentdb: 614434 kilobytes (100%) LOADED.
+Backup Server: 3.42.1.1: LOAD is complete (database assessmentdb).
+Started estimating recovery log boundaries for database 'assessmentdb'.
+Database 'assessmentdb', checkpoint=(102416, 36), first=(102416, 36), last=(102417, 15).
+Completed estimating recovery log boundaries for database 'assessmentdb'.
+Started ANALYSIS pass for database 'assessmentdb'.
+Completed ANALYSIS pass for database 'assessmentdb'.
+Started REDO pass for database 'assessmentdb'. The total number of log records to process is 24.
+Redo pass for database 'assessmentdb': 24 records done (100%); 0 records left.
+Redo pass of recovery has processed 2 committed and 0 aborted transactions.
+Completed REDO pass for database 'assessmentdb'.
+Use the ONLINE DATABASE command to bring this database online; ASE will not bring it online automatically.
+
+[PASS] Full database backup loaded.
+
+==================================================
+ 4/7 LOADING TRANSACTION LOG TLOG1
+==================================================
+
+Backup Server session id is: 36. Use this value when executing the 'sp_volchanged' system stored procedure after fulfilling any volume change request from the Backup Server.
+Backup Server: 6.28.1.1: Dumpfile name 'smentdb2629806426' section number 1 mounted on disk file '/opt/sap/platform-backup/assessmentdb_tlog1.dmp'
+Backup Server: 4.166.1.1: Using dbiosize of 262144 bytes for device /opt/sap/platform-backup/assessmentdb_tlog1.dmp.
+Backup Server: 4.165.1.1: Using iocount of 1 for device /opt/sap/platform-backup/assessmentdb_tlog1.dmp.
+Backup Server: 4.166.1.2: Using zonesize of 262144 bytes for device /opt/sap/platform-backup/assessmentdb_tlog1.dmp.
+Backup Server: 4.166.1.3: Using blocksize of 65536 bytes for device /opt/sap/platform-backup/assessmentdb_tlog1.dmp.
+Backup Server: 4.165.1.2: Using numzones of 3 for device /opt/sap/platform-backup/assessmentdb_tlog1.dmp.
+Backup Server: 4.165.1.3: Using archcnt of 1 for device /opt/sap/platform-backup/assessmentdb_tlog1.dmp.
+Backup Server: 4.165.1.4: Using dbdevcnt of 2 for device /opt/sap/platform-backup/assessmentdb_tlog1.dmp.
+Backup Server: 4.166.1.4: Using pagesize of 4096 bytes for device /opt/sap/platform-backup/assessmentdb_tlog1.dmp.
+Backup Server: 4.58.1.1: Database assessmentdb: 50 kilobytes LOADED.
+Backup Server: 3.42.1.1: LOAD is complete (database assessmentdb).
+Started estimating recovery log boundaries for database 'assessmentdb'.
+Database 'assessmentdb', checkpoint=(102416, 36), first=(102416, 36), last=(102417, 17).
+Completed estimating recovery log boundaries for database 'assessmentdb'.
+Started ANALYSIS pass for database 'assessmentdb'.
+Completed ANALYSIS pass for database 'assessmentdb'.
+Started full REDO pass for database 'assessmentdb'. The total number of log records to process is 26.
+Redo pass for database 'assessmentdb': 26 records done (100%); 0 records left.
+Redo pass of recovery has processed 2 committed and 0 aborted transactions.
+Completed REDO pass for database 'assessmentdb'.
+Use the ONLINE DATABASE command to bring this database online; ASE will not bring it online automatically.
+
+[PASS] TLOG1 loaded.
+
+==================================================
+ 5/7 LOADING TRANSACTION LOG TLOG2
+==================================================
+
+Backup Server session id is: 39. Use this value when executing the 'sp_volchanged' system stored procedure after fulfilling any volume change request from the Backup Server.
+Backup Server: 6.28.1.1: Dumpfile name 'smentdb2629806428' section number 1 mounted on disk file '/opt/sap/platform-backup/assessmentdb_tlog2.dmp'
+Backup Server: 4.166.1.1: Using dbiosize of 262144 bytes for device /opt/sap/platform-backup/assessmentdb_tlog2.dmp.
+Backup Server: 4.165.1.1: Using iocount of 1 for device /opt/sap/platform-backup/assessmentdb_tlog2.dmp.
+Backup Server: 4.166.1.2: Using zonesize of 262144 bytes for device /opt/sap/platform-backup/assessmentdb_tlog2.dmp.
+Backup Server: 4.166.1.3: Using blocksize of 65536 bytes for device /opt/sap/platform-backup/assessmentdb_tlog2.dmp.
+Backup Server: 4.165.1.2: Using numzones of 3 for device /opt/sap/platform-backup/assessmentdb_tlog2.dmp.
+Backup Server: 4.165.1.3: Using archcnt of 1 for device /opt/sap/platform-backup/assessmentdb_tlog2.dmp.
+Backup Server: 4.165.1.4: Using dbdevcnt of 2 for device /opt/sap/platform-backup/assessmentdb_tlog2.dmp.
+Backup Server: 4.166.1.4: Using pagesize of 4096 bytes for device /opt/sap/platform-backup/assessmentdb_tlog2.dmp.
+Backup Server: 4.58.1.1: Database assessmentdb: 12 kilobytes LOADED.
+Backup Server: 3.42.1.1: LOAD is complete (database assessmentdb).
+Started estimating recovery log boundaries for database 'assessmentdb'.
+Database 'assessmentdb', checkpoint=(102417, 17), first=(102417, 16), last=(102417, 33).
+Completed estimating recovery log boundaries for database 'assessmentdb'.
+Started ANALYSIS pass for database 'assessmentdb'.
+Completed ANALYSIS pass for database 'assessmentdb'.
+Started full REDO pass for database 'assessmentdb'. The total number of log records to process is 18.
+Redo pass for database 'assessmentdb': 18 records done (100%); 0 records left.
+Redo pass of recovery has processed 2 committed and 0 aborted transactions.
+Completed REDO pass for database 'assessmentdb'.
+Use the ONLINE DATABASE command to bring this database online; ASE will not bring it online automatically.
+
+[PASS] TLOG2 loaded.
+[PASS] PITR recovery boundary reached.
+[INFO] TLOG3 deliberately excluded.
+
+==================================================
+ 6/7 BRINGING RECOVERED DATABASE ONLINE
+==================================================
+
+Started estimating recovery log boundaries for database 'assessmentdb'.
+Database 'assessmentdb', checkpoint=(102417, 33), first=(102417, 32), last=(102417, 33).
+Completed estimating recovery log boundaries for database 'assessmentdb'.
+Started ANALYSIS pass for database 'assessmentdb'.
+Completed ANALYSIS pass for database 'assessmentdb'.
+Recovery of database 'assessmentdb' will undo incomplete nested top actions.
+Started UNDO pass for database 'assessmentdb'. The total number of log records to process is 2.
+Undo pass for database 'assessmentdb': 1 records done (50%); 1 records left.
+Undo pass of recovery has processed 1 incomplete transactions.
+Completed UNDO pass for database 'assessmentdb'.
+Checking external objects.
+Database 'assessmentdb' is now online.
+
+[PASS] assessmentdb online.
+
+==================================================
+ 7/7 VALIDATING PITR RECOVERY CONTRACT
+==================================================
+
+==================================================
+ PITR RECOVERY VALIDATION
+==================================================
+(1 row affected)
+PASS: baseline order 5001 recovered
+PASS: baseline order 5002 recovered
+PASS: baseline order 5003 recovered
+PASS: PITR marker 9999 recovered
+PASS: post-PITR order 10000 correctly absent
+PASS: post-PITR order 10001 correctly absent
+PASS: PITR recovery contract satisfied
+        5001           1         1200.00             Oct 25 2026  7:07AM 
+        5002           2          350.00             Oct 25 2026  7:07AM 
+        5003           3           80.00             Oct 25 2026  7:07AM 
+        9999           1         9999.99             Oct 25 2026  7:07AM 
+
+(4 rows affected)
+
+Evidence Written:
+/Users/<user>/platforrm-db-ob-release_v1/db-platform/sybase/runtime/assessment/evidence/pitr_recovery.txt
+
+
+==================================================
+ SYBASE PITR RECOVERY PASS
+==================================================
+
+Recovered:
+  5001
+  5002
+  5003
+  9999
+
+Correctly excluded:
+  10000
+  10001
+
+Recovery chain:
+  FULL -> TLOG1 -> TLOG2 -> ONLINE
+
+Excluded:
+  TLOG3
+
+Evidence:
+  /Users/<user>/platforrm-db-ob-release_v1/db-platform/sybase/runtime/assessment/evidence/pitr_recovery.txt
+
+Log:
+  /Users/<user>/platforrm-db-ob-release_v1/db-platform/sybase/runtime/logs/pitr_recovery_kubernetes_20261025_070724.log
+
+[PASS] Sybase Kubernetes PITR recovery contract satisfied.
+
+
+[PASS] PITR recovery contract validated.
+
+==================================================
+ ASSESSMENT RESULT : PASS
+==================================================
+
+Platform   : Sybase ASE
+Role       : migration-source
+Scope      : kubernetes
+Runtime    : kubernetes
+Assessment : customer-order-assessment
+Database   : assessmentdb
+Run ID     : assessment_20261025_070701
+
+Components:
+  prepare_assessment.sh : PASS
+  pitr_workload.sh      : PASS
+  pitr_recovery.sh      : PASS
+
+Result     : /Users/<user>/platforrm-db-ob-release_v1/db-platform/sybase/runtime/evidence/kubernetes/assessment_20261025_070701_result.txt
+Log        : /Users/<user>/platforrm-db-ob-release_v1/db-platform/sybase/runtime/logs/assessment_kubernetes_assessment_20261025_070701.log
+
+[PASS] Sybase Kubernetes PITR assessment completed.
+
+==================================================
+ CUSTOMER ORDER PITR SCORECARD
+==================================================
+
+Platform   : Sybase ASE
+Assessment : customer-order-assessment
+
+Order    Expected   Actual     Status
+-----    --------   ------     ------
+5001     Present    Present    PASS
+5002     Present    Present    PASS
+5003     Present    Present    PASS
+9999     Present    Present    PASS
+10000    Absent     Absent     PASS
+10001    Absent     Absent     PASS
+
+==================================================
+
+
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-25T07:07:29Z
+Duration: 28.691069484s
+Status:   success

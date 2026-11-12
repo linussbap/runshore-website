@@ -1,0 +1,100 @@
+⏱ MONGODB DESTROY · started 00:22:23 · finished in 1m 01s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-28T00:22:23Z
+Command:  platform/cloud/gcp/orchestrator/destroy.sh mongodb
+==================================================
+
+[INFO] Region (gcp): europe-west1 (ADMIN)
+==================================================
+ CLOUD LOGIN (GCP) -- from setup / ADMIN
+==================================================
+  gcloud already logged in (<email>) -- left as it is
+
+==================================================
+ DESTROYING AS (GCP)
+==================================================
+  Google account:            <email>
+  Project (gcloud):          database-assessment-platform
+  Default region (gcloud):   not set (Terraform uses its own region)
+  Project in ADMIN:          database-assessment-platform
+    -> same project?         MATCH
+==================================================
+ OK
+
+[OK] Terraform state: GCS bucket dbplat-tfstate-database-assessment-platform
+[OK] kubectl connected to database-assessment-platform-gke
+
+[DEPENDENCY] Kubernetes
+[OK] Kubernetes API reachable
+
+[SECURITY] Provider Kubernetes Context Guard
+[INFO] Provider : gcp
+[INFO] Platform : gke
+[INFO] Context  : gke_database-assessment-platform_europe-west1_database-assessment-platform-gke
+[OK] GCP/GKE context validated
+
+[PLATFORM] MongoDB
+[INFO] Stopping mongodb workload (gcp) via db-platform/mongodb/workload/kubernetes/stop.sh before destroy...
+[INFO] resolve_scope.sh: SCOPE="gcp" -> PLATFORM_TYPE="gke", KUBE_CONTEXT="gke_database-assessment-platform_europe-west1_database-assessment-platform-gke"
+STATUS: IDLE
+
+==================================================
+ DESTROY MONGODB PLATFORM
+==================================================
+
+[STEP 1] Validate tooling
+[OK] Tooling and Kubernetes API available
+
+[STEP 2] Remove MongoDB Helm release
+release "mongodb" uninstalled
+
+[STEP 3] Remove PSMDB custom resources
+
+[STEP 3b] Remove PSMDB backup/restore custom resources
+
+[STEP 4] Remove MongoDB PVCs
+persistentvolumeclaim "mongod-data-mongodb-psmdb-db-rs0-0" deleted from mongodb namespace
+persistentvolumeclaim "mongod-data-mongodb-psmdb-db-rs0-1" deleted from mongodb namespace
+persistentvolumeclaim "mongod-data-mongodb-psmdb-db-rs0-2" deleted from mongodb namespace
+
+[STEP 5] Remove PSMDB operator
+release "psmdb-operator" uninstalled
+
+[STEP 6] Remove PSMDB CRD release
+These resources were kept due to the resource policy:
+[CustomResourceDefinition] perconaservermongodbbackups.psmdb.percona.com
+[CustomResourceDefinition] perconaservermongodbclustersyncs.psmdb.percona.com
+[CustomResourceDefinition] perconaservermongodbrestores.psmdb.percona.com
+[CustomResourceDefinition] perconaservermongodbs.psmdb.percona.com
+
+release "psmdb-operator-crds" uninstalled
+
+[INFO] Removing PSMDB CRDs directly (cluster-scoped, not namespace-scoped)
+customresourcedefinition.apiextensions.k8s.io "perconaservermongodbbackups.psmdb.percona.com" deleted
+customresourcedefinition.apiextensions.k8s.io "perconaservermongodbclustersyncs.psmdb.percona.com" deleted
+customresourcedefinition.apiextensions.k8s.io "perconaservermongodbrestores.psmdb.percona.com" deleted
+customresourcedefinition.apiextensions.k8s.io "perconaservermongodbs.psmdb.percona.com" deleted
+
+[STEP 7] Delete MongoDB namespace
+namespace "mongodb" deleted
+namespace/mongodb condition met
+
+[STEP 8] Validate destruction
+[OK] MongoDB namespace absent
+
+[STEP 9] Clean up real AWS backup resources (if provider=aws)
+[INFO] Provider: gcp — no AWS resources to clean up
+
+==================================================
+ MONGODB PLATFORM DESTROYED
+==================================================
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-28T00:23:23Z
+Duration: 59.568165719s
+Status:   success

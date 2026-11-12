@@ -1,0 +1,190 @@
+⏱ GCP DESTROY · started 02:19:02 · finished in 7m 55s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-28T02:19:02Z
+Command:  platform/cloud/gcp/orchestrator/destroy.sh kubernetes
+==================================================
+
+[INFO] Region (gcp): europe-west1 (ADMIN)
+==================================================
+ CLOUD LOGIN (GCP) -- from setup / ADMIN
+==================================================
+  gcloud already logged in (<email>) -- left as it is
+
+==================================================
+ DESTROYING AS (GCP)
+==================================================
+  Google account:            <email>
+  Project (gcloud):          database-assessment-platform
+  Default region (gcloud):   not set (Terraform uses its own region)
+  Project in ADMIN:          database-assessment-platform
+    -> same project?         MATCH
+==================================================
+ OK
+
+[OK] Terraform state: GCS bucket dbplat-tfstate-database-assessment-platform
+[OK] kubectl connected to database-assessment-platform-gke
+
+==================================================
+ RELEASE KUBERNETES CLOUD RESOURCES (pre-destroy)
+==================================================
+[INFO] context: gke_database-assessment-platform_europe-west1_database-assessment-platform-gke
+[OK] no LoadBalancer services
+[OK] no platform namespaces
+[OK] all PersistentVolumes released (volume disks deleted)
+
+[PLATFORM] GCP Kubernetes
+
+==================================================
+ DESTROY GCP GKE & CORE STORAGE
+==================================================
+
+[0m[1mInitializing the backend...[0m
+[0m[1mInitializing provider plugins...[0m
+- Reusing previous version of hashicorp/google from the dependency lock file
+- Using previously-installed hashicorp/google v6.50.0
+
+[0m[1m[32mTerraform has been successfully initialized![0m[32m[0m
+[0m[32m
+You may now begin working with Terraform. Try running "terraform plan" to see
+any changes that are required for your infrastructure. All Terraform commands
+should now work.
+
+If you ever set or change modules or backend configuration for Terraform,
+rerun this command to reinitialize your working directory. If you forget, other
+commands will detect it and remind you to do so if necessary.[0m
+
+[STEP 1] Read resource names from Terraform state
+
+[INFO] Cluster : database-assessment-platform-gke
+[INFO] Region  : europe-west1
+[INFO] Subnet  : database-assessment-platform-gke-subnet
+[INFO] Network : database-assessment-platform-vpc
+
+[STEP 3] Delete GKE cluster (and its node pool, instances, disks)
+
+Deleting cluster database-assessment-platform-gke...
+............................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................done.
+Deleted [https://container.googleapis.com/v1/projects/database-assessment-platform/zones/europe-west1/clusters/database-assessment-platform-gke].
+[OK] Cluster deleted
+
+[STEP 4] Delete subnet
+
+Deleted [https://www.googleapis.com/compute/v1/projects/database-assessment-platform/regions/europe-west1/subnetworks/database-assessment-platform-gke-subnet].
+[OK] Subnet deleted
+
+[STEP 5] Delete VPC network
+
+Deleted [https://www.googleapis.com/compute/v1/projects/database-assessment-platform/global/networks/database-assessment-platform-vpc].
+[OK] Network deleted
+
+[STEP 6] Reconcile Terraform state (removes only what no longer exists in GCP)
+
+[OK]   google_compute_network.platform no longer exists in GCP -- removed from state
+[OK]   google_compute_subnetwork.gke no longer exists in GCP -- removed from state
+[OK]   google_container_cluster.platform no longer exists in GCP -- removed from state
+[OK]   google_container_node_pool.platform no longer exists in GCP -- removed from state
+[OK] Terraform state is empty
+
+[STEP] Remove every remaining cost-bearing resource in database-assessment-platform
+  [INFO] Terraform state bucket(s) kept: dbplat-tfstate-database-assessment-platform
+  [OK] deleted bucket mongodb-db-backups-<account-id>
+  [OK] deleted bucket mysql-db-backups-<account-id>
+  [OK] deleted bucket postgres-db-backups-database-assessment-platform-1786705586
+
+[STEP] Verify nothing cost-bearing remains
+[OK] GCP project database-assessment-platform is clean: nothing left that bills while idle
+
+==================================================
+ GCP GKE & STORAGE DESTROY COMPLETE
+==================================================
+
+==================================================
+ GKE ORPHAN SWEEP (project database-assessment-platform)
+==================================================
+[OK] sweep complete
+
+==================================================
+ VERIFY GCP TEARDOWN (up to 15 min)
+==================================================
+
+GCP CLEANLINESS REPORT
+Prefix : database-assessment-platform
+Project: database-assessment-platform
+
+
+====================================================================
+GKE CLUSTERS
+====================================================================
+OK No GKE clusters
+
+====================================================================
+COMPUTE INSTANCES
+====================================================================
+OK No compute instances
+
+====================================================================
+VPC NETWORKS
+====================================================================
+OK No VPC networks
+
+====================================================================
+SUBNETS
+====================================================================
+OK No subnets
+
+====================================================================
+FIREWALL RULES
+====================================================================
+OK No firewall rules
+
+====================================================================
+FORWARDING RULES (LOAD BALANCERS)
+====================================================================
+OK No forwarding rules
+
+====================================================================
+PERSISTENT DISKS
+====================================================================
+OK No persistent disks
+
+====================================================================
+STATIC IP ADDRESSES
+====================================================================
+OK No static IP addresses
+
+====================================================================
+IAM SERVICE ACCOUNTS
+====================================================================
+INFO Platform service accounts remain:
+<email>
+<email>
+
+NOTE Service accounts are IAM resources and are not treated
+      as cost-bearing runtime infrastructure.
+
+====================================================================
+TERRAFORM STATE (informational)
+====================================================================
+OK Terraform state empty
+
+====================================================================
+SUMMARY
+====================================================================
+
+✔ GCP COST-BEARING ENVIRONMENT IS CLEAN
+
+No GKE, compute, networking, disk, load-balancer,
+or static-IP resources matching the platform were found.
+
+INFO IAM service accounts remain by design.
+[OK] GCP verified clean after destroy
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-28T02:26:55Z
+Duration: 7m53.371965431s
+Status:   success

@@ -1,0 +1,69 @@
+⏱ NEWRELIC DESTROY · started 20:42:18 · finished in 36s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-28T20:42:18Z
+Command:  platform/cloud/aws/orchestrator/destroy.sh newrelic
+==================================================
+
+[INFO] Region (aws): eu-west-2 (ADMIN)
+==================================================
+ CLOUD LOGIN (AWS) -- from setup / ADMIN
+==================================================
+  AWS CLI already logged in -- left as it is
+
+==================================================
+ DESTROYING AS (AWS)
+==================================================
+  AWS identity:              arn:aws:iam::<account-id>:user/<user>
+  Region:                    eu-west-2
+  Account of ADMIN key:      <account-id>
+  Region in ADMIN:           eu-west-2
+    -> same account?         MATCH
+==================================================
+ OK
+
+[OK] Terraform state: S3 bucket dbplat-tfstate-<account-id>-eu-west-2
+[OK] kubectl connected to database-assessment-platform-eks
+
+[DEPENDENCY] Kubernetes
+[OK] Kubernetes API reachable
+
+[SECURITY] Provider Kubernetes Context Guard
+[INFO] Provider : aws
+[INFO] Platform : eks
+[INFO] Context  : arn:aws:eks:eu-west-2:<account-id>:cluster/database-assessment-platform-eks
+[OK] AWS/EKS context validated
+
+[PLATFORM] New Relic
+
+==================================================
+ DESTROY NEW RELIC PLATFORM
+==================================================
+
+[STEP 1] Validate prerequisites
+[OK] Kubernetes reachable
+
+[STEP 2] Remove Helm release
+release "newrelic-bundle" uninstalled
+[OK] Helm release removed
+
+[STEP 3] Remove namespace
+namespace "newrelic" deleted
+[INFO] Waiting for namespace removal...
+[OK] Namespace removed
+
+[STEP 4] Validate removal
+[OK] New Relic platform removed
+
+==================================================
+ NEW RELIC PLATFORM DESTROY COMPLETE
+==================================================
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-28T20:42:51Z
+Duration: 32.964367536s
+Status:   success

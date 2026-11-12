@@ -1,0 +1,39 @@
+⏱ MYSQL START WORKLOAD · started 01:48:59 · finished in 24s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-28T01:48:59Z
+Command:  bash db-platform/mysql/workload/start.sh
+==================================================
+
+[INFO] Workload time limit: 60 min -- stops by itself at 02:48 (ADMIN: WORKLOAD_MAX_MINUTES)
+[INFO] Selected workload scope: gcp
+[INFO] resolve_scope.sh: SCOPE="gcp" -> PLATFORM_TYPE="gke", KUBE_CONTEXT="gke_database-assessment-platform_europe-west1_database-assessment-platform-gke"
+[INFO] Scope        : gcp
+[INFO] Platform     : gke
+[INFO] Kubernetes   : gke_database-assessment-platform_europe-west1_database-assessment-platform-gke
+[INFO] Workload image: ghcr.io/<user>/mysql-sysbench-workload:3160a334f5bc
+[INFO] Ensuring MySQL assessment database exists...
+mysql: [Warning] Using a password on the command line interface can be insecure.
+[OK] MySQL assessment database available: assessmentdb
+[INFO] Applying MySQL workload Pod...
+pod/mysql-sysbench-workload created
+[INFO] Waiting for workload pod to reach Running...
+pod/mysql-sysbench-workload condition met
+[INFO] Waiting for sysbench to report its first transactions (up to 3 min)...
+[INFO] Recent workload log:
+
+Initializing worker threads...
+
+Threads started!
+
+[ 10s ] thds: 4 tps: 167.00 qps: 3344.35 (r/w/o: 2341.46/524.78/478.11) lat (ms,95%): 54.83 err/s: 0.00 reconn/s: 0.00
+STATUS: RUNNING
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-28T01:49:19Z
+Duration: 20.33087844s
+Status:   success

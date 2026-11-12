@@ -1,0 +1,69 @@
+⏱ SPLUNK UNREGISTER · started 12:23:45 · finished in 1m 53s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-27T12:23:45Z
+Command:  bash observability/splunk/registration/kubernetes/mongodb/unregister.sh
+==================================================
+
+
+==================================================
+ UNREGISTER MONGODB LOGS FROM SPLUNK
+==================================================
+
+[STEP 1] Restore pre-Splunk MongoDB logcollector configuration
+[INFO] Reference backup present: shared/state/mongodb-splunk/mongodb-psmdb-db-before-splunk.yaml
+[STEP] Clearing Splunk logcollector configuration via merge patch
+perconaservermongodb.psmdb.percona.com/mongodb-psmdb-db patched
+[OK] Splunk logcollector configuration cleared
+[INFO] logcollector.enabled and image are left as-is (MongoDB's
+[INFO] PSMDB ships with the sidecar enabled by default — matches
+[INFO] the confirmed pre-Splunk backup state exactly).
+
+[STEP] Verifying
+[OK] Confirmed: no Splunk configuration or envFrom remains on the CR
+
+[STEP] Waiting for MongoDB pods to roll and pick up the change
+[INFO] Clearing the CR's spec does not retroactively change an
+[INFO] already-running Fluent Bit process — the operator has to
+[INFO] restart each pod's sidecar for it to actually stop
+[INFO] forwarding to Splunk. Without waiting here, logs will
+[INFO] keep appearing in Splunk for a while after this script
+[INFO] reports success, which looks like a delivery bug but
+[INFO] isn't — it's just pods that haven't rolled yet.
+[INFO] Rollout: 2/3 pods Running with new config (0s)
+[INFO] Rollout: 2/3 pods Running with new config (6s)
+[INFO] Rollout: 2/3 pods Running with new config (11s)
+[INFO] Rollout: 2/3 pods Running with new config (16s)
+[INFO] Rollout: 2/3 pods Running with new config (21s)
+[INFO] Rollout: 2/3 pods Running with new config (26s)
+[INFO] Rollout: 2/3 pods Running with new config (32s)
+[INFO] Rollout: 2/3 pods Running with new config (37s)
+[INFO] Rollout: 2/3 pods Running with new config (42s)
+[INFO] Rollout: 2/3 pods Running with new config (47s)
+[INFO] Rollout: 2/3 pods Running with new config (52s)
+[INFO] Rollout: 2/3 pods Running with new config (57s)
+[INFO] Rollout: 2/3 pods Running with new config (63s)
+[INFO] Rollout: 2/3 pods Running with new config (68s)
+[INFO] Rollout: 2/3 pods Running with new config (73s)
+[INFO] Rollout: 2/3 pods Running with new config (78s)
+[INFO] Rollout: 2/3 pods Running with new config (83s)
+[INFO] Rollout: 2/3 pods Running with new config (88s)
+[INFO] Rollout: 2/3 pods Running with new config (94s)
+[INFO] Rollout: 2/3 pods Running with new config (99s)
+[INFO] Rollout: 2/3 pods Running with new config (104s)
+[INFO] Rollout: 3/3 pods Running with new config (109s)
+[OK] All pods have rolled — Splunk forwarding should now be fully stopped
+[STEP] Remove integration Secret
+secret "mongodb-splunk-hec" deleted from mongodb namespace
+
+[OK] MongoDB Splunk log forwarding removed
+[OK] Registration state cleared
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-27T12:25:35Z
+Duration: 1m49.929357124s
+Status:   success

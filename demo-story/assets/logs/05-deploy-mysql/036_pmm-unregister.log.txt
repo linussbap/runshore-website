@@ -1,0 +1,61 @@
+⏱ PMM UNREGISTER · started 01:58:13 · finished in 12s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-27T01:58:13Z
+Command:  bash observability/pmm/registration/kubernetes/mysql/unregister.sh
+==================================================
+
+[PREFLIGHT] Local Kubernetes (minikube): are Docker and Kubernetes answering?
+  $ docker ps -q        (15 s limit)
+  $ kubectl --context minikube get --raw=/readyz        (10 s limit)
+[PREFLIGHT] OK
+
+
+==================================================
+ UNREGISTER PXC SERVICE FROM PMM
+==================================================
+[INFO] PXC cluster : pxc-db
+
+[STEP 1] Discover PMM pod
+[OK] pmm-0
+
+[STEP 2] Authenticate pmm-agent to PMM Server
+Defaulted container "pmm" out of: pmm, encryption-key-generate (init), encryption-key-reconcile (init)
+Checking local pmm-agent status...
+pmm-agent is running.
+Node is already registered with 127.0.0.1:8443, pmm-agent ID is 1495a5ad-7142-41f9-b4da-8032b7601df1. Use --force to register it again.
+Settings --server-username, --server-password only take effect when the Node is registered.
+Configuration file /usr/local/percona/pmm/config/pmm-agent.yaml updated.
+Reloading pmm-agent configuration...
+Configuration reloaded.
+Checking local pmm-agent status...
+pmm-agent is running.
+
+[STEP 3] Remove MySQL registration
+Defaulted container "pmm" out of: pmm, encryption-key-generate (init), encryption-key-reconcile (init)
+Service removed.
+
+[INFO] PMM inventory: MySQL services named *pxc-db* (what Registration status reads)
+[OK] nothing left in PMM inventory -- Registration shows FALSE
+Defaulted container "pmm" out of: pmm, encryption-key-generate (init), encryption-key-reconcile (init)
+Service type        Service name        Address and port        Service ID
+
+Agent type           Status           Metrics Mode        Agent ID                                    Service ID        Port
+pmm_agent            Connected                            1495a5ad-7142-41f9-b4da-8032b7601df1                          0 
+node_exporter        Running          push                fcfe4024-83d3-4769-8cd5-034d34226c8d                          42001 
+vmagent              Running          push                fff19084-825b-42c4-ad1b-7b9f222572a4                          42002
+
+
+==================================================
+ PXC REGISTRATION REMOVED FROM PMM
+==================================================
+
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-27T01:58:24Z
+Duration: 11.720872935s
+Status:   success

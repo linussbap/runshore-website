@@ -1,0 +1,79 @@
+⏱ PMM DESTROY · started 23:19:35 · finished in 1m 05s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-27T23:19:35Z
+Command:  platform/cloud/gcp/orchestrator/destroy.sh pmm
+==================================================
+
+[INFO] Region (gcp): europe-west1 (ADMIN)
+==================================================
+ CLOUD LOGIN (GCP) -- from setup / ADMIN
+==================================================
+  gcloud already logged in (<email>) -- left as it is
+
+==================================================
+ DESTROYING AS (GCP)
+==================================================
+  Google account:            <email>
+  Project (gcloud):          database-assessment-platform
+  Default region (gcloud):   not set (Terraform uses its own region)
+  Project in ADMIN:          database-assessment-platform
+    -> same project?         MATCH
+==================================================
+ OK
+
+[OK] Terraform state: GCS bucket dbplat-tfstate-database-assessment-platform
+[OK] kubectl connected to database-assessment-platform-gke
+
+[DEPENDENCY] Kubernetes
+[OK] Kubernetes API reachable
+
+[SECURITY] Provider Kubernetes Context Guard
+[INFO] Provider : gcp
+[INFO] Platform : gke
+[INFO] Context  : gke_database-assessment-platform_europe-west1_database-assessment-platform-gke
+[OK] GCP/GKE context validated
+
+[PLATFORM] PMM
+
+[STEP PMM WEB ACCESS] Stop local PMM port-forward
+[OK] PMM local web access stopped.
+
+==================================================
+ PMM KUBERNETES DESTROY
+==================================================
+
+[STEP 1] Remove Helm release
+release "pmm" uninstalled
+
+[STEP 2] Remove PMM Client Deployment
+deployment.apps "pmm-client" deleted from pmm namespace
+[OK] PMM Client deployment removed
+
+[STEP 3] Remove PMM PVCs
+persistentvolumeclaim "pmm-client-storage" deleted from pmm namespace
+persistentvolumeclaim "pmm-storage-pmm-0" deleted from pmm namespace
+
+[STEP 4] Delete PMM namespace
+namespace "pmm" deleted
+[INFO] Waiting for namespace removal...
+[WAIT] Namespace pmm still terminating (0/180s)
+[WAIT] Namespace pmm still terminating (5/180s)
+[WAIT] Namespace pmm still terminating (10/180s)
+
+[STEP 5] Verify PMM removal
+[OK] PMM namespace absent
+[OK] PMM Helm release absent
+
+==================================================
+ PMM DESTROY COMPLETE
+==================================================
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-27T23:20:39Z
+Duration: 1m4.034950882s
+Status:   success

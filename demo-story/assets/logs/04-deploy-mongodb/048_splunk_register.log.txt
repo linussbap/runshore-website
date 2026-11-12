@@ -1,0 +1,73 @@
+⏱ SPLUNK REGISTER · started 09:33:07 · finished in 4s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-25T09:33:07Z
+Command:  bash observability/splunk/registration/kubernetes/mongodb/register.sh
+==================================================
+
+
+==================================================
+ REGISTER MONGODB LOGS INTO SPLUNK
+==================================================
+
+[STEP 1] Converge complete MongoDB -> Splunk lifecycle
+
+==================================================
+ MONGODB -> SPLUNK REGISTRATION
+==================================================
+
+[STEP 1] Validate prerequisites
+[OK] PSMDB: mongodb-psmdb-db
+[OK] Splunk HEC service: splunk-s1-standalone-service
+
+[STEP 2] Discover PSMDB logcollector
+[INFO] PSMDB logcollector configuration is absent
+
+[STEP 3] Build desired Splunk configuration
+[INFO] Desired logcollector configuration is not currently present
+
+[STEP 4] Back up current PSMDB definition
+[OK] Backup written:
+     /Users/<user>/platforrm-db-ob-release_v1/runtime/backups/splunk/mongodb/20261025_093307/psmdb-before-splunk.yaml
+
+[STEP 5] Converge Splunk HEC credential secret
+secret/mongodb-splunk-hec created
+[OK] MongoDB Splunk HEC secret converged
+
+[STEP 6] Verify PSMDB Fluent Bit image
+[OK] Fluent Bit image: percona/fluentbit:5.0.9-1
+
+[STEP 7] Converge MongoDB -> Splunk logcollector
+perconaservermongodb.psmdb.percona.com/mongodb-psmdb-db patched
+[OK] PSMDB logcollector configuration converged
+
+[STEP 8] Wait for MongoDB logcollector reconciliation
+[OK] MongoDB replica set healthy: 3 mongod containers ready
+
+[STEP 9] Validate MongoDB Splunk logcollector
+[OK] MongoDB logcollector configuration validated
+[OK] MongoDB Splunk HEC secret validated
+
+==================================================
+ MONGODB -> SPLUNK REGISTRATION READY
+==================================================
+
+MongoDB cluster : mongodb-psmdb-db
+MongoDB namespace: mongodb
+Splunk service  : splunk-s1-standalone-service
+Event index     : main
+Event source    : mongodb
+Event sourcetype: mongodb:mongod
+
+
+[OK] MongoDB logs successfully registered into Splunk
+[OK] Registration state recorded: REGISTERED
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-25T09:33:09Z
+Duration: 2.133358775s
+Status:   success

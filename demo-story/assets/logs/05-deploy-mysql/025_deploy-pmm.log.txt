@@ -1,0 +1,481 @@
+⏱ PMM DEPLOY · started 17:52:47 · finished in 2m 48s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-26T17:52:47Z
+Command:  SCOPE=kubernetes observability/pmm/deploy/kubernetes/deploy_pmm_stack.kubernetes.sh
+==================================================
+
+[PREFLIGHT] Local Kubernetes (minikube): are Docker and Kubernetes answering?
+  $ docker ps -q        (15 s limit)
+  $ kubectl --context minikube get --raw=/readyz        (10 s limit)
+[PREFLIGHT] OK
+
+[INFO] resolve_scope.sh: SCOPE="kubernetes" -> PLATFORM_TYPE="kubeadm", KUBE_CONTEXT="minikube"
+
+============================================================
+        PMM OBSERVABILITY STACK DEPLOYMENT
+============================================================
+
+[INFO] Scope        : kubernetes
+[INFO] Platform     : kubeadm
+[INFO] Kubernetes   : minikube
+
+==================================================
+ VALIDATE KUBERNETES
+==================================================
+[OK] Kubernetes API reachable
+[INFO] Kubernetes context: minikube
+
+[1/8] Validating Kubernetes PMM lifecycle scripts...
+[OK] Required lifecycle scripts found.
+
+[2/8] Deploying PMM Server...
+
+==================================================
+ PMM KUBERNETES SERVER DEPLOYMENT
+==================================================
+[STEP 1] Validate prerequisites
+[OK] Kubernetes API reachable
+[STEP 2] Converge namespace
+namespace/pmm created
+[OK] Namespace pmm is Active
+[STEP 3] Converge PMM credentials
+[INFO] Generated initial PMM administrator password
+[INFO] Password is stored only in Kubernetes Secret pmm-secret
+secret/pmm-secret created
+[OK] pmm-secret converged
+[OK] PMM_ADMIN_PASSWORD present
+[STEP 4] Converge Helm repository
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "aws-ebs-csi-driver" chart repository
+...Successfully got an update from the "splunk" chart repository
+...Successfully got an update from the "jetstack" chart repository
+...Successfully got an update from the "splunk-otel-collector-chart" chart repository
+...Successfully got an update from the "argo" chart repository
+...Successfully got an update from the "percona" chart repository
+...Successfully got an update from the "grafana" chart repository
+...Successfully got an update from the "cloudnative-pg" chart repository
+...Successfully got an update from the "cnpg" chart repository
+...Successfully got an update from the "bitnami" chart repository
+...Successfully got an update from the "newrelic" chart repository
+Update Complete. ⎈Happy Helming!⎈
+[STEP 5] Deploy PMM Server
+[INFO] PMM Service type: ClusterIP
+Release "pmm" does not exist. Installing it now.
+NAME: pmm
+LAST DEPLOYED: Mon Oct 26 17:52:55 2026
+NAMESPACE: pmm
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+NOTES:
+Percona Monitoring and Management (PMM)
+
+An open source database monitoring, observability and management tool
+Check more info here: https://docs.percona.com/percona-monitoring-and-management/index.html
+
+Get the application URL:
+  export POD_NAME=$(kubectl get pods --namespace pmm -l "app.kubernetes.io/name=pmm,app.kubernetes.io/instance=pmm" -o jsonpath="{.items[0].metadata.name}")
+  export CONTAINER_PORT=$(kubectl get pod --namespace pmm $POD_NAME -o jsonpath="{.spec.containers[0].ports[1].containerPort}")
+  echo "Visit https://127.0.0.1:8080 to use your application"
+  kubectl --namespace pmm port-forward $POD_NAME 8080:$CONTAINER_PORT
+
+Get password for the "admin" user:
+  export ADMIN_PASS=$(kubectl get secret pmm-secret --namespace pmm -o jsonpath='{.data.PMM_ADMIN_PASSWORD}' | base64 --decode)
+  echo $ADMIN_PASS
+[STEP 6] Wait for PMM Server
+statefulset rolling update complete 1 pods at revision pmm-77bcbd768d...
+pod/pmm-0 condition met
+[OK] PMM Server pod pmm-0 is Ready
+[STEP 7c] Converge PMM admin password
+[OK] PMM server accepts the pmm-secret password
+[STEP 7d] Create the Database Assessment Overview dashboard
+[OK] Dashboard ready: Assessment - MongoDB (/graph/d/dbplat-assessment-mongodb)
+[OK] Dashboard ready: Assessment - MySQL (/graph/d/dbplat-assessment-mysql)
+[OK] Dashboard ready: Database Assessment Overview (/graph/d/dbplat-overview)
+[OK] Dashboard ready: Assessment - PostgreSQL (/graph/d/dbplat-assessment-postgres)
+[OK] Dashboard ready: Assessment - Sybase ASE (/graph/d/dbplat-assessment-sybase)
+[OK] Dashboard ready: Workload - MongoDB (/graph/d/dbplat-workload-mongodb)
+[OK] Dashboard ready: Workload - MySQL (/graph/d/dbplat-workload-mysql)
+[OK] Dashboard ready: Workload - PostgreSQL (/graph/d/dbplat-workload-postgres) -- not collected by PMM: Latency now (ms), Latency (ms)
+[OK] Dashboard links for CONNECTION INFO: runtime/state/pmm/dashboards.json
+== 2026-10-26 17:54:15
+[OK] results ledger: 0 new check(s), 1067 in total
+[OK] splunk   up to date
+[INFO] newrelic not deployed -- 6 result(s) wait for it
+[WARN] pmm      0 sent, then PMM refused the import (HTTP it))
+[WARN] test results not sent
+[STEP 7] Validate PMM Service
+[OK] PMM Server Service monitoring-service exists
+[STEP 8] Evidence
+NAME	NAMESPACE	REVISION	UPDATED                            	STATUS  	CHART     	APP VERSION
+pmm 	pmm      	1       	2026-10-26 17:52:55.21052 +0000 UTC	deployed	pmm-1.10.0	3.10.0     
+NAME   READY   AGE
+pmm    1/1     111s
+NAME    READY   STATUS    RESTARTS   AGE
+pmm-0   1/1     Running   0          111s
+NAME                 TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+monitoring-service   ClusterIP   10.x.x.x   <none>        443/TCP,80/TCP   111s
+NAME                STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+pmm-storage-pmm-0   Bound    pvc-d17ae366-881c-4165-a2d6-e8eaae202091   10Gi       RWO            standard       <unset>                 111s
+
+==================================================
+ PMM SERVER CONVERGED
+==================================================
+
+[3/8] Validating PMM Server...
+
+==================================================
+ VALIDATE PMM PLATFORM
+==================================================
+
+[STEP 1] Validate prerequisites
+[OK] Kubernetes reachable
+
+[STEP 2] Validate namespace
+[OK] Namespace present
+
+[STEP 3] Validate Helm release
+[OK] Helm release deployed
+
+[STEP 4] Validate StatefulSets
+NAME   READY   AGE
+pmm    1/1     111s
+statefulset rolling update complete 1 pods at revision pmm-77bcbd768d...
+[OK] StatefulSet ready
+
+[STEP 5] Validate Services
+NAME                 TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+monitoring-service   ClusterIP   10.x.x.x   <none>        443/TCP,80/TCP   112s
+[OK] Services available
+
+[STEP 6] Validate PVC
+NAME                STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+pmm-storage-pmm-0   Bound    pvc-d17ae366-881c-4165-a2d6-e8eaae202091   10Gi       RWO            standard       <unset>                 112s
+[OK] PVC present
+
+[STEP 7] Validate Pods
+[OK] Pods Ready 1/1
+
+[STEP 7b] Validate the PMM token from ADMIN is accepted
+[INFO] PMM rejects the token in ADMIN (HTTP 401) -- making a new one
+[OK] Created PMM service account dbplat-platform (Admin)
+[OK] New PMM token made (service account dbplat-platform) and saved in ADMIN as PMM_SERVER_TOKEN -- no PMM web page needed
+[OK] PMM server accepts the token from ADMIN
+
+[STEP 8] Evidence
+NAME	NAMESPACE	REVISION	UPDATED                            	STATUS  	CHART     	APP VERSION
+pmm 	pmm      	1       	2026-10-26 17:52:55.21052 +0000 UTC	deployed	pmm-1.10.0	3.10.0     
+
+NAME    READY   STATUS    RESTARTS   AGE    IP             NODE       NOMINATED NODE   READINESS GATES
+pmm-0   1/1     Running   0          114s   10.x.x.x   minikube   <none>           <none>
+
+NAME                 TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+monitoring-service   ClusterIP   10.x.x.x   <none>        443/TCP,80/TCP   114s
+
+NAME                STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+pmm-storage-pmm-0   Bound    pvc-d17ae366-881c-4165-a2d6-e8eaae202091   10Gi       RWO            standard       <unset>                 114s
+
+==================================================
+ PMM VALIDATION SUCCESS
+==================================================
+
+[4/8] Deploying local Kubernetes PMM Client...
+
+==================================================
+ PMM KUBERNETES CLIENT DEPLOYMENT
+==================================================
+[OK] Kubernetes API reachable
+[OK] Namespace pmm is Active
+[INFO] PMM Server address: monitoring-service.pmm.svc.cluster.local:443
+[STEP 1] Validate PMM Server
+statefulset rolling update complete 1 pods at revision pmm-77bcbd768d...
+pod/pmm-0 condition met
+[OK] PMM Server is Ready
+[STEP 2] Resolve PMM administrator credentials
+secret/pmm-client-credentials created
+[OK] PMM client credentials secret converged
+[STEP 3] Converge PMM Client storage
+[OK] Default StorageClass: standard
+persistentvolumeclaim/pmm-client-storage created
+[STEP 4] Converge PMM Client Deployment
+deployment.apps/pmm-client created
+[OK] PMM Client Deployment converged
+[STEP 5] Wait for PMM Client
+Waiting for deployment "pmm-client" rollout to finish: 0 of 1 updated replicas are available...
+deployment "pmm-client" successfully rolled out
+pod/pmm-client-84fb5487f5-lhvpq condition met
+[OK] PMM Client pod pmm-client-84fb5487f5-lhvpq is Ready
+[STEP 6] Validate PMM Client registration
+Defaulted container "pmm-client" out of: pmm-client, set-tmp-permissions (init)
+Agent ID : 222708ab-7d86-4246-a11f-031df6cccd72
+Node ID  : cb489dce-13e1-43fb-98ab-fd789b5a5e40
+Node name: pmm-client-84fb5487f5-lhvpq
+
+PMM Server:
+	URL    : https://monitoring-service.pmm.svc.cluster.local:443/
+	Version: 3.10.0
+
+PMM Client:
+	Connected        : true
+	Time drift       : 64.657µs
+	Latency          : 410.245µs
+	Connection uptime: 100
+	pmm-admin version: 3.10.0
+	pmm-agent version: 3.10.0
+Agents:
+	9400ad0e-0a07-418c-ac21-bf343cd7d04d node_exporter                  Running        42000
+	f6776b59-0686-49f5-9c26-627a1ad9f9f9 vmagent                        Running        42001
+
+[STEP 7] Verify PMM Client node
+Defaulted container "pmm-client" out of: pmm-client, set-tmp-permissions (init)
+Service type        Service name        Address and port        Service ID
+
+Agent type           Status           Metrics Mode        Agent ID                                    Service ID        Port
+pmm_agent            Connected                            222708ab-7d86-4246-a11f-031df6cccd72                          0 
+node_exporter        Running          push                9400ad0e-0a07-418c-ac21-bf343cd7d04d                          42000 
+vmagent              Running          push                f6776b59-0686-49f5-9c26-627a1ad9f9f9                          42001
+
+
+==================================================
+ PMM CLIENT CONVERGED
+==================================================
+[OK] PMM Client registered and connected to PMM Server
+
+[5/8] Validating local Kubernetes PMM Client...
+deployment "pmm-client" successfully rolled out
+pod/pmm-client-84fb5487f5-lhvpq condition met
+Defaulted container "pmm-client" out of: pmm-client, set-tmp-permissions (init)
+Agent ID : 222708ab-7d86-4246-a11f-031df6cccd72
+Node ID  : cb489dce-13e1-43fb-98ab-fd789b5a5e40
+Node name: pmm-client-84fb5487f5-lhvpq
+
+PMM Server:
+	URL    : https://monitoring-service.pmm.svc.cluster.local:443/
+	Version: 3.10.0
+
+PMM Client:
+	Connected        : true
+	Time drift       : 110.918µs
+	Latency          : 518.856µs
+	Connection uptime: 100
+	pmm-admin version: 3.10.0
+	pmm-agent version: 3.10.0
+Agents:
+	9400ad0e-0a07-418c-ac21-bf343cd7d04d node_exporter                  Running        42000
+	f6776b59-0686-49f5-9c26-627a1ad9f9f9 vmagent                        Running        42001
+
+[OK] PMM Kubernetes Client validated
+
+[6/8] Registering Kubernetes database services...
+
+[INFO] PostgreSQL / CNPG registration
+[INFO] No Kubernetes PostgreSQL Cluster resources detected
+
+[INFO] MySQL / PXC registration
+
+==================================================
+ REGISTER PXC SERVICE INTO PMM
+==================================================
+[INFO] PXC namespace : mysql
+[INFO] PXC cluster   : pxc-db
+[INFO] HAProxy svc   : pxc-db-haproxy
+
+[STEP 1] Discover PMM pod
+[OK] pmm-0
+
+[STEP 2] Authenticate pmm-agent to PMM Server
+Defaulted container "pmm" out of: pmm, encryption-key-generate (init), encryption-key-reconcile (init)
+Checking local pmm-agent status...
+pmm-agent is running.
+PMM Server at 127.0.0.1:8443 does not know pmm-agent pmm-server, registering the Node again.
+Registering pmm-agent on PMM Server...
+Registered.
+Configuration file /usr/local/percona/pmm/config/pmm-agent.yaml updated.
+Reloading pmm-agent configuration...
+Configuration reloaded.
+Checking local pmm-agent status...
+pmm-agent is running.
+
+[STEP 3] Retrieve MySQL credentials
+[OK] Credentials loaded
+
+[STEP 4] Validate PMM
+Defaulted container "pmm" out of: pmm, encryption-key-generate (init), encryption-key-reconcile (init)
+Agent ID : 1495a5ad-7142-41f9-b4da-8032b7601df1
+Node ID  : 1792dcee-e7a2-45ca-8dc9-55c79679599f
+Node name: pmm-0
+
+PMM Server:
+	URL    : https://127.0.0.1:8443/
+	Version: 3.10.0
+
+PMM Client:
+	Connected        : true
+	Time drift       : -33.095µs
+	Latency          : 518.038µs
+	Connection uptime: 100
+	pmm-admin version: 3.10.0
+	pmm-agent version: 3.10.0
+Agents:
+	fcfe4024-83d3-4769-8cd5-034d34226c8d node_exporter                  Running        42000
+	fff19084-825b-42c4-ad1b-7b9f222572a4 vmagent                        Running        42001
+
+
+[STEP 5] Remove existing registration
+
+[STEP 6] Register MySQL
+Defaulted container "pmm" out of: pmm, encryption-key-generate (init), encryption-key-reconcile (init)
+MySQL Service added.
+Service ID  : 809679c9-f348-417a-a278-2169ebfb60af
+Service name: pxc-db
+
+Table statistics collection enabled (the limit is 5000, the actual table count is 350).
+
+
+[STEP 7] Verify registration
+Defaulted container "pmm" out of: pmm, encryption-key-generate (init), encryption-key-reconcile (init)
+Service type        Service name        Address and port                                   Service ID
+MySQL               pxc-db              pxc-db-haproxy.mysql.svc.cluster.local:3306        809679c9-f348-417a-a278-2169ebfb60af
+
+Agent type                    Status           Metrics Mode        Agent ID                                    Service ID                                  Port
+pmm_agent                     Connected                            1495a5ad-7142-41f9-b4da-8032b7601df1                                                    0 
+node_exporter                 Running          push                fcfe4024-83d3-4769-8cd5-034d34226c8d                                                    42000 
+mysqld_exporter               Running          push                0a03d237-1b00-42a4-ab77-2c3e577a2337        809679c9-f348-417a-a278-2169ebfb60af        42002 
+mysql_perfschema_agent        Running                              27767e5b-50b3-4d06-a12f-75a6cd399a50        809679c9-f348-417a-a278-2169ebfb60af        0 
+vmagent                       Running          push                fff19084-825b-42c4-ad1b-7b9f222572a4                                                    42001
+
+
+[OK] PXC successfully registered into PMM
+
+[INFO] MongoDB registration
+[INFO] No Kubernetes MongoDB resources detected
+
+[7/8] Kubernetes status
+NAMESPACE     NAME                               READY   STATUS    RESTARTS        AGE
+kube-system   coredns-7d764666f9-dwwms           1/1     Running   13 (5h5m ago)   4d1h
+kube-system   etcd-minikube                      1/1     Running   2 (5h5m ago)    4d1h
+kube-system   kube-apiserver-minikube            1/1     Running   5 (5h5m ago)    4d1h
+kube-system   kube-controller-manager-minikube   1/1     Running   7 (5h5m ago)    4d1h
+kube-system   kube-proxy-fwjvn                   1/1     Running   2 (5h5m ago)    4d1h
+kube-system   kube-scheduler-minikube            1/1     Running   4 (5h5m ago)    4d1h
+kube-system   metrics-server-9d74bb658-2fpk5     1/1     Running   29 (5h5m ago)   4d1h
+kube-system   storage-provisioner                1/1     Running   30 (5h5m ago)   4d1h
+mysql         minio-5d64f6f8f8-gwn92             1/1     Running   0               159m
+mysql         pxc-db-haproxy-0                   2/2     Running   0               11m
+mysql         pxc-db-haproxy-1                   2/2     Running   0               10m
+mysql         pxc-db-pitr-7649f869b5-k5mcs       1/1     Running   0               8m53s
+mysql         pxc-db-pxc-0                       1/1     Running   0               3m9s
+mysql         pxc-db-pxc-1                       1/1     Running   0               4m1s
+mysql         pxc-db-pxc-2                       1/1     Running   0               4m53s
+mysql         pxc-operator-56845458c5-j7vxb      1/1     Running   0               159m
+pmm           pmm-0                              1/1     Running   0               2m36s
+pmm           pmm-client-84fb5487f5-lhvpq        1/1     Running   0               41s
+
+NAMESPACE     NAME                              TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                                          AGE
+default       kubernetes                        ClusterIP   10.x.x.x        <none>        443/TCP                                          4d1h
+kube-system   kube-dns                          ClusterIP   10.x.x.x       <none>        53/UDP,53/TCP,9153/TCP                           4d1h
+kube-system   metrics-server                    ClusterIP   10.x.x.x   <none>        443/TCP                                          4d1h
+mysql         minio                             ClusterIP   10.x.x.x    <none>        9000/TCP,9001/TCP                                159m
+mysql         percona-xtradb-cluster-operator   ClusterIP   10.x.x.x    <none>        443/TCP                                          159m
+mysql         pxc-db-haproxy                    ClusterIP   10.x.x.x      <none>        3306/TCP,3309/TCP,33062/TCP,33060/TCP,8404/TCP   158m
+mysql         pxc-db-haproxy-replicas           ClusterIP   10.x.x.x      <none>        3306/TCP                                         158m
+mysql         pxc-db-pitr                       ClusterIP   10.x.x.x     <none>        8080/TCP                                         155m
+mysql         pxc-db-pxc                        ClusterIP   None             <none>        3306/TCP,33062/TCP,33060/TCP                     158m
+mysql         pxc-db-pxc-unready                ClusterIP   None             <none>        3306/TCP,33062/TCP,33060/TCP                     158m
+pmm           monitoring-service                ClusterIP   10.x.x.x     <none>        443/TCP,80/TCP                                   2m36s
+
+[8/9] PMM validation
+
+==================================================
+ VALIDATE PMM PLATFORM
+==================================================
+
+[STEP 1] Validate prerequisites
+[OK] Kubernetes reachable
+
+[STEP 2] Validate namespace
+[OK] Namespace present
+
+[STEP 3] Validate Helm release
+[OK] Helm release deployed
+
+[STEP 4] Validate StatefulSets
+NAME   READY   AGE
+pmm    1/1     2m37s
+statefulset rolling update complete 1 pods at revision pmm-77bcbd768d...
+[OK] StatefulSet ready
+
+[STEP 5] Validate Services
+NAME                 TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+monitoring-service   ClusterIP   10.x.x.x   <none>        443/TCP,80/TCP   2m37s
+[OK] Services available
+
+[STEP 6] Validate PVC
+NAME                 STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+pmm-client-storage   Bound    pvc-d8030446-79fc-49fe-99e8-c8da99f9cb48   1Gi        RWO            standard       <unset>                 42s
+pmm-storage-pmm-0    Bound    pvc-d17ae366-881c-4165-a2d6-e8eaae202091   10Gi       RWO            standard       <unset>                 2m37s
+[OK] PVC present
+
+[STEP 7] Validate Pods
+[OK] Pods Ready 2/2
+
+[STEP 7b] Validate the PMM token from ADMIN is accepted
+[OK] The PMM token in ADMIN is accepted -- kept
+[OK] PMM server accepts the token from ADMIN
+
+[STEP 8] Evidence
+NAME	NAMESPACE	REVISION	UPDATED                            	STATUS  	CHART     	APP VERSION
+pmm 	pmm      	1       	2026-10-26 17:52:55.21052 +0000 UTC	deployed	pmm-1.10.0	3.10.0     
+
+NAME                          READY   STATUS    RESTARTS   AGE     IP             NODE       NOMINATED NODE   READINESS GATES
+pmm-0                         1/1     Running   0          2m38s   10.x.x.x   minikube   <none>           <none>
+pmm-client-84fb5487f5-lhvpq   1/1     Running   0          43s     10.x.x.x   minikube   <none>           <none>
+
+NAME                 TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+monitoring-service   ClusterIP   10.x.x.x   <none>        443/TCP,80/TCP   2m38s
+
+NAME                 STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+pmm-client-storage   Bound    pvc-d8030446-79fc-49fe-99e8-c8da99f9cb48   1Gi        RWO            standard       <unset>                 43s
+pmm-storage-pmm-0    Bound    pvc-d17ae366-881c-4165-a2d6-e8eaae202091   10Gi       RWO            standard       <unset>                 2m38s
+
+==================================================
+ PMM VALIDATION SUCCESS
+==================================================
+
+============================================================
+
+[9/9] Ensuring PMM local web access...
+[INFO] Starting PMM local port-forward...
+[INFO] Context : minikube
+[INFO] Service : pmm/monitoring-service
+[INFO] Access  : 18443:443
+
+==================================================
+ PMM LOCAL WEB ACCESS READY
+==================================================
+
+URL                 : https://127.0.0.1:18443/graph/login
+PID                 : 34058
+Local Port          : 18443
+Remote Port         : 443
+Kubernetes Context  : minikube
+Namespace            : pmm
+Service              : monitoring-service
+Log File             : /Users/<user>/platforrm-db-ob-release_v1/runtime/state/pmm/web-access.log
+
+[OK] PMM UI available at https://127.0.0.1:18443/graph/login
+PMM Kubernetes Observability Stack deployed successfully.
+============================================================
+[INFO] Scope      : LOCAL KUBERNETES
+[INFO] PMM Client : DEPLOYED
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-26T17:55:34Z
+Duration: 2m47.267259164s
+Status:   success

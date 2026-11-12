@@ -1,0 +1,93 @@
+
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-27T13:08:42Z
+Command:  SCOPE=azure db-platform/mongodb/replication/kubernetes/run_replication.sh
+==================================================
+
+== Clean start for mongodb (scope: azure) ==
+[1/4] Platform operations still running on this machine
+  none
+[2/4] Unfinished restores
+  $ bash platform/lib/prune_test_backups.sh mongodb
+      mongodb: keep newest test backup pitr-demo-1793106186 (2026-10-27T13:03:06Z)
+[3/4] Replication-test replicas
+    [STEP 1] Remove replication validation collection
+    MongoServerError: not authorized on assessment to execute command { drop: "replication_test", lsid: { id: UUID("1e3e7e6f-8524-4cc0-9447-906ac990bd34") }, $clusterTime: { clusterTime: Timestamp(1793106524, 2), signature: { hash: BinData(0, BCF322B7E640E3CF406EB7B8F52FF5A7B29CA26E), keyId: 7701319821396279303 } }, $readPreference: { mode: "primaryPreferred" }, $db: "assessment" }
+    command terminated with exit code 1
+[4/4] Workloads
+    [INFO] resolve_scope.sh: SCOPE="azure" -> PLATFORM_TYPE="aks", KUBE_CONTEXT="database-assessment-platform-aks"
+    STATUS: IDLE
+[OK] mongodb: clean start done. The database and monitoring tools were kept.
+
+============================================================
+ MONGODB KUBERNETES — REPLICA SET REPLICATION
+============================================================
+
+Namespace   : mongodb
+Cluster     : mongodb-psmdb-db
+Replica set : rs0
+Database    : assessment
+
+[STEP 1] Verify MongoDB replica-set topology
+[INFO] Cluster state : ready
+[INFO] Ready members : 3/3
+[INFO] PRIMARY       : mongodb-psmdb-db-rs0-0
+[INFO] SECONDARY     : mongodb-psmdb-db-rs0-1
+[OK] Three-member replica-set topology verified.
+
+[STEP 2] Verify PRIMARY and SECONDARY states
+[OK] PRIMARY is writable.
+[OK] SECONDARY is in secondary state.
+
+[STEP 3] Capture initial replica-set replication state
+[OK] Initial replica-set state captured.
+
+[STEP 4] SELECT from replication_test on PRIMARY before INSERT
+[]
+[STEP 4] INSERT replication document on PRIMARY
+[{"_id":"mongodb-replication-20261027_130845","test":"mongodb-kubernetes-replication","marker":"mongodb-replication-20261027_130845","updatedAt":"2026-10-27T13:08:54.067Z"}]
+[OK] Marker committed on PRIMARY.
+[INFO] Marker: mongodb-replication-20261027_130845
+
+[STEP 5] Wait for replication marker on SECONDARY
+[OK] Replication marker reached SECONDARY.
+
+[STEP 6] Validate replicated document
+[{"_id":"mongodb-replication-20261027_130845","test":"mongodb-kubernetes-replication","marker":"mongodb-replication-20261027_130845","updatedAt":"2026-10-27T13:08:54.067Z"}]
+[OK] PRIMARY marker verified: mongodb-replication-20261027_130845
+[OK] SECONDARY marker verified: mongodb-replication-20261027_130845
+[OK] Replicated document matches expected marker.
+
+[STEP 7] Capture final replica-set replication state
+[OK] Final replica-set state captured.
+
+[STEP 8] Write replication assessment evidence
+[OK] MongoDB replica-set replication verified.
+[OK] Replication marker reached SECONDARY.
+[OK] Replicated data matches.
+[OK] MONGODB REPLICATION: PASS
+[OK] Evidence: /Users/<user>/platforrm-db-ob-release_v1/runtime/replication/mongodb/kubernetes/replication_20261027_130845/result.txt
+
+==================================================
+ REPLICATION SCORECARD
+==================================================
+
+Platform : MongoDB (PSMDB replica set: primary -> secondary)
+
+Check                          Primary    Replica    Status
+-----                          -------    -------    ------
+Test document before insert    absent     -          PASS
+Test document after insert     present    present    PASS
+Documents identical            yes        yes        PASS
+Seen on replica after          -          1s         PASS
+Replica-set members ready      -          3/3        PASS
+
+==================================================
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-27T13:09:01Z
+Duration: 19.452543971s
+Status:   success

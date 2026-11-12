@@ -1,0 +1,107 @@
+⏱ SPLUNK DESTROY · started 12:26:13 · finished in 1m 32s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-27T12:26:13Z
+Command:  platform/cloud/azure/orchestrator/destroy.sh splunk
+==================================================
+
+[INFO] Region (azure): uksouth (default)
+==================================================
+ CLOUD LOGIN (AZURE) -- from setup / ADMIN
+==================================================
+  Azure CLI already logged in -- left as it is
+
+==================================================
+ DESTROYING AS (AZURE)
+==================================================
+  Azure login:               <email>
+  Subscription:              Database-Assessment-Observability
+  Default location (az):     not set (Terraform uses its own location)
+==================================================
+ OK
+
+[OK] Terraform state: Azure storage account dbplattfdd7c99f20d82dc (resource group dbplat-tfstate-rg)
+[OK] kubectl connected to database-assessment-platform-aks
+
+[DEPENDENCY] Kubernetes
+[OK] Kubernetes API reachable
+
+[SECURITY] Provider Kubernetes Context Guard
+[INFO] Provider : azure
+[INFO] Platform : aks
+[INFO] Context  : database-assessment-platform-aks
+[OK] Azure/AKS context validated
+
+[PLATFORM] Splunk
+
+==================================================
+ DESTROY SPLUNK ENTERPRISE
+==================================================
+
+Namespace          : splunk
+Standalone         : s1
+Operator namespace : splunk-operator
+Web access         : localhost:18000
+
+[STEP 1] Stop Splunk Web access
+[INFO] Stopping platform Splunk Web access without a PID file: 57656
+[INFO] Stopping managed port-forward PID 57654
+[OK] Managed Splunk Web port-forward stopped
+[OK] Splunk Web port 18000 released
+[OK] Workload feed to Splunk stopped
+
+[STEP 2] Validate prerequisites
+[OK] Kubernetes API reachable
+
+[STEP 3] Remove Splunk Standalone
+standalone.enterprise.splunk.com "s1" deleted from splunk namespace
+[OK] Standalone/s1 deleted
+
+[STEP 4] Remove Splunk namespace
+namespace "splunk" deleted
+[OK] Namespace/splunk deleted
+
+[STEP 5] Remove Splunk Operator
+deployment.apps "splunk-operator-controller-manager" deleted from splunk-operator namespace
+[OK] Operator deployment deleted
+
+[STEP 6] Remove Operator namespace
+namespace "splunk-operator" deleted
+[OK] Namespace/splunk-operator deleted
+
+[STEP 7] Remove Splunk Operator cluster resources
+[INFO] Removing Splunk Operator CRDs
+customresourcedefinition.apiextensions.k8s.io "clustermanagers.enterprise.splunk.com" deleted
+customresourcedefinition.apiextensions.k8s.io "clustermasters.enterprise.splunk.com" deleted
+customresourcedefinition.apiextensions.k8s.io "indexerclusters.enterprise.splunk.com" deleted
+customresourcedefinition.apiextensions.k8s.io "ingestorclusters.enterprise.splunk.com" deleted
+customresourcedefinition.apiextensions.k8s.io "licensemanagers.enterprise.splunk.com" deleted
+customresourcedefinition.apiextensions.k8s.io "licensemasters.enterprise.splunk.com" deleted
+customresourcedefinition.apiextensions.k8s.io "monitoringconsoles.enterprise.splunk.com" deleted
+customresourcedefinition.apiextensions.k8s.io "objectstorages.enterprise.splunk.com" deleted
+customresourcedefinition.apiextensions.k8s.io "queues.enterprise.splunk.com" deleted
+customresourcedefinition.apiextensions.k8s.io "searchheadclusters.enterprise.splunk.com" deleted
+customresourcedefinition.apiextensions.k8s.io "standalones.enterprise.splunk.com" deleted
+[OK] Splunk Operator CRDs removed
+
+[STEP 8] Remove Splunk local access state
+[OK] Splunk local access state removed
+
+[STEP 9] Validate teardown
+[OK] Splunk resources removed
+[OK] Splunk Web access removed
+[OK] Port 18000 released
+
+==================================================
+ SPLUNK ENTERPRISE DESTROY COMPLETE
+==================================================
+
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-27T12:27:43Z
+Duration: 1m30.62908467s
+Status:   success

@@ -1,0 +1,63 @@
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-27T13:11:55Z
+Command:  bash observability/pmm/registration/kubernetes/mongodb/unregister.sh
+==================================================
+
+
+==================================================
+ UNREGISTER MONGODB REPLICA SET FROM PMM
+==================================================
+
+[STEP 1] Discover MongoDB cluster
+[INFO] MongoDB namespace : mongodb
+[INFO] MongoDB cluster   : mongodb-psmdb-db
+[INFO] PMM service name  : mongodb-psmdb-db
+
+[STEP 2] Discover PMM pod
+[OK] pmm-0
+
+[STEP 3] Authenticate pmm-agent to PMM Server
+Defaulted container "pmm" out of: pmm, encryption-key-generate (init), encryption-key-reconcile (init)
+Checking local pmm-agent status...
+pmm-agent is running.
+PMM Server at 127.0.0.1:8443 does not know pmm-agent pmm-server, registering the Node again.
+Registering pmm-agent on PMM Server...
+Registered.
+Configuration file /usr/local/percona/pmm/config/pmm-agent.yaml updated.
+Reloading pmm-agent configuration...
+Configuration reloaded.
+Checking local pmm-agent status...
+pmm-agent is running.
+
+[STEP 4] Check MongoDB registration
+[INFO] MongoDB service found: mongodb-psmdb-db
+
+[STEP 5] Remove MongoDB registration
+Defaulted container "pmm" out of: pmm, encryption-key-generate (init), encryption-key-reconcile (init)
+Service removed.
+
+[INFO] PMM inventory: MongoDB services named *mongodb-psmdb-db* (what Registration status reads)
+[OK] nothing left in PMM inventory -- Registration shows FALSE
+
+[STEP 6] Validate MongoDB registration removal
+Defaulted container "pmm" out of: pmm, encryption-key-generate (init), encryption-key-reconcile (init)
+Services list.
+
+Service type           Service name                   Address and Port               Service ID
+PostgreSQL             pmm-server-postgresql          127.0.0.1:5432                 52e862e5-eac5-4aa2-91fa-279b0f32fca8
+
+[OK] MongoDB service absent from PMM: mongodb-psmdb-db
+
+==================================================
+ MONGODB REGISTRATION REMOVED FROM PMM
+==================================================
+
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-27T13:12:05Z
+Duration: 10.443180554s
+Status:   success

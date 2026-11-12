@@ -1,0 +1,152 @@
+⏱ NEWRELIC DEPLOY · started 17:21:29 · finished in 2m 24s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-26T17:21:29Z
+Command:  SCOPE=kubernetes observability/newrelic/deploy/kubernetes/deploy.sh
+==================================================
+
+[PREFLIGHT] Local Kubernetes (minikube): are Docker and Kubernetes answering?
+  $ docker ps -q        (15 s limit)
+  $ kubectl --context minikube get --raw=/readyz        (10 s limit)
+[PREFLIGHT] OK
+
+
+==================================================
+ DEPLOY NEW RELIC PLATFORM
+==================================================
+
+[STEP 1] Validate prerequisites
+[OK] Kubernetes API reachable
+[OK] Required tooling available
+
+[STEP 2] Resolve cluster identity
+[OK] Cluster identity: minikube
+
+[STEP 3] Converge namespace
+namespace/newrelic created
+[OK] Namespace available: newrelic
+
+[STEP 4] Resolve New Relic license
+[OK] New Relic licence key accepted
+[OK] New Relic license available
+
+[STEP 5] Converge license secret
+secret/newrelic-license created
+[OK] License secret available
+
+[STEP 6] Converge New Relic Helm repository
+"newrelic" has been added to your repositories
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "splunk" chart repository
+...Successfully got an update from the "jetstack" chart repository
+...Successfully got an update from the "percona" chart repository
+...Successfully got an update from the "aws-ebs-csi-driver" chart repository
+...Successfully got an update from the "cnpg" chart repository
+...Successfully got an update from the "cloudnative-pg" chart repository
+...Successfully got an update from the "splunk-otel-collector-chart" chart repository
+...Successfully got an update from the "grafana" chart repository
+...Successfully got an update from the "newrelic" chart repository
+...Successfully got an update from the "argo" chart repository
+...Successfully got an update from the "bitnami" chart repository
+Update Complete. ⎈Happy Helming!⎈
+[OK] New Relic Helm chart available
+
+[STEP 7] Converge New Relic bundle
+[INFO] Log forwarder metrics address: metric-api.eu.newrelic.com
+Release "newrelic-bundle" does not exist. Installing it now.
+NAME: newrelic-bundle
+LAST DEPLOYED: Mon Oct 26 17:21:38 2026
+NAMESPACE: newrelic
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+[OK] New Relic Helm release converged
+
+[STEP 8] Validate New Relic platform
+
+==================================================
+ VALIDATE NEW RELIC PLATFORM
+==================================================
+
+[STEP 1] Validate tooling and Kubernetes API
+[OK] Kubernetes API reachable
+
+[STEP 2] Validate namespace
+[OK] Namespace active
+
+[STEP 3] Validate Helm release
+[OK] Helm release deployed
+
+[STEP 4] Validate license secret
+[OK] License secret available
+
+[STEP 5] Validate deployments
+deployment "newrelic-bundle-kube-state-metrics" successfully rolled out
+deployment "newrelic-bundle-nri-metadata-injection" successfully rolled out
+deployment "newrelic-bundle-nrk8s-ksm" successfully rolled out
+[OK] New Relic deployments ready
+
+[STEP 6] Validate daemonsets
+daemon set "newrelic-bundle-newrelic-logging" successfully rolled out
+daemon set "newrelic-bundle-nrk8s-controlplane" successfully rolled out
+daemon set "newrelic-bundle-nrk8s-kubelet" successfully rolled out
+[OK] New Relic daemonsets ready
+
+[STEP 7] Validate pod readiness
+[OK] New Relic pods ready 6/6
+
+[STEP 8] Validate the licence key is accepted
+[OK] New Relic accepts the licence key
+
+==================================================
+ VALIDATE NEW RELIC PLATFORM COMPLETE
+==================================================
+
+==================================================
+ SCORECARD — New Relic platform validation
+==================================================
+
+CHECK                  DETAIL                         RESULT
+---------------------- ------------------------------ ------
+Kubernetes API         reachable                      PASS
+Namespace              newrelic (Active)              PASS
+Helm release           newrelic-bundle (deployed)     PASS
+License secret         newrelic-license               PASS
+Deployments            3 rolled out                   PASS
+DaemonSets             3 rolled out                   PASS
+Pod readiness          6/6 ready                      PASS
+Licence key            accepted by New Relic          PASS
+
+
+[STEP 9] Dashboards (one per database; needs the New Relic User API key in ADMIN)
+[INFO] New Relic account 7830362
+[OK] Dashboard Assessment - MongoDB (no data from this database yet: REGISTER it, then run DEPLOY or this installer again)
+[OK] Dashboard Assessment - MySQL (no data from this database yet: REGISTER it, then run DEPLOY or this installer again)
+[OK] Dashboard Assessment - PostgreSQL (no data from this database yet: REGISTER it, then run DEPLOY or this installer again)
+[OK] Dashboard Assessment - Sybase ASE (no data from this database yet: REGISTER it, then run DEPLOY or this installer again)
+[OK] Dashboard Database platform - full overview
+[OK] Dashboard Database platform - overview
+[OK] Dashboard Workload - MongoDB (no data from this database yet: REGISTER it, then run DEPLOY or this installer again)
+[OK] Dashboard Workload - MySQL -- not collected by New Relic: Latency now (ms), Latency (ms)
+[OK] Dashboard Workload - PostgreSQL -- not collected by New Relic: Latency now (ms), Latency (ms)
+[OK] Dashboard Workload - Sybase ASE -- not collected by New Relic: Latency now (ms), Latency (ms) (no data from this database yet: REGISTER it, then run DEPLOY or this installer again)
+[OK] Dashboard links for CONNECTION INFO: runtime/state/newrelic/dashboards.json
+== 2026-10-26 17:23:04
+[OK] results ledger: 0 new check(s), 1061 in total
+[INFO] splunk   not deployed -- 1061 result(s) wait for it
+[OK] newrelic up to date
+[INFO] pmm      not deployed -- 1061 result(s) wait for it
+
+==================================================
+ NEW RELIC PLATFORM DEPLOYMENT COMPLETE
+==================================================
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-26T17:23:51Z
+Duration: 2m22.486908798s
+Status:   success

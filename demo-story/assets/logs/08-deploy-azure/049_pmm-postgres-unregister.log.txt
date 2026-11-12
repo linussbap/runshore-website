@@ -1,0 +1,56 @@
+⏱ PMM UNREGISTER · started 15:33:08 · finished in 12s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-27T15:33:08Z
+Command:  bash observability/pmm/registration/kubernetes/postgres/unregister.sh
+==================================================
+
+
+==================================================
+ UNREGISTER POSTGRESQL (CNPG) FROM PMM
+==================================================
+[INFO] Postgres cluster : platform-postgres
+
+[STEP 1] Discover PMM pod
+[OK] pmm-0
+
+[STEP 2] Authenticate pmm-agent to PMM Server
+Defaulted container "pmm" out of: pmm, encryption-key-generate (init), encryption-key-reconcile (init)
+Checking local pmm-agent status...
+pmm-agent is running.
+Node is already registered with 127.0.0.1:8443, pmm-agent ID is 4a48bc9d-bd77-4642-afb2-a22a2da3603f. Use --force to register it again.
+Settings --server-username, --server-password only take effect when the Node is registered.
+Configuration file /usr/local/percona/pmm/config/pmm-agent.yaml updated.
+Reloading pmm-agent configuration...
+Configuration reloaded.
+Checking local pmm-agent status...
+pmm-agent is running.
+
+[STEP 3] Remove PostgreSQL registration
+Defaulted container "pmm" out of: pmm, encryption-key-generate (init), encryption-key-reconcile (init)
+Service removed.
+
+[INFO] PMM inventory: PostgreSQL services (what Registration status reads)
+[OK] nothing left in PMM inventory -- Registration shows FALSE
+Defaulted container "pmm" out of: pmm, encryption-key-generate (init), encryption-key-reconcile (init)
+Service type        Service name        Address and port        Service ID
+
+Agent type           Status           Metrics Mode        Agent ID                                    Service ID        Port
+pmm_agent            Connected                            4a48bc9d-bd77-4642-afb2-a22a2da3603f                          0 
+node_exporter        Running          push                2e669e8e-f210-4d02-b580-5bfe5a1fe061                          42000 
+vmagent              Running          push                ac8eb52b-17c1-4f7a-9f51-a54590620d1e                          42001
+
+
+==================================================
+ POSTGRESQL REGISTRATION REMOVED FROM PMM
+==================================================
+
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-27T15:33:19Z
+Duration: 10.903107764s
+Status:   success

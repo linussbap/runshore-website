@@ -1,0 +1,127 @@
+⏱ MYSQL DESTROY · started 02:00:44 · finished in 40s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-27T02:00:44Z
+Command:  SCOPE=kubernetes db-platform/mysql/deploy/kubernetes/destroy.sh
+==================================================
+
+[PREFLIGHT] Local Kubernetes (minikube): are Docker and Kubernetes answering?
+  $ docker ps -q        (15 s limit)
+  $ kubectl --context minikube get --raw=/readyz        (10 s limit)
+[PREFLIGHT] OK
+
+[INFO] Stopping mysql workload (kubernetes) via db-platform/mysql/workload/stop.sh before destroy...
+[INFO] resolve_scope.sh: SCOPE="kubernetes" -> PLATFORM_TYPE="kubeadm", KUBE_CONTEXT="minikube"
+STATUS: IDLE
+
+======================================
+ DESTROY MYSQL
+======================================
+
+Idempotent -- safe to re-run. Explicitly clears every finalizer
+class found to block namespace deletion this session (PVC
+protection, Percona's backup-job keep-job finalizer), plus a
+generic catch-all for anything else still blocking at the end.
+If the active scope is aws, also removes the real S3 backup bucket
+and IAM user provisioned by setup_mysql_backup_creds.sh -- a real
+gap confirmed this session (bucket/user survived every previous
+destroy, including via the UI's own Destroy button).
+
+[STEP 1] Validate tooling
+[OK] kubectl available
+[OK] helm available
+
+[STEP 2] Validate Kubernetes API
+[OK] Kubernetes API reachable
+
+[STEP 3] Remove PXC clusters
+[INFO] Deleting mysql/pxc-db
+perconaxtradbcluster.pxc.percona.com "pxc-db" deleted from mysql namespace
+
+[STEP 3a] Remove MinIO backup storage
+deployment.apps "minio" deleted from mysql namespace
+persistentvolumeclaim "minio-data" deleted from mysql namespace
+service "minio" deleted from mysql namespace
+
+[STEP 3b] Remove PXC backup resources
+perconaxtradbclusterbackup.pxc.percona.com "pitr-demo-pxc-db-1793030389" force deleted from mysql namespace
+perconaxtradbclusterbackup.pxc.percona.com "pitr-demo-pxc-db-1793036367" force deleted from mysql namespace
+[OK] Backup resources cleared
+
+[STEP 3c] Discover and remove all namespaced resources before PVC deletion
+[INFO] Requesting deletion of configmap/kube-root-ca.crt
+configmap "kube-root-ca.crt" deleted from mysql namespace
+[INFO] Requesting deletion of deployment.apps/pxc-operator
+deployment.apps "pxc-operator" deleted from mysql namespace
+[INFO] Requesting deletion of lease.coordination.k8s.io/08db1feb.percona.com
+lease.coordination.k8s.io "08db1feb.percona.com" deleted from mysql namespace
+[INFO] Requesting deletion of perconaxtradbclusterrestore.pxc.percona.com/pitr-demo-restore-1793036488
+perconaxtradbclusterrestore.pxc.percona.com "pitr-demo-restore-1793036488" deleted from mysql namespace
+[INFO] Requesting deletion of pod/pxc-db-pxc-0
+pod "pxc-db-pxc-0" deleted from mysql namespace
+[INFO] Requesting deletion of pod/pxc-db-pxc-1
+pod "pxc-db-pxc-1" deleted from mysql namespace
+[INFO] Requesting deletion of pod/pxc-db-pxc-2
+pod "pxc-db-pxc-2" deleted from mysql namespace
+[INFO] Requesting deletion of pod/pxc-operator-56845458c5-j7vxb
+pod "pxc-operator-56845458c5-j7vxb" deleted from mysql namespace
+[INFO] Requesting deletion of secret/internal-pxc-db
+secret "internal-pxc-db" deleted from mysql namespace
+[INFO] Requesting deletion of secret/mysql-backup-minio-creds
+secret "mysql-backup-minio-creds" deleted from mysql namespace
+[INFO] Requesting deletion of secret/pxc-db-secrets
+secret "pxc-db-secrets" deleted from mysql namespace
+[INFO] Requesting deletion of secret/sh.helm.release.v1.pxc-operator.v1
+secret "sh.helm.release.v1.pxc-operator.v1" deleted from mysql namespace
+[INFO] Requesting deletion of serviceaccount/default
+serviceaccount "default" deleted from mysql namespace
+[INFO] Requesting deletion of serviceaccount/pxc-operator
+serviceaccount "pxc-operator" deleted from mysql namespace
+
+[STEP 3d] Wait for ALL namespace Pods to actually terminate
+[INFO] 4 Pod(s) still present in mysql
+[INFO] 3 Pod(s) still present in mysql
+[INFO] 3 Pod(s) still present in mysql
+[INFO] 1 Pod(s) still present in mysql
+[INFO] 1 Pod(s) still present in mysql
+[INFO] 1 Pod(s) still present in mysql
+[INFO] 1 Pod(s) still present in mysql
+[OK] All namespace Pods terminated
+
+[STEP 3e] Remove PVCs after workload termination
+[INFO] Requesting deletion of persistentvolumeclaim/datadir-pxc-db-pxc-0
+persistentvolumeclaim "datadir-pxc-db-pxc-0" deleted from mysql namespace
+[INFO] Requesting deletion of persistentvolumeclaim/datadir-pxc-db-pxc-1
+persistentvolumeclaim "datadir-pxc-db-pxc-1" deleted from mysql namespace
+[INFO] Requesting deletion of persistentvolumeclaim/datadir-pxc-db-pxc-2
+persistentvolumeclaim "datadir-pxc-db-pxc-2" deleted from mysql namespace
+
+[STEP 3f] Force-clear any remaining Jobs with stuck finalizers
+
+[STEP 4] Remove Percona Helm releases
+
+[STEP 5] Remove Percona webhooks
+validatingwebhookconfiguration.admissionregistration.k8s.io "percona-xtradbcluster-webhook" deleted
+
+[STEP 6] Remove MySQL namespaces
+namespace "mysql" deleted
+
+[STEP 7] Verify namespaces actually terminate (not just requested)
+[OK] Namespace mysql fully removed
+[OK] Namespace database fully removed
+
+[STEP 8] Clean up real AWS backup resources (if provider=aws)
+[INFO] Provider: kubernetes — no AWS resources to clean up
+
+======================================
+ MYSQL TEARDOWN COMPLETE
+======================================
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-27T02:01:23Z
+Duration: 39.234290174s
+Status:   success

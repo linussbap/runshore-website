@@ -1,0 +1,64 @@
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-23T08:36:50+01:00
+Command:  SCOPE=kubernetes db-platform/sybase/deploy/kubernetes/destroy.sh
+==================================================
+
+[INFO] Cancelling the Sybase image build that was still running...
+[OK] Sybase image build cancelled (the next DEPLOY starts it again).
+[INFO] Stopping sybase workload (kubernetes) via db-platform/sybase/workload/kubernetes/stop.sh before destroy...
+
+==================================================
+ STOP SYBASE WORKLOAD
+==================================================
+
+Scope      : kubernetes
+Namespace  : sybase
+Deployment : platform-sybase
+Container  : sybase
+
+[INFO] Sybase pod: platform-sybase-5494c8c8bb-c8cp6
+[OK] Sybase pod Ready
+STATUS: IDLE
+[INFO] No tracked Sybase workload.
+
+==================================================
+ SYBASE ASE KUBERNETES DESTROY
+==================================================
+
+[1/4] Validating Kubernetes...
+[PASS] Kubernetes available.
+
+[2/4] Checking Sybase namespace...
+[INFO] Namespace sybase exists.
+
+[3/4] Removing Sybase Kubernetes platform...
+namespace "sybase" deleted
+[PASS] Namespace deletion requested.
+
+[4/4] Validating removal...
+[PASS] Sybase namespace removed.
+
+==================================================
+ SYBASE KUBERNETES DESTROY COMPLETE
+==================================================
+
+[PASS] Sybase Kubernetes migration source removed.
+
+Preserved:
+  Kubernetes cluster
+  Minikube
+  Docker image: sybase-ase-installed:latest
+  ASE installation media
+
+Log:
+  /Users/<user>/platforrm-db-ob-release_v1/db-platform/sybase/runtime/logs/destroy_kubernetes_20261023_083652.log
+
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-23T08:37:08+01:00
+Duration: 18.030117181s
+Status:   success

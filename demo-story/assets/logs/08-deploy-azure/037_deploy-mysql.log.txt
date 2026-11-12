@@ -1,0 +1,416 @@
+⏱ MYSQL DEPLOY · started 13:15:52 · finished in 4m 48s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-27T13:15:52Z
+Command:  platform/cloud/azure/orchestrator/deploy.sh mysql
+==================================================
+
+[INFO] Region (azure): uksouth (default)
+==================================================
+ CLOUD LOGIN (AZURE) -- from setup / ADMIN
+==================================================
+  Azure CLI already logged in -- left as it is
+
+==================================================
+ DEPLOYING AS (AZURE)
+==================================================
+  Azure login:               <email>
+  Subscription:              Database-Assessment-Observability
+  Default location (az):     not set (Terraform uses its own location)
+==================================================
+ OK
+
+[OK] Terraform state: Azure storage account dbplattfdd7c99f20d82dc (resource group dbplat-tfstate-rg)
+[OK] kubectl connected to database-assessment-platform-aks
+
+[DEPENDENCY] Storage
+
+[DEPENDENCY] Kubernetes
+[OK] Kubernetes API reachable
+
+[SECURITY] Provider Kubernetes Context Guard
+[INFO] Provider : azure
+[INFO] Platform : aks
+[INFO] Context  : database-assessment-platform-aks
+[OK] Azure/AKS context validated
+[OK] Default StorageClass available: default
+
+[PLATFORM] MySQL
+
+==================================================
+ MYSQL (PXC) DEPLOYMENT
+==================================================
+
+[STEP 1] Create PXC application secrets
+[INFO] Reusing existing generated passwords from /Users/<user>/platforrm-db-ob-release_v1/shared/secrets/runtime/mysql_secrets.env
+
+[INFO] Validate PMM 3 secret source
+[OK] PMM 3 token source validated
+
+======================================
+ CREATE PXC SECRETS
+======================================
+
+[STEP 1] Ensure MySQL namespace exists
+namespace/mysql created
+[OK] Namespace ready
+
+[STEP 2] Check existing PXC secret
+
+[STEP 3] Create/update PXC secret
+secret/pxc-db-secrets created
+[OK] PXC secret applied
+
+[STEP 4] Validate PXC secret keys
+[OK] root present
+[OK] xtrabackup present
+[OK] monitor present
+[OK] clustercheck present
+[OK] proxyadmin present
+[OK] operator present
+[OK] replication present
+[OK] pmmservertoken present
+
+[STEP 5] Sync pmmservertoken into internal secret
+[INFO] internal-pxc-db does not exist yet.
+[INFO] This is expected on a brand-new cluster -- the Operator
+[INFO] creates its internal secret on first reconciliation, after
+[INFO] the PXC Custom Resource is applied. Re-run this script
+[INFO] once the cluster is up if PMM3 still is not enabled, to
+[INFO] sync the token into the internal secret.
+
+[STEP 6] Confirm PXC secret exists
+secret/pxc-db-secrets
+
+======================================
+ PXC SECRETS READY
+======================================
+
+[STEP 2] Provision backup storage / credentials
+[INFO] Provider: azure
+[INFO] Backup provider: Azure
+
+[STEP 2A] Configure Azure backup storage
+[INFO] Reusing MySQL backup storage account: mysqlbackup7d96846f32d44
+
+==================================================
+ MYSQL AZURE BLOB BACKUP STORAGE
+==================================================
+[INFO] Resource group : database-assessment-platform-rg
+[INFO] Location       : uksouth
+[INFO] Account        : mysqlbackup7d96846f32d44
+[INFO] Container      : mysql-backups
+
+[STEP 1] Storage account
+[OK] Storage account exists
+[STEP 2] Storage account key
+[OK] Key retrieved (not shown)
+[STEP 3] Blob container
+[OK] Container exists
+[STEP 4] Record in shared/secrets/runtime/mysql_secrets.env
+[OK] MYSQL_AZURE_STORAGE_ACCOUNT, MYSQL_AZURE_CONTAINER, MYSQL_AZURE_STORAGE_KEY saved (mode 600)
+
+[OK] MySQL Azure backup storage ready
+
+[STEP 3] Deploy PXC Operator
+==========================================
+DEPLOY PXC OPERATOR
+==========================================
+
+[STEP] Configure Helm repository
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "aws-ebs-csi-driver" chart repository
+...Successfully got an update from the "splunk" chart repository
+...Successfully got an update from the "jetstack" chart repository
+...Successfully got an update from the "percona" chart repository
+...Successfully got an update from the "cloudnative-pg" chart repository
+...Successfully got an update from the "splunk-otel-collector-chart" chart repository
+...Successfully got an update from the "cnpg" chart repository
+...Successfully got an update from the "newrelic" chart repository
+...Successfully got an update from the "argo" chart repository
+...Successfully got an update from the "grafana" chart repository
+...Successfully got an update from the "bitnami" chart repository
+Update Complete. ⎈Happy Helming!⎈
+
+[STEP] Check existing operator
+[INFO] PXC operator deployment not present
+
+[STEP] Handle stale webhook
+[INFO] Operator is absent; remove any stale webhook configuration
+
+[STEP] Deploy / reconcile PXC operator
+Release "pxc-operator" does not exist. Installing it now.
+NAME: pxc-operator
+LAST DEPLOYED: Tue Oct 27 13:16:18 2026
+NAMESPACE: mysql
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+NOTES:
+1. Percona Operator for MySQL is deployed. 
+
+  Check if operator Pod is running:
+
+    kubectl get pods -l app.kubernetes.io/name=pxc-operator --namespace mysql
+
+  Troubleshoot by checking the logs:
+
+    export POD=$(kubectl get pods -l app.kubernetes.io/name=pxc-operator --namespace mysql --output name)
+    kubectl logs $POD --namespace=mysql
+
+2. Deploy the cluster with the following command:
+
+    helm install my-db percona/pxc-db --namespace=mysql
+
+Read more in our documentation: https://docs.percona.com/percona-operator-for-mysql/pxc/
+
+[STEP] Wait for operator rollout
+Waiting for deployment "pxc-operator" rollout to finish: 0 of 1 updated replicas are available...
+deployment "pxc-operator" successfully rolled out
+
+[STEP] Verify operator
+NAME           READY   UP-TO-DATE   AVAILABLE   AGE
+pxc-operator   1/1     1            1           1s
+
+[OK] PXC operator deployment complete
+[OK] Existing MySQL/PXC pods were not deleted
+
+[STEP 4] Deploy PXC Cluster
+
+==========================================
+ DEPLOY PXC CLUSTER
+==========================================
+
+[INFO] Provider: azure
+[INFO] Backup provider: Azure Blob Storage
+[INFO] Reusing MySQL backup storage account: mysqlbackup7d96846f32d44
+
+==================================================
+ MYSQL AZURE BLOB BACKUP STORAGE
+==================================================
+[INFO] Resource group : database-assessment-platform-rg
+[INFO] Location       : uksouth
+[INFO] Account        : mysqlbackup7d96846f32d44
+[INFO] Container      : mysql-backups
+
+[STEP 1] Storage account
+[OK] Storage account exists
+[STEP 2] Storage account key
+[OK] Key retrieved (not shown)
+[STEP 3] Blob container
+[OK] Container exists
+[STEP 4] Record in shared/secrets/runtime/mysql_secrets.env
+[OK] MYSQL_AZURE_STORAGE_ACCOUNT, MYSQL_AZURE_CONTAINER, MYSQL_AZURE_STORAGE_KEY saved (mode 600)
+
+[OK] MySQL Azure backup storage ready
+secret/mysql-backup-azure-creds created
+[OK] Azure Blob container: mysql-backups
+
+[STEP] Render PXC manifest
+[OK] Manifest rendered:
+     storageName=azure-backup
+
+[STEP] Apply PXC manifest
+perconaxtradbcluster.pxc.percona.com/pxc-db serverside-applied
+
+[STEP] Wait for PXC CR
+
+[STEP] Wait for StatefulSet creation
+
+[STEP] Wait for PXC pod creation
+
+
+[STEP] Validate PXC cluster health
+[INFO] pxc-db-pxc-0: Pod Ready=<empty>
+[INFO] pxc-db-pxc-1: Pod Ready=<empty>
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (1s)
+[INFO] pxc-db-pxc-0: Pod Ready=False
+[INFO] pxc-db-pxc-1: Pod Ready=<empty>
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (11s)
+[INFO] pxc-db-pxc-0: Pod Ready=False
+[INFO] pxc-db-pxc-1: Pod Ready=<empty>
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (22s)
+[INFO] pxc-db-pxc-0: Pod Ready=False
+[INFO] pxc-db-pxc-1: Pod Ready=<empty>
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (33s)
+[INFO] pxc-db-pxc-0: Pod Ready=False
+[INFO] pxc-db-pxc-1: Pod Ready=<empty>
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (43s)
+[INFO] pxc-db-pxc-0: Pod Ready=False
+[INFO] pxc-db-pxc-1: Pod Ready=<empty>
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (54s)
+[INFO] pxc-db-pxc-0: Pod Ready=False
+[INFO] pxc-db-pxc-1: Pod Ready=<empty>
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (64s)
+[INFO] pxc-db-pxc-0: Pod Ready=False
+[INFO] pxc-db-pxc-1: Pod Ready=<empty>
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (75s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=1
+[INFO] pxc-db-pxc-1: Pod Ready=False
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (86s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=1
+[INFO] pxc-db-pxc-1: Pod Ready=False
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (97s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=1
+[INFO] pxc-db-pxc-1: Pod Ready=False
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (108s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=Donor/Desynced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=2
+[INFO] pxc-db-pxc-1: Pod Ready=False
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (118s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=Donor/Desynced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=2
+[INFO] pxc-db-pxc-1: Pod Ready=False
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (129s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=2
+[INFO] pxc-db-pxc-1: Pod Ready=False
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (140s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=2
+[INFO] pxc-db-pxc-1: Pod Ready=False
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (151s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=2
+[INFO] pxc-db-pxc-1: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=2
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (162s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=2
+[INFO] pxc-db-pxc-1: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=2
+[INFO] pxc-db-pxc-2: Pod Ready=False
+[INFO] PXC health: 0/3 (173s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=2
+[INFO] pxc-db-pxc-1: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=2
+[INFO] pxc-db-pxc-2: Pod Ready=False
+[INFO] PXC health: 0/3 (185s)
+[OK] pxc-db-pxc-0: Synced / Primary / wsrep_ready=ON / cluster_size=3
+[OK] pxc-db-pxc-1: Synced / Primary / wsrep_ready=ON / cluster_size=3
+[INFO] pxc-db-pxc-2: Pod Ready=False
+[INFO] PXC health: 2/3 (196s)
+[OK] pxc-db-pxc-0: Synced / Primary / wsrep_ready=ON / cluster_size=3
+[INFO] pxc-db-pxc-1: WSREP not converged
+       state=Donor/Desynced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=3
+[INFO] pxc-db-pxc-2: Pod Ready=False
+[INFO] PXC health: 1/3 (207s)
+[OK] pxc-db-pxc-0: Synced / Primary / wsrep_ready=ON / cluster_size=3
+[OK] pxc-db-pxc-1: Synced / Primary / wsrep_ready=ON / cluster_size=3
+[INFO] pxc-db-pxc-2: Pod Ready=False
+[INFO] PXC health: 2/3 (218s)
+[OK] pxc-db-pxc-0: Synced / Primary / wsrep_ready=ON / cluster_size=3
+[OK] pxc-db-pxc-1: Synced / Primary / wsrep_ready=ON / cluster_size=3
+[INFO] pxc-db-pxc-2: Pod Ready=False
+[INFO] PXC health: 2/3 (229s)
+[OK] pxc-db-pxc-0: Synced / Primary / wsrep_ready=ON / cluster_size=3
+[OK] pxc-db-pxc-1: Synced / Primary / wsrep_ready=ON / cluster_size=3
+[INFO] pxc-db-pxc-2: Pod Ready=False
+[INFO] PXC health: 2/3 (241s)
+[OK] pxc-db-pxc-0: Synced / Primary / wsrep_ready=ON / cluster_size=3
+[OK] pxc-db-pxc-1: Synced / Primary / wsrep_ready=ON / cluster_size=3
+[OK] pxc-db-pxc-2: Synced / Primary / wsrep_ready=ON / cluster_size=3
+[INFO] PXC health: 3/3 (252s)
+[OK] PXC cluster health converged
+
+[STEP] Validate cluster
+NAME     ENDPOINT               STATUS   PXC   PROXYSQL   HAPROXY   AGE
+pxc-db   pxc-db-haproxy.mysql   ready    3                2         4m13s
+NAME                            READY   STATUS    RESTARTS   AGE
+pxc-db-haproxy-0                2/2     Running   0          4m12s
+pxc-db-haproxy-1                2/2     Running   0          2m27s
+pxc-db-pitr-77989f7bdc-546gn    1/1     Running   0          8s
+pxc-db-pxc-0                    1/1     Running   0          4m12s
+pxc-db-pxc-1                    1/1     Running   0          2m54s
+pxc-db-pxc-2                    1/1     Running   0          92s
+pxc-operator-5b444b46d4-4kbs6   1/1     Running   0          4m19s
+NAME                   STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+datadir-pxc-db-pxc-0   Bound    pvc-1d1b9fc3-e9a1-4df2-a81d-1b1a9c81cf59   20Gi       RWO            default        <unset>                 4m12s
+datadir-pxc-db-pxc-1   Bound    pvc-df9f8910-e269-448d-8a85-9a343c24df16   20Gi       RWO            default        <unset>                 2m54s
+datadir-pxc-db-pxc-2   Bound    pvc-b5f395f7-0334-46ad-8a5a-b2d4393adb0f   20Gi       RWO            default        <unset>                 92s
+NAME                              TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)                                          AGE
+percona-xtradb-cluster-operator   ClusterIP   10.x.x.x   <none>        443/TCP                                          4m20s
+pxc-db-haproxy                    ClusterIP   10.x.x.x    <none>        3306/TCP,3309/TCP,33062/TCP,33060/TCP,8404/TCP   4m13s
+pxc-db-haproxy-replicas           ClusterIP   10.x.x.x    <none>        3306/TCP                                         4m13s
+pxc-db-pitr                       ClusterIP   10.x.x.x   <none>        8080/TCP                                         9s
+pxc-db-pxc                        ClusterIP   None           <none>        3306/TCP,33062/TCP,33060/TCP                     4m13s
+pxc-db-pxc-unready                ClusterIP   None           <none>        3306/TCP,33062/TCP,33060/TCP                     4m13s
+
+[OK] PXC deployment complete
+[OK] Backup storage: azure-backup
+
+==================================================
+ MYSQL (PXC) DEPLOYMENT COMPLETE
+==================================================
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-27T13:20:38Z
+Duration: 4m46.011001704s
+Status:   success

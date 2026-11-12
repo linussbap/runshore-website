@@ -1,0 +1,124 @@
+⏱ MYSQL DEPLOY REPLICA · started 23:26:55 · finished in 1m 37s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-27T23:26:55Z
+Command:  SCOPE=gcp db-platform/mysql/replication/kubernetes/run_replication.sh
+==================================================
+
+== Clean start for mysql (scope: gcp) ==
+[1/4] Platform operations still running on this machine
+  none
+[2/4] Unfinished restores
+  $ bash db-platform/mysql/pitr/kubernetes/cancel_restore.sh --yes
+    == Cancel unfinished MySQL restore ==
+    [OK] No unfinished restore and the cluster has 3 nodes -- nothing to do
+    STATUS: OK
+  $ bash platform/lib/prune_test_backups.sh mysql
+      mysql: keep newest test backup pitr-demo-pxc-db-1793141642 (2026-10-27T22:54:03Z)
+  $ bash db-platform/mysql/pitr/kubernetes/rm_old_pitr_pods.sh
+    [INFO] Namespace: mysql
+    [INFO] none
+    [INFO] No completed PITR/backup/restore Jobs found.
+    [INFO] No remaining completed PITR/backup/restore pods found.
+    [INFO] Jobs deleted : 0
+    [INFO] Pods deleted : 0
+[3/4] Replication-test replicas
+    [2026-10-27 23:26:59] kubectl is not pointed at minikube -- skipping hostpath-provisioner cleanup (cloud storage deletes the volume itself).
+    [2026-10-27 23:26:59] Standalone MySQL async replica teardown complete.
+    [2026-10-27 23:26:59] PXC (pxc-db) was not touched.
+[4/4] Workloads
+    [INFO] resolve_scope.sh: SCOPE="gcp" -> PLATFORM_TYPE="gke", KUBE_CONTEXT="gke_database-assessment-platform_europe-west1_database-assessment-platform-gke"
+    STATUS: IDLE
+[OK] mysql: clean start done. The database and monitoring tools were kept.
+[2026-10-27 23:27:00] Waiting for PXC to become ready...
+[2026-10-27 23:27:00] PXC is ready.
+[2026-10-27 23:27:00] Checking existing PXC...
+[2026-10-27 23:27:00] Ensuring replication account uses mysql_native_password...
+mysql: [Warning] Using a password on the command line interface can be insecure.
+[2026-10-27 23:27:01] Replication account plugin converged.
+[2026-10-27 23:27:01] Clean start: remove any replica left by an earlier run...
+[2026-10-27 23:27:01] Tearing down standalone MySQL async replica in namespace 'mysql'...
+[2026-10-27 23:27:01] StatefulSet 'mysql-async-replica' not present, skipping.
+[2026-10-27 23:27:01] Service 'mysql-async-replica' not present, skipping.
+[2026-10-27 23:27:01] PVC 'mysql-data-mysql-async-replica-0' not present, skipping.
+[2026-10-27 23:27:02] Secret 'mysql-async-replica-secret' not present, skipping.
+[2026-10-27 23:27:02] kubectl is not pointed at minikube -- skipping hostpath-provisioner cleanup (cloud storage deletes the volume itself).
+[2026-10-27 23:27:02] Standalone MySQL async replica teardown complete.
+[2026-10-27 23:27:02] PXC (pxc-db) was not touched.
+[2026-10-27 23:27:02] Creating replica credentials...
+secret/mysql-async-replica-secret created
+[2026-10-27 23:27:02] Creating standalone MySQL replica...
+service/mysql-async-replica created
+statefulset.apps/mysql-async-replica created
+[2026-10-27 23:27:03] Waiting for replica pod...
+Waiting for 1 pods to be ready...
+partitioned roll out complete: 1 new pods have been updated...
+[2026-10-27 23:27:45] Waiting for MySQL inside replica...
+[2026-10-27 23:28:17] Ensuring assessmentdb exists on PXC...
+[2026-10-27 23:28:18] assessmentdb customer_orders already contains the expected assessment rows.
+[2026-10-27 23:28:18] Assessment database ready.
+[2026-10-27 23:28:18] Pre-seeding PXC-internal accounts referenced by the binlog...
+[2026-10-27 23:28:18] Seeding replica with existing assessmentdb data...
+Warning: A partial dump from a server that has GTIDs will by default include the GTIDs of all transactions, even those that changed suppressed parts of the database. If you don't want to restore GTIDs, pass --set-gtid-purged=OFF. To make a complete dump, pass --all-databases --triggers --routines --events. 
+[2026-10-27 23:28:20] assessmentdb seeded.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+[2026-10-27 23:28:22] PXC-internal accounts pre-seeded.
+[2026-10-27 23:28:22] Configuring asynchronous replication...
+mysql: [Warning] Using a password on the command line interface can be insecure.
+[2026-10-27 23:28:22] Checking replication configuration...
+mysql: [Warning] Using a password on the command line interface can be insecure.
+[2026-10-27 23:28:22] Validating table replication with visible SELECT before/after INSERT...
+[2026-10-27 23:28:22] [STEP] SELECT from replication_test on PRIMARY before INSERT
+[2026-10-27 23:28:23] [STEP] INSERT replication row on PRIMARY
+marker	created_at
+mysql-replication-20261027_232822	2026-10-27 23:28:23
+[2026-10-27 23:28:23] [STEP] Wait for replication row on REPLICA
+[2026-10-27 23:28:23] [STEP] SELECT from replication_test on REPLICA after binlog replication
+marker	created_at
+mysql-replication-20261027_232822	2026-10-27 23:28:23
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+[2026-10-27 23:28:24] ASYNC MYSQL REPLICATION: PASS
+[2026-10-27 23:28:24] Evidence: /Users/<user>/platforrm-db-ob-release_v1/runtime/replication/mysql/kubernetes/replication_20261027_232700/result.txt
+
+==================================================
+ REPLICATION SCORECARD
+==================================================
+
+Platform : MySQL (PXC -> async replica)
+
+Check                          Primary    Replica    Status
+-----                          -------    -------    ------
+Test row before insert         absent     -          PASS
+Test row after insert          present    present    PASS
+Seen on replica after          -          0s         PASS
+Replication threads IO/SQL     -          Yes/Yes    PASS
+Assessment orders 5001-5003    -          present    PASS
+
+==================================================
+[2026-10-27 23:28:24] Removing the test replica...
+[2026-10-27 23:28:24] Tearing down standalone MySQL async replica in namespace 'mysql'...
+[2026-10-27 23:28:25] Deleting StatefulSet 'mysql-async-replica' (waiting for pod termination)...
+statefulset.apps "mysql-async-replica" deleted from mysql namespace
+[2026-10-27 23:28:28] Deleting Service 'mysql-async-replica'...
+service "mysql-async-replica" deleted from mysql namespace
+[2026-10-27 23:28:28] Deleting PVC 'mysql-data-mysql-async-replica-0'...
+persistentvolumeclaim "mysql-data-mysql-async-replica-0" deleted from mysql namespace
+[2026-10-27 23:28:29] Waiting for PVC 'mysql-data-mysql-async-replica-0' to be fully removed...
+[2026-10-27 23:28:29] Deleting Secret 'mysql-async-replica-secret'...
+secret "mysql-async-replica-secret" deleted from mysql namespace
+[2026-10-27 23:28:29] kubectl is not pointed at minikube -- skipping hostpath-provisioner cleanup (cloud storage deletes the volume itself).
+[2026-10-27 23:28:29] Standalone MySQL async replica teardown complete.
+[2026-10-27 23:28:29] PXC (pxc-db) was not touched.
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-27T23:28:29Z
+Duration: 1m33.887227962s
+Status:   success

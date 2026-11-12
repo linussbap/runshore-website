@@ -1,0 +1,388 @@
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-22T18:59:25+01:00
+Command:  bash observability/newrelic/registration/kubernetes/sybase/register.sh
+==================================================
+
+[OK] New Relic licence key accepted
+[newrelic:sybase] Repository logging configuration validated
+[newrelic:sybase] Kubernetes context: minikube
+[newrelic:sybase] Sybase pod: platform-sybase-5494c8c8bb-c8cp6
+[newrelic:sybase] Validating Sybase ASE connectivity
+[newrelic:sybase] Reconciling Sybase monitoring configuration
+Password correctly set.
+Account unlocked.
+New login created.
+(return status = 0)
+Authorization updated.
+(return status = 0)
+New user added.
+(return status = 0)
+ Parameter Name    Default     Memory Used   Config Value   Run Value    Unit   Type    
+ ----------------- ----------- ------------- -------------- ------------ ------ ------- 
+ enable monitoring           0           0              1              1 switch dynamic 
+
+(1 row affected)
+Configuration option changed. ASE need not be rebooted since the option is dynamic.
+Changing the value of 'enable monitoring' does not increase the amount of memory Adaptive Server uses.
+(return status = 0)
+ Parameter Name               Default     Memory Used   Config Value   Run Value    Unit   Type    
+ ---------------------------- ----------- ------------- -------------- ------------ ------ ------- 
+ enable stmt cache monitoring           0           0              1              1 switch dynamic 
+
+(1 row affected)
+Configuration option changed. ASE need not be rebooted since the option is dynamic.
+Changing the value of 'enable stmt cache monitoring' does not increase the amount of memory Adaptive Server uses.
+(return status = 0)
+ Parameter Name            Default     Memory Used   Config Value   Run Value    Unit   Type    
+ ------------------------- ----------- ------------- -------------- ------------ ------ ------- 
+ execution time monitoring           0           0              1              1 switch dynamic 
+
+(1 row affected)
+Configuration option changed. ASE need not be rebooted since the option is dynamic.
+Changing the value of 'execution time monitoring' does not increase the amount of memory Adaptive Server uses.
+(return status = 0)
+ Parameter Name       Default     Memory Used   Config Value   Run Value    Unit             Type    
+ -------------------- ----------- ------------- -------------- ------------ ---------------- ------- 
+ statement cache size           0         239            100            100 memory pages(2k) dynamic 
+
+(1 row affected)
+Configuration option changed. ASE need not be rebooted since the option is dynamic.
+Changing the value of 'statement cache size' to '100' increases the amount of memory ASE uses by 244 K.
+(return status = 0)
+ Parameter Name               Default     Memory Used   Config Value   Run Value    Unit   Type    
+ ---------------------------- ----------- ------------- -------------- ------------ ------ ------- 
+ per object statistics active           0           0              1              1 switch dynamic 
+
+(1 row affected)
+Configuration option changed. ASE need not be rebooted since the option is dynamic.
+Changing the value of 'per object statistics active' does not increase the amount of memory Adaptive Server uses.
+(return status = 0)
+ Parameter Name         Default     Memory Used   Config Value   Run Value    Unit   Type    
+ ---------------------- ----------- ------------- -------------- ------------ ------ ------- 
+ object lockwait timing           0           0              1              1 switch dynamic 
+
+(1 row affected)
+Configuration option changed. ASE need not be rebooted since the option is dynamic.
+Changing the value of 'object lockwait timing' does not increase the amount of memory Adaptive Server uses.
+(return status = 0)
+ Parameter Name    Default     Memory Used   Config Value   Run Value    Unit   Type    
+ ----------------- ----------- ------------- -------------- ------------ ------ ------- 
+ wait event timing           0           0              1              1 switch dynamic 
+
+(1 row affected)
+Configuration option changed. ASE need not be rebooted since the option is dynamic.
+Changing the value of 'wait event timing' does not increase the amount of memory Adaptive Server uses.
+(return status = 0)
+[newrelic:sybase] Sybase monitoring configuration reconciled
+[newrelic:sybase] Building nri-db-sybase:local
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.47kB 0.0s done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/eclipse-temurin:11-jdk
+#2 ...
+
+#3 [auth] library/eclipse-temurin:pull token for registry-1.docker.io
+#3 DONE 0.0s
+
+#4 [internal] load metadata for docker.io/library/eclipse-temurin:11-jre
+#4 DONE 1.6s
+
+#2 [internal] load metadata for docker.io/library/eclipse-temurin:11-jdk
+#2 DONE 1.6s
+
+#5 [internal] load .dockerignore
+#5 transferring context: 2B done
+#5 DONE 0.0s
+
+#6 [internal] load build context
+#6 DONE 0.0s
+
+#7 [build 1/6] FROM docker.io/library/eclipse-temurin:11-jdk@sha256:74983af862a6656ceb6cbb1407391c15d6e79aa0c5bf65117e6ef534399b49ea
+#7 resolve docker.io/library/eclipse-temurin:11-jdk@sha256:74983af862a6656ceb6cbb1407391c15d6e79aa0c5bf65117e6ef534399b49ea
+#7 ...
+
+#8 [auth] library/eclipse-temurin:pull token for registry-1.docker.io
+#8 DONE 0.0s
+
+#9 [stage-1 1/7] FROM docker.io/library/eclipse-temurin:11-jre@sha256:d218907a19a41f9036cf547a0a84a408cfb1bc56aeb2be090ae867563e086458
+#9 resolve docker.io/library/eclipse-temurin:11-jre@sha256:d218907a19a41f9036cf547a0a84a408cfb1bc56aeb2be090ae867563e086458 0.5s done
+#9 ...
+
+#6 [internal] load build context
+#6 transferring context: 2.18MB 0.1s done
+#6 DONE 0.1s
+
+#9 [stage-1 1/7] FROM docker.io/library/eclipse-temurin:11-jre@sha256:d218907a19a41f9036cf547a0a84a408cfb1bc56aeb2be090ae867563e086458
+#9 sha256:d218907a19a41f9036cf547a0a84a408cfb1bc56aeb2be090ae867563e086458 7.24kB / 7.24kB done
+#9 sha256:ecb3d26ab514db1446c3f5b7460bee5f5e0d24f46b6676e73276f5d7250c4eda 9.01kB / 9.01kB done
+#9 sha256:108138c1fc5da71846b18c51c3a8ef57d2c6eac1e25baeec009ee87320c3c8b6 0B / 20.14MB 0.1s
+#9 sha256:33dc1d1e1b3086941cde389d2a60c1985a7ee2691644bf2f322f45e0b023bfb0 0B / 47.34MB 0.1s
+#9 sha256:9218b8aeeb1ff85c1b2a34baf974777f93a4eb735ada4f67287806a19c484baf 2.14kB / 2.14kB done
+#9 sha256:82b22c07411a98b068bf952758c7d16ec236c257a4c25652a4d28c588317152d 0B / 159B 0.1s
+#9 sha256:108138c1fc5da71846b18c51c3a8ef57d2c6eac1e25baeec009ee87320c3c8b6 3.15MB / 20.14MB 0.3s
+#9 sha256:82b22c07411a98b068bf952758c7d16ec236c257a4c25652a4d28c588317152d 159B / 159B 0.2s done
+#9 sha256:22627a83b130d1aa3a6995201957cc0e03d246c06b5f28af97ab613fc910e8e6 0B / 2.46kB 0.3s
+#9 sha256:108138c1fc5da71846b18c51c3a8ef57d2c6eac1e25baeec009ee87320c3c8b6 7.34MB / 20.14MB 0.4s
+#9 sha256:22627a83b130d1aa3a6995201957cc0e03d246c06b5f28af97ab613fc910e8e6 2.46kB / 2.46kB 0.4s done
+#9 sha256:108138c1fc5da71846b18c51c3a8ef57d2c6eac1e25baeec009ee87320c3c8b6 12.58MB / 20.14MB 0.5s
+#9 sha256:108138c1fc5da71846b18c51c3a8ef57d2c6eac1e25baeec009ee87320c3c8b6 15.73MB / 20.14MB 0.6s
+#9 sha256:108138c1fc5da71846b18c51c3a8ef57d2c6eac1e25baeec009ee87320c3c8b6 20.14MB / 20.14MB 0.7s done
+#9 extracting sha256:108138c1fc5da71846b18c51c3a8ef57d2c6eac1e25baeec009ee87320c3c8b6
+#9 sha256:33dc1d1e1b3086941cde389d2a60c1985a7ee2691644bf2f322f45e0b023bfb0 3.15MB / 47.34MB 0.8s
+#9 sha256:33dc1d1e1b3086941cde389d2a60c1985a7ee2691644bf2f322f45e0b023bfb0 6.29MB / 47.34MB 1.2s
+#9 sha256:33dc1d1e1b3086941cde389d2a60c1985a7ee2691644bf2f322f45e0b023bfb0 10.49MB / 47.34MB 1.8s
+#9 sha256:33dc1d1e1b3086941cde389d2a60c1985a7ee2691644bf2f322f45e0b023bfb0 13.63MB / 47.34MB 2.3s
+#9 sha256:33dc1d1e1b3086941cde389d2a60c1985a7ee2691644bf2f322f45e0b023bfb0 17.83MB / 47.34MB 2.8s
+#9 extracting sha256:108138c1fc5da71846b18c51c3a8ef57d2c6eac1e25baeec009ee87320c3c8b6 2.1s done
+#9 sha256:33dc1d1e1b3086941cde389d2a60c1985a7ee2691644bf2f322f45e0b023bfb0 20.97MB / 47.34MB 3.3s
+#9 sha256:33dc1d1e1b3086941cde389d2a60c1985a7ee2691644bf2f322f45e0b023bfb0 25.17MB / 47.34MB 4.0s
+#9 sha256:33dc1d1e1b3086941cde389d2a60c1985a7ee2691644bf2f322f45e0b023bfb0 28.31MB / 47.34MB 4.6s
+#9 sha256:33dc1d1e1b3086941cde389d2a60c1985a7ee2691644bf2f322f45e0b023bfb0 31.46MB / 47.34MB 4.9s
+#9 sha256:33dc1d1e1b3086941cde389d2a60c1985a7ee2691644bf2f322f45e0b023bfb0 35.65MB / 47.34MB 5.1s
+#9 sha256:33dc1d1e1b3086941cde389d2a60c1985a7ee2691644bf2f322f45e0b023bfb0 42.99MB / 47.34MB 5.3s
+#9 sha256:33dc1d1e1b3086941cde389d2a60c1985a7ee2691644bf2f322f45e0b023bfb0 46.14MB / 47.34MB 5.4s
+#9 sha256:33dc1d1e1b3086941cde389d2a60c1985a7ee2691644bf2f322f45e0b023bfb0 47.34MB / 47.34MB 5.4s done
+#9 extracting sha256:33dc1d1e1b3086941cde389d2a60c1985a7ee2691644bf2f322f45e0b023bfb0
+#9 extracting sha256:33dc1d1e1b3086941cde389d2a60c1985a7ee2691644bf2f322f45e0b023bfb0 1.2s done
+#9 extracting sha256:82b22c07411a98b068bf952758c7d16ec236c257a4c25652a4d28c588317152d done
+#9 extracting sha256:22627a83b130d1aa3a6995201957cc0e03d246c06b5f28af97ab613fc910e8e6 done
+#9 DONE 7.5s
+
+#7 [build 1/6] FROM docker.io/library/eclipse-temurin:11-jdk@sha256:74983af862a6656ceb6cbb1407391c15d6e79aa0c5bf65117e6ef534399b49ea
+#7 resolve docker.io/library/eclipse-temurin:11-jdk@sha256:74983af862a6656ceb6cbb1407391c15d6e79aa0c5bf65117e6ef534399b49ea 0.5s done
+#7 sha256:74983af862a6656ceb6cbb1407391c15d6e79aa0c5bf65117e6ef534399b49ea 7.24kB / 7.24kB done
+#7 sha256:2ebff5c99aa712cea2b3314c5e64215b880c61de770d012abea744de8e86c141 2.14kB / 2.14kB done
+#7 sha256:4f6eed5497fcb29fd55879cc8037d7cfd1ae9d5af9d2fed27f41fecb33271c57 9.38kB / 9.38kB done
+#7 sha256:80a2241199b306fb957199f85495acb627aeb180f2a585c34c4e84c71d1142b5 20.14MB / 20.14MB 5.8s done
+#7 sha256:ed732326f58db95741a83b619c35530f8db951c6b60944cd33d9e9c251798cff 145.87MB / 145.87MB 4.7s done
+#7 sha256:bc8e97995ecf98f6cb837248355a2e183e5f2ece8f0f8cf6f561827db87d33f4 160B / 160B 4.8s done
+#7 sha256:d7b24180b74bc0e57bd3587bce38091b1d62e9c3d46a3b6275d7db0a72163a10 2.46kB / 2.46kB 5.0s done
+#7 extracting sha256:80a2241199b306fb957199f85495acb627aeb180f2a585c34c4e84c71d1142b5 1.0s
+#7 ...
+
+#10 [stage-1 2/7] WORKDIR /app/nri-db
+#10 DONE 0.5s
+
+#7 [build 1/6] FROM docker.io/library/eclipse-temurin:11-jdk@sha256:74983af862a6656ceb6cbb1407391c15d6e79aa0c5bf65117e6ef534399b49ea
+#7 extracting sha256:80a2241199b306fb957199f85495acb627aeb180f2a585c34c4e84c71d1142b5 1.7s done
+#7 extracting sha256:ed732326f58db95741a83b619c35530f8db951c6b60944cd33d9e9c251798cff
+#7 extracting sha256:ed732326f58db95741a83b619c35530f8db951c6b60944cd33d9e9c251798cff 3.0s done
+#7 extracting sha256:bc8e97995ecf98f6cb837248355a2e183e5f2ece8f0f8cf6f561827db87d33f4
+#7 extracting sha256:bc8e97995ecf98f6cb837248355a2e183e5f2ece8f0f8cf6f561827db87d33f4 done
+#7 extracting sha256:d7b24180b74bc0e57bd3587bce38091b1d62e9c3d46a3b6275d7db0a72163a10 done
+#7 DONE 11.3s
+
+#11 [build 2/6] RUN apt-get update     && apt-get install -y --no-install-recommends         curl         git         unzip     && rm -rf /var/lib/apt/lists/*
+#11 0.392 Get:1 http://archive.ubuntu.com/ubuntu resolute InRelease [136 kB]
+#11 0.425 Get:2 http://archive.ubuntu.com/ubuntu resolute-updates InRelease [137 kB]
+#11 0.434 Get:3 http://archive.ubuntu.com/ubuntu resolute-backports InRelease [137 kB]
+#11 0.448 Get:4 http://security.ubuntu.com/ubuntu resolute-security InRelease [137 kB]
+#11 0.459 Get:5 http://archive.ubuntu.com/ubuntu resolute/main amd64 Packages [1,874 kB]
+#11 0.532 Get:6 http://archive.ubuntu.com/ubuntu resolute/universe amd64 Packages [20.1 MB]
+#11 0.646 Get:7 http://security.ubuntu.com/ubuntu resolute-security/universe amd64 Packages [257 kB]
+#11 0.814 Get:8 http://security.ubuntu.com/ubuntu resolute-security/restricted amd64 Packages [609 kB]
+#11 0.908 Get:9 http://security.ubuntu.com/ubuntu resolute-security/main amd64 Packages [745 kB]
+#11 0.992 Get:10 http://archive.ubuntu.com/ubuntu resolute/multiverse amd64 Packages [352 kB]
+#11 0.996 Get:11 http://archive.ubuntu.com/ubuntu resolute/restricted amd64 Packages [189 kB]
+#11 1.000 Get:12 http://archive.ubuntu.com/ubuntu resolute-updates/multiverse amd64 Packages [26.1 kB]
+#11 1.001 Get:13 http://archive.ubuntu.com/ubuntu resolute-updates/restricted amd64 Packages [625 kB]
+#11 1.014 Get:14 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 Packages [920 kB]
+#11 1.017 Get:15 http://security.ubuntu.com/ubuntu resolute-security/multiverse amd64 Packages [24.6 kB]
+#11 1.032 Get:16 http://archive.ubuntu.com/ubuntu resolute-updates/universe amd64 Packages [424 kB]
+#11 1.043 Get:17 http://archive.ubuntu.com/ubuntu resolute-backports/universe amd64 Packages [3,308 B]
+#11 1.955 Fetched 26.7 MB in 2s (16.8 MB/s)
+#11 1.955 Reading package lists...
+#11 2.972 Reading package lists...
+#11 3.978 Building dependency tree...
+#11 4.197 Reading state information...
+#11 4.241 curl is already the newest version (8.18.0-1ubuntu2.8).
+#11 4.241 Solving dependencies...
+#11 4.536 The following additional packages will be installed:
+#11 4.536   git-man libcurl3t64-gnutls liberror-perl libgdbm-compat4t64 libgdbm6t64
+#11 4.538   libperl5.40 perl perl-modules-5.40
+#11 4.542 Suggested packages:
+#11 4.542   gettext-base git-doc git-email git-gui gitk gitweb git-cvs git-svn gdbm-l10n
+#11 4.542   perl-doc libterm-readline-gnu-perl | libterm-readline-perl-perl make
+#11 4.542   libtap-harness-archive-perl zip
+#11 4.542 Recommended packages:
+#11 4.542   patch less ssh-client netbase
+#11 4.587 The following NEW packages will be installed:
+#11 4.588   git git-man libcurl3t64-gnutls liberror-perl libgdbm-compat4t64 libgdbm6t64
+#11 4.589   libperl5.40 perl perl-modules-5.40 unzip
+#11 4.690 0 upgraded, 10 newly installed, 0 to remove and 4 not upgraded.
+#11 4.690 Need to get 14.5 MB of archives.
+#11 4.690 After this operation, 81.3 MB of additional disk space will be used.
+#11 4.690 Get:1 http://archive.ubuntu.com/ubuntu resolute/main amd64 libgdbm6t64 amd64 1.26-1build1 [36.5 kB]
+#11 4.764 Get:2 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libcurl3t64-gnutls amd64 8.18.0-1ubuntu2.8 [421 kB]
+#11 4.889 Get:3 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 perl-modules-5.40 all 5.40.1-7ubuntu0.3 [3,212 kB]
+#11 5.028 Get:4 http://archive.ubuntu.com/ubuntu resolute/main amd64 libgdbm-compat4t64 amd64 1.26-1build1 [6,796 B]
+#11 5.029 Get:5 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libperl5.40 amd64 5.40.1-7ubuntu0.3 [4,889 kB]
+#11 5.182 Get:6 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 perl amd64 5.40.1-7ubuntu0.3 [262 kB]
+#11 5.186 Get:7 http://archive.ubuntu.com/ubuntu resolute/main amd64 liberror-perl all 0.17030-1 [23.5 kB]
+#11 5.187 Get:8 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 git-man all 1:2.53.0-1ubuntu1.1 [1,197 kB]
+#11 5.203 Get:9 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 git amd64 1:2.53.0-1ubuntu1.1 [4,223 kB]
+#11 5.266 Get:10 http://archive.ubuntu.com/ubuntu resolute/main amd64 unzip amd64 6.0-29ubuntu1 [180 kB]
+#11 5.583 debconf: unable to initialize frontend: Dialog
+#11 5.583 debconf: (TERM is not set, so the dialog frontend is not usable.)
+#11 5.583 debconf: falling back to frontend: Readline
+#11 5.584 debconf: unable to initialize frontend: Readline
+#11 5.584 debconf: (Can't locate Term/ReadLine.pm in @INC (you may need to install the Term::ReadLine module) (@INC entries checked: /etc/perl /usr/local/lib/x86_64-linux-gnu/perl/5.40.1 /usr/local/share/perl/5.40.1 /usr/lib/x86_64-linux-gnu/perl5/5.40 /usr/share/perl5 /usr/lib/x86_64-linux-gnu/perl-base /usr/lib/x86_64-linux-gnu/perl/5.40 /usr/share/perl/5.40 /usr/local/lib/site_perl) at /usr/share/perl5/Debconf/FrontEnd/Readline.pm line 8, <STDIN> line 10.)
+#11 5.584 debconf: falling back to frontend: Teletype
+#11 5.599 debconf: unable to initialize frontend: Teletype
+#11 5.599 debconf: (This frontend requires a controlling tty.)
+#11 5.599 debconf: falling back to frontend: Noninteractive
+#11 6.670 Fetched 14.5 MB in 1s (21.9 MB/s)
+#11 6.706 Selecting previously unselected package libgdbm6t64:amd64.
+#11 6.706 (Reading database ... 
+(Reading database ... 5%
+(Reading database ... 10%
+(Reading database ... 15%
+(Reading database ... 20%
+(Reading database ... 25%
+(Reading database ... 30%
+(Reading database ... 35%
+(Reading database ... 40%
+(Reading database ... 45%
+(Reading database ... 50%
+(Reading database ... 55%
+(Reading database ... 60%
+(Reading database ... 65%
+(Reading database ... 70%
+(Reading database ... 75%
+(Reading database ... 80%
+(Reading database ... 85%
+(Reading database ... 90%
+(Reading database ... 95%
+(Reading database ... 100%
+(Reading database ... 10148 files and directories currently installed.)
+#11 6.752 Preparing to unpack .../0-libgdbm6t64_1.26-1build1_amd64.deb ...
+#11 6.760 Unpacking libgdbm6t64:amd64 (1.26-1build1) ...
+#11 6.794 Selecting previously unselected package libcurl3t64-gnutls:amd64.
+#11 6.795 Preparing to unpack .../1-libcurl3t64-gnutls_8.18.0-1ubuntu2.8_amd64.deb ...
+#11 6.799 Unpacking libcurl3t64-gnutls:amd64 (8.18.0-1ubuntu2.8) ...
+#11 6.835 Selecting previously unselected package perl-modules-5.40.
+#11 6.837 Preparing to unpack .../2-perl-modules-5.40_5.40.1-7ubuntu0.3_all.deb ...
+#11 6.840 Unpacking perl-modules-5.40 (5.40.1-7ubuntu0.3) ...
+#11 7.112 Selecting previously unselected package libgdbm-compat4t64:amd64.
+#11 7.114 Preparing to unpack .../3-libgdbm-compat4t64_1.26-1build1_amd64.deb ...
+#11 7.116 Unpacking libgdbm-compat4t64:amd64 (1.26-1build1) ...
+#11 7.144 Selecting previously unselected package libperl5.40:amd64.
+#11 7.145 Preparing to unpack .../4-libperl5.40_5.40.1-7ubuntu0.3_amd64.deb ...
+#11 7.148 Unpacking libperl5.40:amd64 (5.40.1-7ubuntu0.3) ...
+#11 7.336 Selecting previously unselected package perl.
+#11 7.337 Preparing to unpack .../5-perl_5.40.1-7ubuntu0.3_amd64.deb ...
+#11 7.340 Unpacking perl (5.40.1-7ubuntu0.3) ...
+#11 7.371 Selecting previously unselected package liberror-perl.
+#11 7.373 Preparing to unpack .../6-liberror-perl_0.17030-1_all.deb ...
+#11 7.376 Unpacking liberror-perl (0.17030-1) ...
+#11 7.400 Selecting previously unselected package git-man.
+#11 7.402 Preparing to unpack .../7-git-man_1%3a2.53.0-1ubuntu1.1_all.deb ...
+#11 7.404 Unpacking git-man (1:2.53.0-1ubuntu1.1) ...
+#11 7.440 Selecting previously unselected package git.
+#11 7.442 Preparing to unpack .../8-git_1%3a2.53.0-1ubuntu1.1_amd64.deb ...
+#11 7.454 Unpacking git (1:2.53.0-1ubuntu1.1) ...
+#11 7.605 Selecting previously unselected package unzip.
+#11 7.607 Preparing to unpack .../9-unzip_6.0-29ubuntu1_amd64.deb ...
+#11 7.611 Unpacking unzip (6.0-29ubuntu1) ...
+#11 7.643 Setting up libgdbm6t64:amd64 (1.26-1build1) ...
+#11 7.651 Setting up libgdbm-compat4t64:amd64 (1.26-1build1) ...
+#11 7.659 Setting up unzip (6.0-29ubuntu1) ...
+#11 7.666 Setting up libcurl3t64-gnutls:amd64 (8.18.0-1ubuntu2.8) ...
+#11 7.672 Setting up perl-modules-5.40 (5.40.1-7ubuntu0.3) ...
+#11 7.679 Setting up git-man (1:2.53.0-1ubuntu1.1) ...
+#11 7.685 Setting up libperl5.40:amd64 (5.40.1-7ubuntu0.3) ...
+#11 7.692 Setting up perl (5.40.1-7ubuntu0.3) ...
+#11 7.707 Setting up liberror-perl (0.17030-1) ...
+#11 7.714 Setting up git (1:2.53.0-1ubuntu1.1) ...
+#11 7.730 Processing triggers for libc-bin (2.43-2ubuntu2.4) ...
+#11 DONE 8.3s
+
+#12 [build 3/6] WORKDIR /build
+#12 DONE 0.0s
+
+#13 [build 4/6] RUN git clone --depth 1     https://github.com/newrelic-experimental/nri-db.git .
+#13 0.176 Cloning into '.'...
+#13 DONE 0.9s
+
+#14 [build 5/6] RUN curl -fsSLo /tmp/gradle-6.8.3-bin.zip         https://services.gradle.org/distributions/gradle-6.8.3-bin.zip     && unzip -q /tmp/gradle-6.8.3-bin.zip -d /opt     && rm /tmp/gradle-6.8.3-bin.zip
+#14 DONE 4.5s
+
+#15 [build 6/6] RUN /opt/gradle-6.8.3/bin/gradle clean installDist -x test
+#15 0.796 
+#15 0.796 Welcome to Gradle 6.8.3!
+#15 0.796 
+#15 0.797 Here are the highlights of this release:
+#15 0.797  - Faster Kotlin DSL script compilation
+#15 0.797  - Vendor selection for Java toolchains
+#15 0.797  - Convenient execution of tasks in composite builds
+#15 0.797  - Consistent dependency resolution
+#15 0.798 
+#15 0.798 For more details see https://docs.gradle.org/6.8.3/release-notes.html
+#15 0.798 
+#15 0.979 Starting a Gradle Daemon (subsequent builds will be faster)
+#15 20.28 > Task :clean UP-TO-DATE
+#15 22.28 
+#15 22.28 > Task :compileJava
+#15 22.28 Note: Some input files use or override a deprecated API.
+#15 22.28 Note: Recompile with -Xlint:deprecation for details.
+#15 23.88 
+#15 23.88 > Task :processResources
+#15 23.88 > Task :classes
+#15 23.88 > Task :jar
+#15 24.38 > Task :createEncryptPasswordScripts
+#15 26.08 > Task :shadowJar
+#15 26.38 > Task :createEncryptPasswordShadowScripts
+#15 26.48 > Task :startScripts
+#15 26.58 > Task :installDist
+#15 26.58 
+#15 26.58 BUILD SUCCESSFUL in 26s
+#15 26.58 9 actionable tasks: 8 executed, 1 up-to-date
+#15 DONE 27.0s
+
+#16 [stage-1 3/7] COPY --from=build /build/build/install/nri-db/ /app/nri-db/
+#16 DONE 0.1s
+
+#17 [stage-1 4/7] COPY jconn42.jar /app/nri-db/lib/jconn42.jar
+#17 DONE 0.0s
+
+#18 [stage-1 5/7] COPY sybase-queries.json /app/nri-db/config/input_sybase.json
+#18 DONE 0.0s
+
+#19 [stage-1 6/7] COPY logging.properties /app/nri-db/config/logging.properties
+#19 DONE 0.0s
+
+#20 [stage-1 7/7] RUN mkdir -p /app/nri-db/config /app/nri-db/logs     && test -f /app/nri-db/config/logging.properties     && test -f /app/nri-db/config/input_sybase.json     && test -x /app/nri-db/bin/nri-db     && test -s /app/nri-db/lib/jconn42.jar
+#20 DONE 0.1s
+
+#21 exporting to image
+#21 exporting layers 0.1s done
+#21 writing image sha256:6aa52a12c6a80c3acce0fae6b2f7167a884218286a4e0957995703b8ea554b62 done
+#21 naming to docker.io/library/nri-db-sybase:local done
+#21 DONE 0.1s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/obgu8ie10nvbznhte6f7yx444
+[newrelic:sybase] Validating FINEST logging inside built image
+[newrelic:sybase] Loading image into Minikube
+[newrelic:sybase] Encrypting Sybase monitoring password
+deployment.apps/newrelic-sybase-nridb created
+[newrelic:sybase] Restarting New Relic Sybase collector to load updated plugin configuration
+deployment.apps/newrelic-sybase-nridb restarted
+Waiting for deployment "newrelic-sybase-nridb" rollout to finish: 0 out of 1 new replicas have been updated...
+Waiting for deployment "newrelic-sybase-nridb" rollout to finish: 0 out of 1 new replicas have been updated...
+Waiting for deployment "newrelic-sybase-nridb" rollout to finish: 0 out of 1 new replicas have been updated...
+Waiting for deployment "newrelic-sybase-nridb" rollout to finish: 0 of 1 updated replicas are available...
+deployment "newrelic-sybase-nridb" successfully rolled out
+pod/newrelic-sybase-nridb-5f889d8bd4-lhs9m condition met
+[newrelic:sybase] New Relic Sybase registration completed successfully
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-22T19:01:08+01:00
+Duration: 1m43.089997795s
+Status:   success

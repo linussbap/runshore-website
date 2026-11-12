@@ -1,0 +1,96 @@
+⏱ MONGODB DEPLOY REPLICA · started 17:45:35 · finished in 1m 25s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-28T17:45:35Z
+Command:  SCOPE=aws db-platform/mongodb/replication/kubernetes/run_replication.sh
+==================================================
+
+== Clean start for mongodb (scope: aws) ==
+[1/4] Platform operations still running on this machine
+  none
+[2/4] Unfinished restores
+  $ bash platform/lib/prune_test_backups.sh mongodb
+      mongodb: no test backups
+[3/4] Replication-test replicas
+  $ bash db-platform/mongodb/replication/kubernetes/teardown_replication.sh
+
+[OK] MONGODB REPLICATION TEST STOPPED
+[OK] Native PSMDB replica-set replication was not modified.
+[4/4] Workloads
+    [INFO] resolve_scope.sh: SCOPE="aws" -> PLATFORM_TYPE="eks", KUBE_CONTEXT="arn:aws:eks:eu-west-2:<account-id>:cluster/database-assessment-platform-eks"
+    STATUS: IDLE
+[OK] mongodb: clean start done. The database and monitoring tools were kept.
+
+============================================================
+ MONGODB KUBERNETES — REPLICA SET REPLICATION
+============================================================
+
+Namespace   : mongodb
+Cluster     : mongodb-psmdb-db
+Replica set : rs0
+Database    : assessment
+
+[STEP 1] Verify MongoDB replica-set topology
+[INFO] Cluster state : ready
+[INFO] Ready members : 3/3
+[INFO] PRIMARY       : mongodb-psmdb-db-rs0-1
+[INFO] SECONDARY     : mongodb-psmdb-db-rs0-0
+[OK] Three-member replica-set topology verified.
+
+[STEP 2] Verify PRIMARY and SECONDARY states
+[OK] PRIMARY is writable.
+[OK] SECONDARY is in secondary state.
+
+[STEP 3] Capture initial replica-set replication state
+[OK] Initial replica-set state captured.
+
+[STEP 4] SELECT from replication_test on PRIMARY before INSERT
+[]
+[STEP 4] INSERT replication document on PRIMARY
+[{"_id":"mongodb-replication-20261028_174600","test":"mongodb-kubernetes-replication","marker":"mongodb-replication-20261028_174600","updatedAt":"2026-10-28T17:46:39.591Z"}]
+[OK] Marker committed on PRIMARY.
+[INFO] Marker: mongodb-replication-20261028_174600
+
+[STEP 5] Wait for replication marker on SECONDARY
+[OK] Replication marker reached SECONDARY.
+
+[STEP 6] Validate replicated document
+[{"_id":"mongodb-replication-20261028_174600","test":"mongodb-kubernetes-replication","marker":"mongodb-replication-20261028_174600","updatedAt":"2026-10-28T17:46:39.591Z"}]
+[OK] PRIMARY marker verified: mongodb-replication-20261028_174600
+[OK] SECONDARY marker verified: mongodb-replication-20261028_174600
+[OK] Replicated document matches expected marker.
+
+[STEP 7] Capture final replica-set replication state
+[OK] Final replica-set state captured.
+
+[STEP 8] Write replication assessment evidence
+[OK] MongoDB replica-set replication verified.
+[OK] Replication marker reached SECONDARY.
+[OK] Replicated data matches.
+[OK] MONGODB REPLICATION: PASS
+[OK] Evidence: /Users/<user>/platforrm-db-ob-release_v1/runtime/replication/mongodb/kubernetes/replication_20261028_174600/result.txt
+
+==================================================
+ REPLICATION SCORECARD
+==================================================
+
+Platform : MongoDB (PSMDB replica set: primary -> secondary)
+
+Check                          Primary    Replica    Status
+-----                          -------    -------    ------
+Test document before insert    absent     -          PASS
+Test document after insert     present    present    PASS
+Documents identical            yes        yes        PASS
+Seen on replica after          -          3s         PASS
+Replica-set members ready      -          3/3        PASS
+
+==================================================
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-28T17:46:59Z
+Duration: 1m23.768175503s
+Status:   success

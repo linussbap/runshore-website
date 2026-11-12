@@ -1,0 +1,19 @@
+⏱ MONGODB STOP WORKLOAD · started 11:05:01 · finished in 4s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-25T11:05:01Z
+Command:  bash db-platform/mongodb/workload/kubernetes/stop.sh
+==================================================
+
+[INFO] resolve_scope.sh: SCOPE="kubernetes" -> PLATFORM_TYPE="kubeadm", KUBE_CONTEXT="minikube"
+pod "mongodb-ycsb-workload" deleted from mongodb namespace
+STATUS: STOPPING
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-25T11:05:01Z
+Duration: 475.977948ms
+Status:   success

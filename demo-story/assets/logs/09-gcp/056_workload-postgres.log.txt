@@ -1,0 +1,30 @@
+⏱ POSTGRESQL START WORKLOAD · started 00:29:26 · finished in 8s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-28T00:29:26Z
+Command:  bash db-platform/postgres/workload/kubernetes/start.sh
+==================================================
+
+[INFO] Workload time limit: 60 min -- stops by itself at 01:29 (ADMIN: WORKLOAD_MAX_MINUTES)
+[INFO] PostgreSQL workload target: postgres/platform-postgres-1/appdb
+[STEP] Validating pgbench schema...
+Defaulted container "postgres" out of: postgres, bootstrap-controller (init)
+[INFO] pgbench schema not found. Initializing as postgres...
+[OK] pgbench schema initialized.
+[STEP] Ensuring pgbench runtime permissions...
+[OK] pgbench runtime permissions ensured for appuser.
+[STEP] Validating pgbench tables...
+Defaulted container "postgres" out of: postgres, bootstrap-controller (init)
+[OK] pgbench schema validated.
+[STEP] Starting pgbench workload...
+STATUS: RUNNING
+PID: 50340
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-28T00:29:34Z
+Duration: 7.193953318s
+Status:   success
