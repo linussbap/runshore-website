@@ -1,0 +1,64 @@
+⏱ PMM UNREGISTER · started 08:42:48 · finished in 12s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-25T08:42:48Z
+Command:  bash observability/pmm/registration/kubernetes/mongodb/unregister.sh
+==================================================
+
+
+==================================================
+ UNREGISTER MONGODB REPLICA SET FROM PMM
+==================================================
+
+[STEP 1] Discover MongoDB cluster
+[INFO] MongoDB namespace : mongodb
+[INFO] MongoDB cluster   : mongodb-psmdb-db
+[INFO] PMM service name  : mongodb-psmdb-db
+
+[STEP 2] Discover PMM pod
+[OK] pmm-0
+
+[STEP 3] Authenticate pmm-agent to PMM Server
+Defaulted container "pmm" out of: pmm, encryption-key-generate (init), encryption-key-reconcile (init)
+Checking local pmm-agent status...
+pmm-agent is running.
+Node is already registered with 127.0.0.1:8443, pmm-agent ID is a95164d2-1374-45e0-8e91-02e64bac4f63. Use --force to register it again.
+Settings --server-username, --server-password only take effect when the Node is registered.
+Configuration file /usr/local/percona/pmm/config/pmm-agent.yaml updated.
+Reloading pmm-agent configuration...
+Configuration reloaded.
+Checking local pmm-agent status...
+pmm-agent is running.
+
+[STEP 4] Check MongoDB registration
+[INFO] MongoDB service found: mongodb-psmdb-db
+
+[STEP 5] Remove MongoDB registration
+Defaulted container "pmm" out of: pmm, encryption-key-generate (init), encryption-key-reconcile (init)
+Service removed.
+
+[INFO] PMM inventory: MongoDB services named *mongodb-psmdb-db* (what Registration status reads)
+[OK] nothing left in PMM inventory -- Registration shows FALSE
+
+[STEP 6] Validate MongoDB registration removal
+Defaulted container "pmm" out of: pmm, encryption-key-generate (init), encryption-key-reconcile (init)
+Services list.
+
+Service type           Service name                   Address and Port               Service ID
+PostgreSQL             pmm-server-postgresql          127.0.0.1:5432                 da9ba2e0-54cd-4aeb-b3b3-95143b7d5860
+
+[OK] MongoDB service absent from PMM: mongodb-psmdb-db
+
+==================================================
+ MONGODB REGISTRATION REMOVED FROM PMM
+==================================================
+
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-25T08:42:58Z
+Duration: 9.872824124s
+Status:   success

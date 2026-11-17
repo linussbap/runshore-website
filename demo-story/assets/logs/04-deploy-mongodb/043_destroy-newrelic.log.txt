@@ -1,0 +1,39 @@
+⏱ NEWRELIC DESTROY · started 09:26:24 · finished in 16s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-25T09:26:24Z
+Command:  SCOPE=kubernetes observability/newrelic/deploy/kubernetes/destroy.sh
+==================================================
+
+
+==================================================
+ DESTROY NEW RELIC PLATFORM
+==================================================
+
+[STEP 1] Validate prerequisites
+[OK] Kubernetes reachable
+
+[STEP 2] Remove Helm release
+release "newrelic-bundle" uninstalled
+[OK] Helm release removed
+
+[STEP 3] Remove namespace
+namespace "newrelic" deleted
+[INFO] Waiting for namespace removal...
+[OK] Namespace removed
+
+[STEP 4] Validate removal
+[OK] New Relic platform removed
+
+==================================================
+ NEW RELIC PLATFORM DESTROY COMPLETE
+==================================================
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-25T09:26:37Z
+Duration: 12.878568256s
+Status:   success

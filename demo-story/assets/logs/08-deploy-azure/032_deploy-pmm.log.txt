@@ -1,0 +1,304 @@
+⏱ PMM DEPLOY · started 12:28:19 · finished in 4m 20s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-27T12:28:19Z
+Command:  platform/cloud/azure/orchestrator/deploy.sh pmm
+==================================================
+
+[INFO] Region (azure): uksouth (default)
+==================================================
+ CLOUD LOGIN (AZURE) -- from setup / ADMIN
+==================================================
+  Azure CLI already logged in -- left as it is
+
+==================================================
+ DEPLOYING AS (AZURE)
+==================================================
+  Azure login:               <email>
+  Subscription:              Database-Assessment-Observability
+  Default location (az):     not set (Terraform uses its own location)
+==================================================
+ OK
+
+[OK] Terraform state: Azure storage account dbplattfdd7c99f20d82dc (resource group dbplat-tfstate-rg)
+[OK] kubectl connected to database-assessment-platform-aks
+
+[DEPENDENCY] Kubernetes
+[OK] Kubernetes API reachable
+
+[SECURITY] Provider Kubernetes Context Guard
+[INFO] Provider : azure
+[INFO] Platform : aks
+[INFO] Context  : database-assessment-platform-aks
+[OK] Azure/AKS context validated
+
+[PLATFORM] PMM
+ROOT_DIR=/Users/<user>/platforrm-db-ob-release_v1 - stack-1
+
+============================================================
+        PMM KUBERNETES OBSERVABILITY STACK
+============================================================
+[OK] Kubernetes API reachable
+[1/6] Validating Kubernetes lifecycle scripts
+[OK] All Kubernetes lifecycle scripts found.
+[2/6] Deploying PMM Server
+
+==================================================
+ PMM KUBERNETES SERVER DEPLOYMENT
+==================================================
+[STEP 1] Validate prerequisites
+[OK] Kubernetes API reachable
+[STEP 2] Converge namespace
+namespace/pmm created
+[OK] Namespace pmm is Active
+[STEP 3] Converge PMM credentials
+[INFO] Generated initial PMM administrator password
+[INFO] Password is stored only in Kubernetes Secret pmm-secret
+secret/pmm-secret created
+[OK] pmm-secret converged
+[OK] PMM_ADMIN_PASSWORD present
+[STEP 4] Converge Helm repository
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "splunk" chart repository
+...Successfully got an update from the "percona" chart repository
+...Successfully got an update from the "cloudnative-pg" chart repository
+...Successfully got an update from the "cnpg" chart repository
+...Successfully got an update from the "jetstack" chart repository
+...Successfully got an update from the "splunk-otel-collector-chart" chart repository
+...Successfully got an update from the "aws-ebs-csi-driver" chart repository
+...Successfully got an update from the "argo" chart repository
+...Successfully got an update from the "grafana" chart repository
+...Successfully got an update from the "bitnami" chart repository
+...Successfully got an update from the "newrelic" chart repository
+Update Complete. ⎈Happy Helming!⎈
+[STEP 5] Deploy PMM Server
+[INFO] PMM Service type: LoadBalancer
+Release "pmm" does not exist. Installing it now.
+NAME: pmm
+LAST DEPLOYED: Tue Oct 27 12:28:45 2026
+NAMESPACE: pmm
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+NOTES:
+Percona Monitoring and Management (PMM)
+
+An open source database monitoring, observability and management tool
+Check more info here: https://docs.percona.com/percona-monitoring-and-management/index.html
+
+Get the application URL:
+     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+           You can watch the status of by running 'kubectl get --namespace pmm svc -w monitoring-service'
+  export SERVICE_IP=$(kubectl get svc --namespace pmm monitoring-service -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
+  echo https://$SERVICE_IP:
+
+Get password for the "admin" user:
+  export ADMIN_PASS=$(kubectl get secret pmm-secret --namespace pmm -o jsonpath='{.data.PMM_ADMIN_PASSWORD}' | base64 --decode)
+  echo $ADMIN_PASS
+[STEP 6] Wait for PMM Server
+statefulset rolling update complete 1 pods at revision pmm-6fb775d9bf...
+pod/pmm-0 condition met
+[OK] PMM Server pod pmm-0 is Ready
+[STEP 7c] Converge PMM admin password
+[OK] PMM server accepts the pmm-secret password
+[STEP 7d] Create the Database Assessment Overview dashboard
+[OK] Dashboard ready: Assessment - MongoDB (/graph/d/dbplat-assessment-mongodb)
+[OK] Dashboard ready: Assessment - MySQL (/graph/d/dbplat-assessment-mysql)
+[OK] Dashboard ready: Database Assessment Overview (/graph/d/dbplat-overview)
+[OK] Dashboard ready: Assessment - PostgreSQL (/graph/d/dbplat-assessment-postgres)
+[OK] Dashboard ready: Assessment - Sybase ASE (/graph/d/dbplat-assessment-sybase)
+[OK] Dashboard ready: Workload - MongoDB (/graph/d/dbplat-workload-mongodb)
+[OK] Dashboard ready: Workload - MySQL (/graph/d/dbplat-workload-mysql)
+[OK] Dashboard ready: Workload - PostgreSQL (/graph/d/dbplat-workload-postgres) -- not collected by PMM: Latency now (ms), Latency (ms)
+[OK] Dashboard links for CONNECTION INFO: runtime/state/pmm/dashboards.json
+== 2026-10-27 12:31:02
+[OK] results ledger: 0 new check(s), 1127 in total
+[OK] splunk   up to date
+[INFO] newrelic not deployed -- 66 result(s) wait for it
+[WARN] pmm      0 sent, then PMM refused the import (HTTP it))
+[WARN] test results not sent
+[STEP 7] Validate PMM Service
+[OK] PMM Server Service monitoring-service exists
+[STEP 8] Evidence
+NAME	NAMESPACE	REVISION	UPDATED                            	STATUS  	CHART     	APP VERSION
+pmm 	pmm      	1       	2026-10-27 12:28:45.46991 +0000 UTC	deployed	pmm-1.10.0	3.10.0     
+NAME   READY   AGE
+pmm    1/1     2m50s
+NAME    READY   STATUS    RESTARTS   AGE
+pmm-0   1/1     Running   0          2m50s
+NAME                 TYPE           CLUSTER-IP     EXTERNAL-IP     PORT(S)                      AGE
+monitoring-service   LoadBalancer   10.x.x.x   20.26.167.249   443:32020/TCP,80:32608/TCP   2m50s
+NAME                STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+pmm-storage-pmm-0   Bound    pvc-def36ad7-9a87-4919-b68c-549ffc30f2ad   10Gi       RWO            default        <unset>                 2m51s
+
+==================================================
+ PMM SERVER CONVERGED
+==================================================
+[3/6] Validating PMM Server
+
+==================================================
+ VALIDATE PMM PLATFORM
+==================================================
+
+[STEP 1] Validate prerequisites
+[OK] Kubernetes reachable
+
+[STEP 2] Validate namespace
+[OK] Namespace present
+
+[STEP 3] Validate Helm release
+[OK] Helm release deployed
+
+[STEP 4] Validate StatefulSets
+NAME   READY   AGE
+pmm    1/1     2m51s
+statefulset rolling update complete 1 pods at revision pmm-6fb775d9bf...
+[OK] StatefulSet ready
+
+[STEP 5] Validate Services
+NAME                 TYPE           CLUSTER-IP     EXTERNAL-IP     PORT(S)                      AGE
+monitoring-service   LoadBalancer   10.x.x.x   20.26.167.249   443:32020/TCP,80:32608/TCP   2m52s
+[OK] Services available
+
+[STEP 6] Validate PVC
+NAME                STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+pmm-storage-pmm-0   Bound    pvc-def36ad7-9a87-4919-b68c-549ffc30f2ad   10Gi       RWO            default        <unset>                 2m52s
+[OK] PVC present
+
+[STEP 7] Validate Pods
+[OK] Pods Ready 1/1
+
+[STEP 7b] Validate the PMM token from ADMIN is accepted
+[INFO] PMM rejects the token in ADMIN (HTTP 401) -- making a new one
+[OK] Created PMM service account dbplat-platform (Admin)
+[OK] New PMM token made (service account dbplat-platform) and saved in ADMIN as PMM_SERVER_TOKEN -- no PMM web page needed
+[OK] PMM server accepts the token from ADMIN
+
+[STEP 8] Evidence
+NAME	NAMESPACE	REVISION	UPDATED                            	STATUS  	CHART     	APP VERSION
+pmm 	pmm      	1       	2026-10-27 12:28:45.46991 +0000 UTC	deployed	pmm-1.10.0	3.10.0     
+
+NAME    READY   STATUS    RESTARTS   AGE     IP           NODE                             NOMINATED NODE   READINESS GATES
+pmm-0   1/1     Running   0          2m54s   10.x.x.x   aks-system-11944324-vmss000001   <none>           <none>
+
+NAME                 TYPE           CLUSTER-IP     EXTERNAL-IP     PORT(S)                      AGE
+monitoring-service   LoadBalancer   10.x.x.x   20.26.167.249   443:32020/TCP,80:32608/TCP   2m54s
+
+NAME                STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+pmm-storage-pmm-0   Bound    pvc-def36ad7-9a87-4919-b68c-549ffc30f2ad   10Gi       RWO            default        <unset>                 2m55s
+
+==================================================
+ PMM VALIDATION SUCCESS
+==================================================
+[4/6] Deploying PMM Client
+
+==================================================
+ PMM KUBERNETES CLIENT DEPLOYMENT
+==================================================
+[OK] Kubernetes API reachable
+[OK] Namespace pmm is Active
+[INFO] PMM Server address: monitoring-service.pmm.svc.cluster.local:443
+[STEP 1] Validate PMM Server
+statefulset rolling update complete 1 pods at revision pmm-6fb775d9bf...
+pod/pmm-0 condition met
+[OK] PMM Server is Ready
+[STEP 2] Resolve PMM administrator credentials
+secret/pmm-client-credentials created
+[OK] PMM client credentials secret converged
+[STEP 3] Converge PMM Client storage
+[OK] Default StorageClass: default
+persistentvolumeclaim/pmm-client-storage created
+[STEP 4] Converge PMM Client Deployment
+deployment.apps/pmm-client created
+[OK] PMM Client Deployment converged
+[STEP 5] Wait for PMM Client
+Waiting for deployment "pmm-client" rollout to finish: 0 of 1 updated replicas are available...
+deployment "pmm-client" successfully rolled out
+pod/pmm-client-6755cf5b44-zrxsn condition met
+[OK] PMM Client pod pmm-client-6755cf5b44-zrxsn is Ready
+[STEP 6] Validate PMM Client registration
+Defaulted container "pmm-client" out of: pmm-client, set-tmp-permissions (init)
+Agent ID : 4ab6f059-f2a5-47f6-b9f2-25430080bdbd
+Node ID  : a4dfb79a-7aa2-4c96-8e81-f8242fcfb7fe
+Node name: pmm-client-6755cf5b44-zrxsn
+
+PMM Server:
+	URL    : https://monitoring-service.pmm.svc.cluster.local:443/
+	Version: 3.10.0
+
+PMM Client:
+	Connected        : true
+	Time drift       : 762.268µs
+	Latency          : 824.975µs
+	Connection uptime: 100
+	pmm-admin version: 3.10.0
+	pmm-agent version: 3.10.0
+Agents:
+	e6ee0a71-b884-475f-9f48-4fa338a9696f vmagent                        Running        42000
+	eee2bf12-af21-4120-9c51-d06e2bee4c56 node_exporter                  Running        42001
+
+[STEP 7] Verify PMM Client node
+Defaulted container "pmm-client" out of: pmm-client, set-tmp-permissions (init)
+Service type        Service name        Address and port        Service ID
+
+Agent type           Status           Metrics Mode        Agent ID                                    Service ID        Port
+pmm_agent            Connected                            4ab6f059-f2a5-47f6-b9f2-25430080bdbd                          0 
+node_exporter        Running          push                eee2bf12-af21-4120-9c51-d06e2bee4c56                          42001 
+vmagent              Running          push                e6ee0a71-b884-475f-9f48-4fa338a9696f                          42000
+
+
+==================================================
+ PMM CLIENT CONVERGED
+==================================================
+[OK] PMM Client registered and connected to PMM Server
+[5/6] Validating PMM Client
+deployment "pmm-client" successfully rolled out
+pod/pmm-client-6755cf5b44-zrxsn condition met
+Defaulted container "pmm-client" out of: pmm-client, set-tmp-permissions (init)
+Agent ID : 4ab6f059-f2a5-47f6-b9f2-25430080bdbd
+Node ID  : a4dfb79a-7aa2-4c96-8e81-f8242fcfb7fe
+Node name: pmm-client-6755cf5b44-zrxsn
+
+PMM Server:
+	URL    : https://monitoring-service.pmm.svc.cluster.local:443/
+	Version: 3.10.0
+
+PMM Client:
+	Connected        : true
+	Time drift       : 226.474µs
+	Latency          : 336.382µs
+	Connection uptime: 100
+	pmm-admin version: 3.10.0
+	pmm-agent version: 3.10.0
+Agents:
+	e6ee0a71-b884-475f-9f48-4fa338a9696f vmagent                        Running        42000
+	eee2bf12-af21-4120-9c51-d06e2bee4c56 node_exporter                  Running        42001
+
+[OK] PMM Kubernetes Client validated
+[6/6] Final Kubernetes status
+NAME   READY   AGE
+pmm    1/1     3m51s
+NAME         READY   UP-TO-DATE   AVAILABLE   AGE
+pmm-client   1/1     1            1           55s
+NAME                          READY   STATUS    RESTARTS   AGE
+pmm-0                         1/1     Running   0          3m51s
+pmm-client-6755cf5b44-zrxsn   1/1     Running   0          55s
+NAME                 TYPE           CLUSTER-IP     EXTERNAL-IP     PORT(S)                      AGE
+monitoring-service   LoadBalancer   10.x.x.x   20.26.167.249   443:32020/TCP,80:32608/TCP   3m52s
+NAME                 STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+pmm-client-storage   Bound    pvc-157a8cf5-1402-4708-b60b-7e8da3077ccd   1Gi        RWO            default        <unset>                 56s
+pmm-storage-pmm-0    Bound    pvc-def36ad7-9a87-4919-b68c-549ffc30f2ad   10Gi       RWO            default        <unset>                 3m52s
+
+============================================================
+PMM Kubernetes Observability Stack CONVERGED.
+============================================================
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-27T12:32:37Z
+Duration: 4m18.0545162s
+Status:   success

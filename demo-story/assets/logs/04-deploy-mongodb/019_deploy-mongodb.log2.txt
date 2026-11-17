@@ -1,0 +1,302 @@
+⏱ MONGODB DEPLOY · started 07:29:04 · finished in 1m 48s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-25T07:29:04Z
+Command:  SCOPE=kubernetes db-platform/mongodb/deploy/kubernetes/deploy.sh
+==================================================
+
+[INFO] resolve_scope.sh: SCOPE="kubernetes" -> PLATFORM_TYPE="kubeadm", KUBE_CONTEXT="minikube"
+
+==================================================
+ MONGODB PLATFORM DEPLOYMENT
+ SCOPE=kubernetes  PLATFORM_TYPE=kubeadm  KUBE_CONTEXT=minikube
+==================================================
+
+[STEP 1] Provision backup storage / credentials
+[INFO] Provider: kubernetes
+[INFO] Provider: kubernetes -- backup storage configuration handled by deploy_cluster.sh
+
+[STEP 2] Deploy MongoDB operator
+
+==========================================
+ DEPLOY PSMDB OPERATOR
+==========================================
+
+[STEP 1] Validate tooling
+[OK] Tooling available
+
+[STEP 2] Validate Kubernetes API
+[OK] Kubernetes API reachable
+
+[STEP 3] Converge namespace
+namespace/mongodb created
+
+[STEP 4] Converge Percona Helm repository
+"percona" has been added to your repositories
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "jetstack" chart repository
+...Successfully got an update from the "cnpg" chart repository
+...Successfully got an update from the "percona" chart repository
+...Successfully got an update from the "splunk-otel-collector-chart" chart repository
+...Successfully got an update from the "splunk" chart repository
+...Successfully got an update from the "cloudnative-pg" chart repository
+...Successfully got an update from the "aws-ebs-csi-driver" chart repository
+...Successfully got an update from the "argo" chart repository
+...Successfully got an update from the "newrelic" chart repository
+...Successfully got an update from the "grafana" chart repository
+...Successfully got an update from the "bitnami" chart repository
+Update Complete. ⎈Happy Helming!⎈
+
+[STEP 5] Validate PSMDB charts
+[OK] Required PSMDB charts available
+
+[STEP 6] Converge PSMDB CRDs
+Release "psmdb-operator-crds" does not exist. Installing it now.
+NAME: psmdb-operator-crds
+LAST DEPLOYED: Sun Oct 25 07:29:10 2026
+NAMESPACE: mongodb
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+
+[STEP 7] Converge PSMDB operator
+Release "psmdb-operator" does not exist. Installing it now.
+NAME: psmdb-operator
+LAST DEPLOYED: Sun Oct 25 07:29:15 2026
+NAMESPACE: mongodb
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+NOTES:
+1. Percona Operator for MongoDB is deployed.
+  See if the operator Pod is running:
+
+    kubectl get pods -l app.kubernetes.io/name=psmdb-operator --namespace mongodb
+
+  Check the operator logs if the Pod is not starting:
+
+    export POD=$(kubectl get pods -l app.kubernetes.io/name=psmdb-operator --namespace mongodb --output name)
+    kubectl logs $POD --namespace=mongodb
+
+2. Deploy the database cluster from psmdb-db chart:
+
+    helm install my-db percona/psmdb-db --namespace=mongodb
+
+Read more in our documentation: https://docs.percona.com/percona-operator-for-mongodb/
+
+[STEP 8] Validate operator rollout
+deployment "psmdb-operator" successfully rolled out
+NAME             READY   UP-TO-DATE   AVAILABLE   AGE
+psmdb-operator   1/1     1            1           2s
+NAME                              READY   STATUS    RESTARTS   AGE   IP             NODE       NOMINATED NODE   READINESS GATES
+psmdb-operator-8564d5d498-47kjn   1/1     Running   0          2s    10.x.x.x   minikube   <none>           <none>
+
+[OK] PSMDB operator ready
+
+[STEP 3] Deploy MongoDB cluster
+
+==========================================
+ DEPLOY MONGODB PSMDB CLUSTER
+==========================================
+
+[STEP 1] Validate prerequisites
+[OK] Prerequisites validated
+
+[INFO] Provider: local
+
+[STEP 1b] Configure backup storage
+[INFO] Provider: local -- using in-cluster MinIO
+
+==================================================
+ MINIO DEPLOYMENT (KUBERNETES)
+==================================================
+
+[INFO] Namespace            : mongodb
+[INFO] MinIO image          : cgr.dev/chainguard/minio:latest
+[INFO] mc image             : cgr.dev/chainguard/minio-client:latest-dev
+[INFO] Bucket               : mongodb-backups
+
+[STEP 1] Validate namespace
+[OK] Namespace mongodb is Active
+
+[STEP 2] Validate local MinIO images
+[OK] Docker image exists: cgr.dev/chainguard/minio:latest
+[OK] Docker image exists: cgr.dev/chainguard/minio-client:latest-dev
+
+[STEP 3] Load local images into Minikube
+[OK] Images loaded into Minikube
+
+[STEP 4] Deploy MinIO
+deployment.apps/minio created
+persistentvolumeclaim/minio-data created
+service/minio created
+[OK] MinIO resources applied
+
+[STEP 5] Wait for MinIO readiness
+Waiting for deployment "minio" rollout to finish: 0 of 1 updated replicas are available...
+deployment "minio" successfully rolled out
+[OK] MinIO deployment ready
+
+[STEP 6] Create backup bucket
+pod/mc-bucket-setup created
+[INFO] Waiting for bucket setup pod to complete
+[OK] Bucket setup completed
+Added `local` successfully.
+Bucket created successfully `local/mongodb-backups`.
+[2026-10-25 07:29:52 UTC]     0B mongodb-backups/
+[OK] Bucket setup pod removed
+
+[STEP 7] Create Kubernetes secret for MongoDB backup
+secret/mongodb-backup-s3-creds created
+[OK] Secret mongodb-backup-s3-creds ready
+
+==================================================
+ MINIO READY
+==================================================
+
+[INFO] Endpoint (in-cluster): http://minio.mongodb.svc.cluster.local:9000
+[INFO] Bucket: mongodb-backups
+[INFO] Secret: mongodb-backup-s3-creds
+[INFO] MinIO image: cgr.dev/chainguard/minio:latest
+[INFO] mc image: cgr.dev/chainguard/minio-client:latest-dev
+
+[OK] Backup bucket: mongodb-backups (MinIO)
+
+[STEP 2] Validate namespace
+namespace/mongodb unchanged
+[OK] Namespace available: mongodb
+
+[STEP 3] Validate PSMDB operator
+deployment "psmdb-operator" successfully rolled out
+[OK] PSMDB operator ready
+
+[STEP 4] Validate PSMDB Helm chart
+[OK] MongoDB database chart available
+
+[STEP 5] Converge MongoDB replica set
+Release "mongodb" does not exist. Installing it now.
+NAME: mongodb
+LAST DEPLOYED: Sun Oct 25 07:29:58 2026
+NAMESPACE: mongodb
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+NOTES:
+#
+
+                    %                        _____
+                   %%%                      |  __ \
+                 ###%%%%%%%%%%%%*           | |__) |__ _ __ ___ ___  _ __   __ _
+                ###  ##%%      %%%%         |  ___/ _ \ '__/ __/ _ \| '_ \ / _` |
+              ####     ##%       %%%%       | |  |  __/ | | (_| (_) | | | | (_| |
+             ###        ####      %%%       |_|   \___|_|  \___\___/|_| |_|\__,_|
+           ,((###         ###     %%%        _      _          _____                       _
+          (((( (###        ####  %%%%       | |   / _ \       / ____|                     | |
+         (((     ((#         ######         | | _| (_) |___  | (___   __ _ _   _  __ _  __| |
+       ((((       (((#        ####          | |/ /> _ </ __|  \___ \ / _` | | | |/ _` |/ _` |
+      /((          ,(((        *###         |   <| (_) \__ \  ____) | (_| | |_| | (_| | (_| |
+    ////             (((         ####       |_|\_\\___/|___/ |_____/ \__, |\__,_|\__,_|\__,_|
+   ///                ((((        ####                                  | |
+ /////////////(((((((((((((((((########                                 |_|   Join @ percona.com/k8s
+
+
+Join Percona Squad! Get early access to new product features, invite-only ”ask me anything” sessions with Percona Kubernetes experts, and monthly swag raffles.
+
+>>> https://percona.com/k8s <<<
+
+Percona Server for MongoDB cluster is deployed now. Get the username and password:
+
+  ADMIN_USER=$(kubectl -n mongodb get secrets mongodb-psmdb-db-secrets -o jsonpath="{.data.MONGODB_USER_ADMIN_USER}" | base64 --decode)
+  ADMIN_PASSWORD=$(kubectl -n mongodb get secrets mongodb-psmdb-db-secrets -o jsonpath="{.data.MONGODB_USER_ADMIN_PASSWORD}" | base64 --decode)
+
+Connect to the cluster:kubectl run -i --rm --tty percona-client --image=percona/percona-server-mongodb:8.0.19-7 --restart=Never \
+  -- mongosh "mongodb+srv://${ADMIN_USER}:${ADMIN_PASSWORD}@mongodb-psmdb-db-rs0.mongodb.svc.cluster.local/admin?replicaSet=rs0&ssl=false"
+
+[STEP 6] Discover MongoDB custom resource
+[OK] MongoDB CR discovered: mongodb-psmdb-db
+
+[STEP 7] Wait for 3 MongoDB members to be created
+[INFO] Waiting for MongoDB members 0/3
+[INFO] Waiting for MongoDB members 1/3
+[INFO] Waiting for MongoDB members 1/3
+[INFO] Waiting for MongoDB members 1/3
+[INFO] Waiting for MongoDB members 2/3
+[INFO] Waiting for MongoDB members 2/3
+[INFO] Waiting for MongoDB members 2/3
+[OK] MongoDB members created: 3/3
+
+[STEP 8] Wait for actual MongoDB pod readiness
+[INFO] MongoDB members ready 2/3
+[INFO] MongoDB members ready 2/3
+[INFO] MongoDB members ready 2/3
+[OK] MongoDB members ready: 3/3
+
+[STEP 9] Validate MongoDB CR state
+[INFO] MongoDB CR state: initializing
+
+[STEP 10] Validate cluster
+[PASS] Node minikube disk: 147 GB free (64%)
+
+==================================================
+ VALIDATE MONGODB PLATFORM
+==================================================
+
+[STEP 1] Validate tooling and Kubernetes API
+[OK] Kubernetes API reachable
+
+[STEP 2] Validate PSMDB operator
+deployment "psmdb-operator" successfully rolled out
+[OK] PSMDB operator ready
+
+[STEP 3] Validate MongoDB custom resource
+[OK] MongoDB CR available: mongodb-psmdb-db
+
+[STEP 4] Validate ready MongoDB members
+[OK] MongoDB ready members 3/3
+
+[STEP 5] Validate distinct-node placement
+[WARN] MongoDB members span 1/3 nodes
+[WARN] Cluster has only 1 node(s) total —
+[WARN] true multi-node distribution isn't possible here.
+NAME                     READY   STATUS    RESTARTS   AGE   IP             NODE       NOMINATED NODE   READINESS GATES
+mongodb-psmdb-db-rs0-0   4/4     Running   0          52s   10.x.x.x   minikube   <none>           <none>
+mongodb-psmdb-db-rs0-1   4/4     Running   0          35s   10.x.x.x   minikube   <none>           <none>
+mongodb-psmdb-db-rs0-2   4/4     Running   0          20s   10.x.x.x   minikube   <none>           <none>
+
+[STEP 6] Validate persistent storage
+[OK] Bound PVCs: 4
+
+[STEP 7] Platform evidence
+NAME               ENDPOINT                                         STATUS         AGE
+mongodb-psmdb-db   mongodb-psmdb-db-rs0.mongodb.svc.cluster.local   initializing   53s
+
+NAME                     READY   STATUS    RESTARTS   AGE   IP             NODE       NOMINATED NODE   READINESS GATES
+mongodb-psmdb-db-rs0-0   4/4     Running   0          52s   10.x.x.x   minikube   <none>           <none>
+mongodb-psmdb-db-rs0-1   4/4     Running   0          35s   10.x.x.x   minikube   <none>           <none>
+mongodb-psmdb-db-rs0-2   4/4     Running   0          20s   10.x.x.x   minikube   <none>           <none>
+
+NAME                                 STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE   VOLUMEMODE
+minio-data                           Bound    pvc-3b20f965-9c1b-4c24-b153-2200e546b8e6   5Gi        RWO            standard       <unset>                 69s   Filesystem
+mongod-data-mongodb-psmdb-db-rs0-0   Bound    pvc-4da83413-723b-4b34-af38-90fbc12ed3d8   20Gi       RWO            standard       <unset>                 53s   Filesystem
+mongod-data-mongodb-psmdb-db-rs0-1   Bound    pvc-562b4b47-815d-412b-b431-dbfd20ea2fc6   20Gi       RWO            standard       <unset>                 36s   Filesystem
+mongod-data-mongodb-psmdb-db-rs0-2   Bound    pvc-0b143aeb-102e-4400-a558-d21a27f77155   20Gi       RWO            standard       <unset>                 21s   Filesystem
+
+NAME                   TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)             AGE
+minio                  ClusterIP   10.x.x.x   <none>        9000/TCP,9001/TCP   69s
+mongodb-psmdb-db-rs0   ClusterIP   None           <none>        27017/TCP           53s
+
+[OK] MongoDB platform validation complete
+
+[OK] MongoDB PSMDB deployment complete
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-25T07:30:52Z
+Duration: 1m47.573988797s
+Status:   success

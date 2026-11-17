@@ -1,0 +1,152 @@
+⏱ SPLUNK REGISTER · started 01:44:45 · finished in 3m 33s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-28T01:44:45Z
+Command:  bash observability/splunk/registration/kubernetes/mysql/register.sh
+==================================================
+
+
+==================================================
+ REGISTER MYSQL -> SPLUNK (OTEL)
+==================================================
+
+============================================================
+ MYSQL -> SPLUNK INTEGRATION
+============================================================
+
+[STEP 1] Validate prerequisites
+[OK] PXC: pxc-db
+[OK] Splunk HEC service: splunk-s1-standalone-service
+[OK] Splunk runtime Secret: splunk-splunk-secret
+[INFO] HEC token value was never displayed
+
+[STEP 2] Discover current PXC LogCollector state
+[INFO] Current logcollector configuration:
+
+[INFO] Current logCollectorSecretName:
+
+
+[INFO] Current PXC Pods:
+NAME           READY   STATUS    RESTARTS   AGE     IP           NODE                                                  NOMINATED NODE   READINESS GATES
+pxc-db-pxc-0   1/1     Running   0          4m55s   10.x.x.x   gke-database-assessm-database-assessm-f881def6-43xx   <none>           <none>
+pxc-db-pxc-1   1/1     Running   0          3m28s   10.x.x.x   gke-database-assessm-database-assessm-55db0b9b-1n2v   <none>           <none>
+pxc-db-pxc-2   1/1     Running   0          2m11s   10.x.x.x   gke-database-assessm-database-assessm-d9fbf66d-s3zb   <none>           <none>
+
+[STEP 3] Converge MySQL-local Splunk HEC Secret
+secret/mysql-splunk-hec created
+[OK] mysql/mysql-splunk-hec converged
+[INFO] HEC token value was never displayed
+[OK] MySQL HEC Secret exists and contains a token
+[INFO] HEC token value was never displayed
+
+[STEP 4] Configure Percona native LogCollector -> Splunk HEC
+[OK] PXC configuration backup:
+     /Users/<user>/platforrm-db-ob-release_v1/shared/state/mysql-splunk/pxc-db-before-splunk.yaml
+perconaxtradbcluster.pxc.percona.com/pxc-db patched
+[OK] Percona LogCollector desired state converged
+
+[STEP 5] Reconcile Percona LogCollector
+[INFO] PXC readiness: 3/3
+[INFO] pxc-db-pxc-0: waiting for Percona logs/logrotate containers
+[INFO] pxc-db-pxc-1: waiting for Percona logs/logrotate containers
+[INFO] pxc-db-pxc-2: waiting for Percona logs/logrotate containers
+[INFO] Waiting for Operator reconciliation (2s)
+[INFO] pxc-db-pxc-0: waiting for Percona logs/logrotate containers
+[INFO] pxc-db-pxc-1: waiting for Percona logs/logrotate containers
+[INFO] pxc-db-pxc-2: waiting for Percona logs/logrotate containers
+[INFO] Waiting for Operator reconciliation (13s)
+[INFO] pxc-db-pxc-0: waiting for Percona logs/logrotate containers
+[INFO] pxc-db-pxc-1: waiting for Percona logs/logrotate containers
+[OK] pxc-db-pxc-2: logs + logrotate containers present
+[INFO] Waiting for Operator reconciliation (25s)
+[INFO] pxc-db-pxc-0: waiting for Percona logs/logrotate containers
+[INFO] pxc-db-pxc-1: waiting for Percona logs/logrotate containers
+[OK] pxc-db-pxc-2: logs + logrotate containers present
+[INFO] Waiting for Operator reconciliation (36s)
+[INFO] pxc-db-pxc-0: waiting for Percona logs/logrotate containers
+[INFO] pxc-db-pxc-1: waiting for Percona logs/logrotate containers
+[OK] pxc-db-pxc-2: logs + logrotate containers present
+[INFO] Waiting for Operator reconciliation (48s)
+[INFO] pxc-db-pxc-0: waiting for Percona logs/logrotate containers
+[INFO] pxc-db-pxc-1: waiting for Percona logs/logrotate containers
+[OK] pxc-db-pxc-2: logs + logrotate containers present
+[INFO] Waiting for Operator reconciliation (59s)
+[INFO] pxc-db-pxc-0: waiting for Percona logs/logrotate containers
+[INFO] pxc-db-pxc-1: waiting for Percona logs/logrotate containers
+[OK] pxc-db-pxc-2: logs + logrotate containers present
+[INFO] Waiting for Operator reconciliation (70s)
+[INFO] pxc-db-pxc-0: waiting for Percona logs/logrotate containers
+[OK] pxc-db-pxc-1: logs + logrotate containers present
+[OK] pxc-db-pxc-2: logs + logrotate containers present
+[INFO] Waiting for Operator reconciliation (81s)
+[INFO] pxc-db-pxc-0: waiting for Percona logs/logrotate containers
+[OK] pxc-db-pxc-1: logs + logrotate containers present
+[OK] pxc-db-pxc-2: logs + logrotate containers present
+[INFO] Waiting for Operator reconciliation (93s)
+[INFO] pxc-db-pxc-0: waiting for Percona logs/logrotate containers
+[OK] pxc-db-pxc-1: logs + logrotate containers present
+[OK] pxc-db-pxc-2: logs + logrotate containers present
+[INFO] Waiting for Operator reconciliation (104s)
+[INFO] pxc-db-pxc-0: waiting for Percona logs/logrotate containers
+[OK] pxc-db-pxc-1: logs + logrotate containers present
+[OK] pxc-db-pxc-2: logs + logrotate containers present
+[INFO] Waiting for Operator reconciliation (116s)
+[INFO] pxc-db-pxc-0: waiting for Percona logs/logrotate containers
+[OK] pxc-db-pxc-1: logs + logrotate containers present
+[OK] pxc-db-pxc-2: logs + logrotate containers present
+[INFO] Waiting for Operator reconciliation (127s)
+[INFO] pxc-db-pxc-0: waiting for Percona logs/logrotate containers
+[OK] pxc-db-pxc-1: logs + logrotate containers present
+[OK] pxc-db-pxc-2: logs + logrotate containers present
+[INFO] Waiting for Operator reconciliation (138s)
+[INFO] pxc-db-pxc-0: waiting for Percona logs/logrotate containers
+[OK] pxc-db-pxc-1: logs + logrotate containers present
+[OK] pxc-db-pxc-2: logs + logrotate containers present
+[INFO] Waiting for Operator reconciliation (150s)
+[OK] pxc-db-pxc-0: logs + logrotate containers present
+[OK] pxc-db-pxc-1: logs + logrotate containers present
+[OK] pxc-db-pxc-2: logs + logrotate containers present
+[INFO] Waiting for Operator reconciliation (161s)
+[OK] pxc-db-pxc-0: logs + logrotate containers present
+[OK] pxc-db-pxc-1: logs + logrotate containers present
+[OK] pxc-db-pxc-2: logs + logrotate containers present
+[INFO] Waiting for Operator reconciliation (172s)
+[OK] pxc-db-pxc-0: logs + logrotate containers present
+[OK] pxc-db-pxc-1: logs + logrotate containers present
+[OK] pxc-db-pxc-2: logs + logrotate containers present
+[INFO] Waiting for Operator reconciliation (184s)
+[OK] pxc-db-pxc-0: logs + logrotate containers present
+[OK] pxc-db-pxc-1: logs + logrotate containers present
+[OK] pxc-db-pxc-2: logs + logrotate containers present
+[INFO] Waiting for Operator reconciliation (195s)
+[OK] pxc-db-pxc-0: logs + logrotate containers present
+[OK] pxc-db-pxc-1: logs + logrotate containers present
+[OK] pxc-db-pxc-2: logs + logrotate containers present
+[OK] Percona LogCollector fully reconciled
+
+[STEP 6] Validate MySQL -> Percona Fluent Bit -> Splunk
+[OK] LogCollector enabled
+[OK] LogCollector Secret: mysql-splunk-hec
+[OK] Splunk output configured
+[OK] Percona Fluent Bit Splunk output plugin available
+[OK] Percona logs container present
+[OK] Percona logrotate container present
+
+[INFO] Live HEC delivery is handled by the native Fluent Bit pipeline.
+[INFO] MySQL performance metrics remain separate from this log pipeline.
+
+============================================================
+ STATUS: MYSQL -> SPLUNK CONFIGURED
+============================================================
+
+[OK] MySQL -> Splunk OTel registration complete
+[OK] Registration state recorded: REGISTERED
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-28T01:48:16Z
+Duration: 3m30.368421368s
+Status:   success

@@ -1,0 +1,96 @@
+⏱ POSTGRESQL DESTROY · started 16:49:20 · finished in 48s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-27T16:49:20Z
+Command:  platform/cloud/azure/orchestrator/destroy.sh postgres
+==================================================
+
+[INFO] Region (azure): uksouth (default)
+==================================================
+ CLOUD LOGIN (AZURE) -- from setup / ADMIN
+==================================================
+  Azure CLI already logged in -- left as it is
+
+==================================================
+ DESTROYING AS (AZURE)
+==================================================
+  Azure login:               <email>
+  Subscription:              Database-Assessment-Observability
+  Default location (az):     not set (Terraform uses its own location)
+==================================================
+ OK
+
+[OK] Terraform state: Azure storage account dbplattfdd7c99f20d82dc (resource group dbplat-tfstate-rg)
+[OK] kubectl connected to database-assessment-platform-aks
+
+[DEPENDENCY] Kubernetes
+[OK] Kubernetes API reachable
+
+[SECURITY] Provider Kubernetes Context Guard
+[INFO] Provider : azure
+[INFO] Platform : aks
+[INFO] Context  : database-assessment-platform-aks
+[OK] Azure/AKS context validated
+
+[PLATFORM] PostgreSQL
+[INFO] Stopping postgres workload (azure) via db-platform/postgres/workload/kubernetes/stop.sh before destroy...
+[OK] PostgreSQL Kubernetes workload stopped
+STATUS: STOPPED
+
+==================================================
+ POSTGRES PLATFORM DESTROY
+==================================================
+
+[STEP 1] Validate Kubernetes API
+[OK] Kubernetes API reachable
+
+[STEP 2] Remove PostgreSQL clusters
+[INFO] Deleting postgres/platform-postgres
+cluster.postgresql.cnpg.io "platform-postgres" deleted from postgres namespace
+[INFO] Waiting for PostgreSQL clusters to terminate
+[OK] All PostgreSQL clusters removed
+
+[INFO] Waiting for PostgreSQL pods to stop
+[INFO] Still stopping: platform-postgres-1 platform-postgres-2 platform-postgres-3 (0s)
+[OK] PostgreSQL pods stopped (10s)
+[STEP 3] Remove CloudNativePG operator
+[INFO] PostgreSQL platform owns the CloudNativePG operator
+[INFO] Uninstalling Helm release cnpg
+These resources were kept due to the resource policy:
+[CustomResourceDefinition] poolers.postgresql.cnpg.io
+[CustomResourceDefinition] publications.postgresql.cnpg.io
+[CustomResourceDefinition] scheduledbackups.postgresql.cnpg.io
+[CustomResourceDefinition] subscriptions.postgresql.cnpg.io
+[CustomResourceDefinition] backups.postgresql.cnpg.io
+[CustomResourceDefinition] clusterimagecatalogs.postgresql.cnpg.io
+[CustomResourceDefinition] clusters.postgresql.cnpg.io
+[CustomResourceDefinition] databaseroles.postgresql.cnpg.io
+[CustomResourceDefinition] databases.postgresql.cnpg.io
+[CustomResourceDefinition] failoverquorums.postgresql.cnpg.io
+[CustomResourceDefinition] imagecatalogs.postgresql.cnpg.io
+
+release "cnpg" uninstalled
+[INFO] Removing cnpg-system namespace
+namespace "cnpg-system" deleted
+[INFO] Waiting for cnpg-system namespace removal (0s)
+[INFO] Waiting for cnpg-system namespace removal (5s)
+[OK] CloudNativePG operator removed
+
+[STEP 4] Remove PostgreSQL namespace
+namespace "postgres" deleted
+[INFO] Waiting for namespace removal (0s)
+[INFO] Waiting for namespace removal (5s)
+[OK] PostgreSQL namespace removed
+
+==================================================
+ POSTGRES PLATFORM DESTROY COMPLETE
+==================================================
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-27T16:50:08Z
+Duration: 47.718761889s
+Status:   success

@@ -1,0 +1,96 @@
+START
+
+⏱ SYBASE START WORKLOAD · started 07:11:15 · finished in 8s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-25T07:11:15Z
+Command:  bash db-platform/sybase/workload/kubernetes/start.sh
+==================================================
+
+
+==================================================
+ SYBASE WORKLOAD
+==================================================
+
+Platform        : SAP ASE
+Scope           : kubernetes
+Namespace       : sybase
+Workload Engine : ASE isql
+Database        : assessmentdb
+Table           : workload_platform_sybase
+Log             : /Users/<user>/platforrm-db-ob-release_v1/runtime/logs/platform/workload_platform_sybase_kubernetes.log
+
+[INFO] Sybase pod: platform-sybase-74b59d4bcd-djznx
+[OK] Sybase pod Ready
+[STEP] Validating ASE connectivity...
+[OK] ASE connectivity confirmed
+[STEP] Checking database assessmentdb...
+[OK] assessmentdb exists -- left as it is
+[STEP] Recreating workload table...
+ workload_rows 
+ ------------- 
+             0 
+[OK] Workload table recreated with zero rows
+[STEP] Starting background ASE workload...
+
+[OK] Sybase workload active inside pod platform-sybase-74b59d4bcd-djznx (PID 9940)
+[INFO] 2026-10-25T07:11:19+0000 SYBASE_PROGRESS elapsed=2 operations=300 ops_sec=150.00 failed=0
+[INFO] Progress inside the pod: /tmp/sybase_workload_runtime.log
+
+STATUS: RUNNING
+
+==================================================
+ SYBASE WORKLOAD STARTED
+==================================================
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-25T07:11:20Z
+Duration: 4.786979117s
+Status:   success
+
+
+
+
+STOP
+
+⏱ SYBASE STOP WORKLOAD · started 07:11:53 · finished in 4s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-25T07:11:53Z
+Command:  bash db-platform/sybase/workload/kubernetes/stop.sh
+==================================================
+
+
+==================================================
+ STOP SYBASE WORKLOAD
+==================================================
+
+Scope      : kubernetes
+Namespace  : sybase
+Deployment : platform-sybase
+Container  : sybase
+
+[INFO] Sybase pod: platform-sybase-74b59d4bcd-djznx
+[OK] Sybase pod Ready
+[INFO] Stopping workload PID 9940...
+
+STATUS: IDLE
+[OK] Sybase workload stopped.
+[OK] ASE deployment remains running.
+
+==================================================
+ SYBASE WORKLOAD STOPPED
+==================================================
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-25T07:11:55Z
+Duration: 2.062855275s
+Status:   success

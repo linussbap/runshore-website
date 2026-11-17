@@ -1,0 +1,93 @@
+⏱ MONGODB FAILOVER · started 16:56:22 · finished in 48s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-27T16:56:22Z
+Command:  SCOPE=azure db-platform/mongodb/failover/kubernetes/run_failover.sh
+==================================================
+
+== Clean start for mongodb (scope: azure) ==
+[1/4] Platform operations still running on this machine
+  none
+[2/4] Unfinished restores
+  $ bash platform/lib/prune_test_backups.sh mongodb
+      mongodb: no test backups
+[3/4] Replication-test replicas
+    [STEP 1] Remove replication validation collection
+    MongoServerError: not authorized on assessment to execute command { drop: "replication_test", lsid: { id: UUID("e0da3551-d2d2-4f30-a003-95d45bfe197f") }, $clusterTime: { clusterTime: Timestamp(1793120184, 2), signature: { hash: BinData(0, 1599A845FDD5877C06AC094CC6681CEFF395A386), keyId: 7701392002616655879 } }, $readPreference: { mode: "primaryPreferred" }, $db: "assessment" }
+    command terminated with exit code 1
+[4/4] Workloads
+    [INFO] resolve_scope.sh: SCOPE="azure" -> PLATFORM_TYPE="aks", KUBE_CONTEXT="database-assessment-platform-aks"
+    STATUS: IDLE
+[OK] mongodb: clean start done. The database and monitoring tools were kept.
+
+============================================================
+ MONGODB KUBERNETES HA / FAILOVER DEMONSTRATION
+============================================================
+
+[STEP 1] Validate PSMDB cluster readiness
+[OK] PSMDB cluster is ready.
+[OK] Replica set: rs0
+[OK] Ready members: 3/3
+
+[STEP 2] Load cluster-admin credentials from Kubernetes Secret
+[OK] Cluster-admin credentials loaded from Kubernetes Secret.
+[OK] Credentials are not written to evidence.
+
+[STEP 3] Discover current MongoDB PRIMARY
+[OK] Current PRIMARY: mongodb-psmdb-db-rs0-0
+[OK] Current PRIMARY is writable.
+
+[STEP 4] Write HA validation marker
+{
+  acknowledged: true,
+  insertedId: 'ha-20261027_165625',
+  matchedCount: 0,
+  modifiedCount: 0,
+  upsertedCount: 1
+}
+[OK] Validation marker written.
+[OK] Marker: ha-20261027_165625
+
+[STEP 5] Terminate current PRIMARY
+[WARNING] This is a deliberate destructive HA test.
+[INFO] Failure target: mongodb-psmdb-db-rs0-0
+[INFO] Initial PRIMARY Pod UID: 0cc2165d-b057-44fa-87a4-bbfaec377504
+[OK] PRIMARY termination requested.
+
+[STEP 6] Verify failed PRIMARY is down
+[OK] Failed PRIMARY is no longer present: mongodb-psmdb-db-rs0-0
+
+[STEP 7] Wait for MongoDB replica-set election
+[OK] New PRIMARY elected: mongodb-psmdb-db-rs0-1
+
+[STEP 7] Validate new PRIMARY
+[OK] New PRIMARY is writable.
+[OK] HA validation marker survived failover.
+
+[STEP 8] Wait for MongoDB replica set to recover to 3 healthy members
+[OK] MongoDB replica set recovered to 3/3 ready members.
+[OK] PRIMARY remains: mongodb-psmdb-db-rs0-1
+
+[STEP 9] Final HA validation
+============================================================
+MONGODB KUBERNETES — FAILOVER TEST PASSED
+============================================================
+Failure target : mongodb-psmdb-db-rs0-0
+New PRIMARY    : mongodb-psmdb-db-rs0-1
+Replica set    : rs0
+Final members  : 3/3
+Recovery       : automatic MongoDB replica-set election
+Data validation: PASS
+Evidence       : /Users/<user>/platforrm-db-ob-release_v1/runtime/failover/mongodb/kubernetes/failover_20261027_165625/result.txt
+
+[PASS] MongoDB Kubernetes HA demonstration complete.
+[PASS] Evidence: /Users/<user>/platforrm-db-ob-release_v1/runtime/failover/mongodb/kubernetes/failover_20261027_165625/result.txt
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-27T16:57:07Z
+Duration: 45.445120506s
+Status:   success

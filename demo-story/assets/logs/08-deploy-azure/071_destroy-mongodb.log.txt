@@ -1,0 +1,102 @@
+⏱ MONGODB DESTROY · started 18:19:13 · finished in 56s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-27T18:19:13Z
+Command:  platform/cloud/azure/orchestrator/destroy.sh mongodb
+==================================================
+
+[INFO] Region (azure): uksouth (default)
+==================================================
+ CLOUD LOGIN (AZURE) -- from setup / ADMIN
+==================================================
+  Azure CLI already logged in -- left as it is
+
+==================================================
+ DESTROYING AS (AZURE)
+==================================================
+  Azure login:               <email>
+  Subscription:              Database-Assessment-Observability
+  Default location (az):     not set (Terraform uses its own location)
+==================================================
+ OK
+
+[OK] Terraform state: Azure storage account dbplattfdd7c99f20d82dc (resource group dbplat-tfstate-rg)
+[OK] kubectl connected to database-assessment-platform-aks
+
+[DEPENDENCY] Kubernetes
+[OK] Kubernetes API reachable
+
+[SECURITY] Provider Kubernetes Context Guard
+[INFO] Provider : azure
+[INFO] Platform : aks
+[INFO] Context  : database-assessment-platform-aks
+[OK] Azure/AKS context validated
+
+[PLATFORM] MongoDB
+[INFO] Stopping mongodb workload (azure) via db-platform/mongodb/workload/kubernetes/stop.sh before destroy...
+[INFO] resolve_scope.sh: SCOPE="azure" -> PLATFORM_TYPE="aks", KUBE_CONTEXT="database-assessment-platform-aks"
+STATUS: IDLE
+
+==================================================
+ DESTROY MONGODB PLATFORM
+==================================================
+
+[STEP 1] Validate tooling
+[OK] Tooling and Kubernetes API available
+
+[STEP 2] Remove MongoDB Helm release
+release "mongodb" uninstalled
+
+[STEP 3] Remove PSMDB custom resources
+
+[STEP 3b] Remove PSMDB backup/restore custom resources
+[INFO] Removing perconaservermongodbbackup.psmdb.percona.com/pitr-demo-1793120335
+perconaservermongodbbackup.psmdb.percona.com "pitr-demo-1793120335" deleted from mongodb namespace
+[INFO] Removing perconaservermongodbrestore.psmdb.percona.com/pitr-demo-restore-1793120368
+perconaservermongodbrestore.psmdb.percona.com "pitr-demo-restore-1793120368" deleted from mongodb namespace
+
+[STEP 4] Remove MongoDB PVCs
+persistentvolumeclaim "mongod-data-mongodb-psmdb-db-rs0-0" deleted from mongodb namespace
+persistentvolumeclaim "mongod-data-mongodb-psmdb-db-rs0-1" deleted from mongodb namespace
+persistentvolumeclaim "mongod-data-mongodb-psmdb-db-rs0-2" deleted from mongodb namespace
+
+[STEP 5] Remove PSMDB operator
+release "psmdb-operator" uninstalled
+
+[STEP 6] Remove PSMDB CRD release
+These resources were kept due to the resource policy:
+[CustomResourceDefinition] perconaservermongodbbackups.psmdb.percona.com
+[CustomResourceDefinition] perconaservermongodbclustersyncs.psmdb.percona.com
+[CustomResourceDefinition] perconaservermongodbrestores.psmdb.percona.com
+[CustomResourceDefinition] perconaservermongodbs.psmdb.percona.com
+
+release "psmdb-operator-crds" uninstalled
+
+[INFO] Removing PSMDB CRDs directly (cluster-scoped, not namespace-scoped)
+customresourcedefinition.apiextensions.k8s.io "perconaservermongodbbackups.psmdb.percona.com" deleted
+customresourcedefinition.apiextensions.k8s.io "perconaservermongodbclustersyncs.psmdb.percona.com" deleted
+customresourcedefinition.apiextensions.k8s.io "perconaservermongodbrestores.psmdb.percona.com" deleted
+customresourcedefinition.apiextensions.k8s.io "perconaservermongodbs.psmdb.percona.com" deleted
+
+[STEP 7] Delete MongoDB namespace
+namespace "mongodb" deleted
+namespace/mongodb condition met
+
+[STEP 8] Validate destruction
+[OK] MongoDB namespace absent
+
+[STEP 9] Clean up real AWS backup resources (if provider=aws)
+[INFO] Provider: azure — no AWS resources to clean up
+
+==================================================
+ MONGODB PLATFORM DESTROYED
+==================================================
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-27T18:20:08Z
+Duration: 55.609863708s
+Status:   success

@@ -1,0 +1,80 @@
+⏱ MONGODB START WORKLOAD · started 09:35:30 · finished in 32s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-25T09:35:30Z
+Command:  bash db-platform/mongodb/workload/kubernetes/start.sh
+==================================================
+
+[INFO] resolve_scope.sh: SCOPE="kubernetes" -> PLATFORM_TYPE="kubeadm", KUBE_CONTEXT="minikube"
+
+==================================================
+ MONGODB YCSB KUBERNETES WORKLOAD
+==================================================
+
+Scope      : kubernetes
+Kubernetes : minikube
+Namespace  : mongodb
+Pod        : mongodb-ycsb-workload
+
+[INFO] Workload image: mongodb-ycsb-workload:local
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 314B 0.0s done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/eclipse-temurin:8-jre
+#2 ...
+
+#3 [auth] library/eclipse-temurin:pull token for registry-1.docker.io
+#3 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/eclipse-temurin:8-jre
+#2 DONE 0.8s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B 0.0s done
+#4 DONE 0.0s
+
+#5 [1/5] FROM docker.io/library/eclipse-temurin:8-jre@sha256:1fc1cdba9c1e68173bc553b95438206b0b995f9f763cfc77feb45b27f5774d9b
+#5 DONE 0.0s
+
+#6 [internal] load build context
+#6 transferring context: 2.76kB 0.0s done
+#6 DONE 0.0s
+
+#7 [4/5] RUN chmod +x /opt/ycsb/bin/ycsb.sh
+#7 CACHED
+
+#8 [2/5] COPY runtime/tools/ycsb-0.17.0 /opt/ycsb
+#8 CACHED
+
+#9 [3/5] COPY db-platform/mongodb/workload/docker/README_YCSB/workloada.properties      /workload/workloada.properties
+#9 CACHED
+
+#10 [5/5] WORKDIR /workload
+#10 CACHED
+
+#11 exporting to image
+#11 exporting layers done
+#11 writing image sha256:ed98cc66ad552eff7b5797886f49176222c93c02f3d99bdc546e508d7d3f3e66 done
+#11 naming to docker.io/library/mongodb-ycsb-workload:local done
+#11 DONE 0.0s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/f9gnuhs38j30loj8isy9g0ypg
+[INFO] resolve_scope.sh: SCOPE="kubernetes" -> PLATFORM_TYPE="kubeadm", KUBE_CONTEXT="minikube"
+[INFO] Applying MongoDB YCSB workload Pod...
+pod/mongodb-ycsb-workload created
+[INFO] Waiting for workload Pod...
+pod/mongodb-ycsb-workload condition met
+[OK] MongoDB YCSB workload Pod is Running.
+STATUS: RUNNING
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-25T09:36:00Z
+Duration: 29.35030998s
+Status:   success

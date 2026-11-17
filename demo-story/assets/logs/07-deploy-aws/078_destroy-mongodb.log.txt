@@ -1,0 +1,134 @@
+⏱ MONGODB DESTROY · started 18:12:18 · finished in 1m 20s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-28T18:12:18Z
+Command:  platform/cloud/aws/orchestrator/destroy.sh mongodb
+==================================================
+
+[INFO] Region (aws): eu-west-2 (ADMIN)
+==================================================
+ CLOUD LOGIN (AWS) -- from setup / ADMIN
+==================================================
+  AWS CLI already logged in -- left as it is
+
+==================================================
+ DESTROYING AS (AWS)
+==================================================
+  AWS identity:              arn:aws:iam::<account-id>:user/<user>
+  Region:                    eu-west-2
+  Account of ADMIN key:      <account-id>
+  Region in ADMIN:           eu-west-2
+    -> same account?         MATCH
+==================================================
+ OK
+
+[OK] Terraform state: S3 bucket dbplat-tfstate-<account-id>-eu-west-2
+[OK] kubectl connected to database-assessment-platform-eks
+
+[DEPENDENCY] Kubernetes
+[OK] Kubernetes API reachable
+
+[SECURITY] Provider Kubernetes Context Guard
+[INFO] Provider : aws
+[INFO] Platform : eks
+[INFO] Context  : arn:aws:eks:eu-west-2:<account-id>:cluster/database-assessment-platform-eks
+[OK] AWS/EKS context validated
+
+[PLATFORM] MongoDB
+[INFO] Stopping mongodb workload (aws) via db-platform/mongodb/workload/kubernetes/stop.sh before destroy...
+[INFO] resolve_scope.sh: SCOPE="aws" -> PLATFORM_TYPE="eks", KUBE_CONTEXT="arn:aws:eks:eu-west-2:<account-id>:cluster/database-assessment-platform-eks"
+STATUS: IDLE
+
+==================================================
+ DESTROY MONGODB PLATFORM
+==================================================
+
+[STEP 1] Validate tooling
+[OK] Tooling and Kubernetes API available
+
+[STEP 2] Remove MongoDB Helm release
+release "mongodb" uninstalled
+
+[STEP 3] Remove PSMDB custom resources
+
+[STEP 3b] Remove PSMDB backup/restore custom resources
+[INFO] Removing perconaservermongodbbackup.psmdb.percona.com/pitr-demo-1793209714
+perconaservermongodbbackup.psmdb.percona.com "pitr-demo-1793209714" deleted from mongodb namespace
+[INFO] Removing perconaservermongodbrestore.psmdb.percona.com/pitr-demo-restore-1793209762
+perconaservermongodbrestore.psmdb.percona.com "pitr-demo-restore-1793209762" deleted from mongodb namespace
+
+[STEP 4] Remove MongoDB PVCs
+persistentvolumeclaim "mongod-data-mongodb-psmdb-db-rs0-0" deleted from mongodb namespace
+persistentvolumeclaim "mongod-data-mongodb-psmdb-db-rs0-1" deleted from mongodb namespace
+persistentvolumeclaim "mongod-data-mongodb-psmdb-db-rs0-2" deleted from mongodb namespace
+
+[STEP 5] Remove PSMDB operator
+release "psmdb-operator" uninstalled
+
+[STEP 6] Remove PSMDB CRD release
+These resources were kept due to the resource policy:
+[CustomResourceDefinition] perconaservermongodbbackups.psmdb.percona.com
+[CustomResourceDefinition] perconaservermongodbclustersyncs.psmdb.percona.com
+[CustomResourceDefinition] perconaservermongodbrestores.psmdb.percona.com
+[CustomResourceDefinition] perconaservermongodbs.psmdb.percona.com
+
+release "psmdb-operator-crds" uninstalled
+
+[INFO] Removing PSMDB CRDs directly (cluster-scoped, not namespace-scoped)
+customresourcedefinition.apiextensions.k8s.io "perconaservermongodbbackups.psmdb.percona.com" deleted
+customresourcedefinition.apiextensions.k8s.io "perconaservermongodbclustersyncs.psmdb.percona.com" deleted
+customresourcedefinition.apiextensions.k8s.io "perconaservermongodbrestores.psmdb.percona.com" deleted
+customresourcedefinition.apiextensions.k8s.io "perconaservermongodbs.psmdb.percona.com" deleted
+
+[STEP 7] Delete MongoDB namespace
+namespace "mongodb" deleted
+namespace/mongodb condition met
+
+[STEP 8] Validate destruction
+[OK] MongoDB namespace absent
+
+[STEP 9] Clean up real AWS backup resources (if provider=aws)
+{
+    "BucketRegion": "eu-west-2",
+    "AccessPointAlias": false
+}
+[INFO] Emptying and deleting bucket: mongodb-db-backups-<account-id>-1785249625
+delete: s3://mongodb-db-backups-<account-id>-1785249625/.pbm.init
+delete: s3://mongodb-db-backups-<account-id>-1785249625/2026-10-28T17:48:39Z/rs0/admin.pbmBackups.gz
+delete: s3://mongodb-db-backups-<account-id>-1785249625/2026-10-28T17:48:39Z/rs0/admin.pbmCmd.gz
+delete: s3://mongodb-db-backups-<account-id>-1785249625/2026-10-28T17:48:39Z/rs0/admin.pbmAgents.gz
+delete: s3://mongodb-db-backups-<account-id>-1785249625/2026-10-28T17:48:39Z.pbm.json
+delete: s3://mongodb-db-backups-<account-id>-1785249625/2026-10-28T17:48:39Z/rs0/admin.pbmConfig.gz
+delete: s3://mongodb-db-backups-<account-id>-1785249625/2026-10-28T17:48:39Z/rs0/admin.pbmRUsers.gz
+delete: s3://mongodb-db-backups-<account-id>-1785249625/2026-10-28T17:48:39Z/rs0/admin.pbmLock.gz
+delete: s3://mongodb-db-backups-<account-id>-1785249625/2026-10-28T17:48:39Z/rs0/admin.system.version.gz
+delete: s3://mongodb-db-backups-<account-id>-1785249625/2026-10-28T17:48:39Z/rs0/admin.system.users.gz
+delete: s3://mongodb-db-backups-<account-id>-1785249625/2026-10-28T17:48:39Z/rs0/assessmentdb.customer_orders.gz
+delete: s3://mongodb-db-backups-<account-id>-1785249625/2026-10-28T17:48:39Z/rs0/meta.pbm
+delete: s3://mongodb-db-backups-<account-id>-1785249625/2026-10-28T17:48:39Z/rs0/admin.pbmOpLog.gz
+delete: s3://mongodb-db-backups-<account-id>-1785249625/2026-10-28T17:48:39Z/rs0/admin.pbmLog.gz
+delete: s3://mongodb-db-backups-<account-id>-1785249625/2026-10-28T17:48:39Z/rs0/admin.pbmPITR.gz
+delete: s3://mongodb-db-backups-<account-id>-1785249625/2026-10-28T17:48:39Z/rs0/oplog/20261028174840-125.20261028174844-194.gz
+delete: s3://mongodb-db-backups-<account-id>-1785249625/pbmPitr/rs0/20261028/20261028174844-194.20261028174910-2.oplog.gz
+delete: s3://mongodb-db-backups-<account-id>-1785249625/2026-10-28T17:48:39Z/rs0/admin.pbmRRoles.gz
+delete: s3://mongodb-db-backups-<account-id>-1785249625/pbmPitr/rs0/20261028/20261028174910-2.20261028174940-2.oplog.gz
+delete: s3://mongodb-db-backups-<account-id>-1785249625/2026-10-28T17:48:39Z/rs0/admin.system.profile.gz
+delete: s3://mongodb-db-backups-<account-id>-1785249625/2026-10-28T17:48:39Z/rs0/ycsb.ycsb_workload.gz
+delete: s3://mongodb-db-backups-<account-id>-1785249625/2026-10-28T17:48:39Z/rs0/metadata.json
+delete: s3://mongodb-db-backups-<account-id>-1785249625/2026-10-28T17:48:39Z/rs0/admin.system.roles.gz
+[OK] Bucket deleted: mongodb-db-backups-<account-id>-1785249625
+[INFO] Removing IAM user: mongodb-backup-svc
+[OK] IAM user deleted: mongodb-backup-svc
+
+==================================================
+ MONGODB PLATFORM DESTROYED
+==================================================
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-28T18:13:36Z
+Duration: 1m18.587540604s
+Status:   successB

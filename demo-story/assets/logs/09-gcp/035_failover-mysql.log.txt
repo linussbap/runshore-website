@@ -1,0 +1,178 @@
+⏱ MYSQL FAILOVER · started 23:24:29 · finished in 1m 28s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-27T23:24:29Z
+Command:  SCOPE=gcp db-platform/mysql/failover/kubernetes/run_failover.sh
+==================================================
+
+== Clean start for mysql (scope: gcp) ==
+[1/4] Platform operations still running on this machine
+  none
+[2/4] Unfinished restores
+  $ bash db-platform/mysql/pitr/kubernetes/cancel_restore.sh --yes
+    == Cancel unfinished MySQL restore ==
+    [OK] No unfinished restore and the cluster has 3 nodes -- nothing to do
+    STATUS: OK
+  $ bash platform/lib/prune_test_backups.sh mysql
+      mysql: remove old test backup pitr-demo-pxc-db-1793140686 (done, 2026-10-27T22:38:06Z)
+      $ kubectl patch pxc-backup pitr-demo-pxc-db-1793140686 -n mysql --type=merge -p {"metadata":{"finalizers":["percona.com/delete-backup"]}}
+        perconaxtradbclusterbackup.pxc.percona.com/pitr-demo-pxc-db-1793140686 patched
+      $ kubectl delete pxc-backup pitr-demo-pxc-db-1793140686 -n mysql --ignore-not-found=true --wait=false
+        perconaxtradbclusterbackup.pxc.percona.com "pitr-demo-pxc-db-1793140686" deleted from mysql namespace
+      mysql: keep newest test backup pitr-demo-pxc-db-1793141642 (2026-10-27T22:54:03Z)
+      mysql: remove finished test restore record pitr-demo-restore-1793141761 (holds no data)
+      $ kubectl delete pxc-restore pitr-demo-restore-1793141761 -n mysql --ignore-not-found=true --wait=false
+        perconaxtradbclusterrestore.pxc.percona.com "pitr-demo-restore-1793141761" deleted from mysql namespace
+  $ bash db-platform/mysql/pitr/kubernetes/rm_old_pitr_pods.sh
+    [INFO] Namespace: mysql
+    [INFO] none
+    [INFO] No completed PITR/backup/restore Jobs found.
+    [INFO] No remaining completed PITR/backup/restore pods found.
+    [INFO] Jobs deleted : 0
+    [INFO] Pods deleted : 0
+[3/4] Replication-test replicas
+    [2026-10-27 23:24:33] kubectl is not pointed at minikube -- skipping hostpath-provisioner cleanup (cloud storage deletes the volume itself).
+    [2026-10-27 23:24:33] Standalone MySQL async replica teardown complete.
+    [2026-10-27 23:24:33] PXC (pxc-db) was not touched.
+[4/4] Workloads
+    [INFO] resolve_scope.sh: SCOPE="gcp" -> PLATFORM_TYPE="gke", KUBE_CONTEXT="gke_database-assessment-platform_europe-west1_database-assessment-platform-gke"
+    STATUS: IDLE
+[OK] mysql: clean start done. The database and monitoring tools were kept.
+
+==================================================
+ MYSQL PXC KUBERNETES — FAILOVER TEST
+==================================================
+
+Namespace : mysql
+Cluster   : pxc-db
+Database  : assessmentdb
+
+[STEP 1] Load PXC administrative credential
+[OK] PXC administrative credential available
+
+[STEP 2] Validate initial three-member PXC cluster
+[INFO] Initial PXC members:
+pxc-db-pxc-0
+pxc-db-pxc-1
+pxc-db-pxc-2
+----- wsrep state: pxc-db-pxc-0 -----
+wsrep_cluster_size	3
+wsrep_cluster_status	Primary
+wsrep_connected	ON
+wsrep_local_state_comment	Synced
+wsrep_ready	ON
+----- wsrep state: pxc-db-pxc-1 -----
+wsrep_cluster_size	3
+wsrep_cluster_status	Primary
+wsrep_connected	ON
+wsrep_local_state_comment	Synced
+wsrep_ready	ON
+----- wsrep state: pxc-db-pxc-2 -----
+wsrep_cluster_size	3
+wsrep_cluster_status	Primary
+wsrep_connected	ON
+wsrep_local_state_comment	Synced
+wsrep_ready	ON
+[OK] All three PXC members are Kubernetes-Ready and Primary/Synced/Ready
+
+[STEP 3] Validate baseline assessment data
+[INFO] Prepare canonical assessment orders on pxc-db-pxc-0 (same fixture as the PITR test)
+[OK] Assessment orders 5001-5003 prepared
+[INFO] Validate assessment data on pxc-db-pxc-0
+[INFO] Assessment orders before failover: 5001 5002 5003
+[OK] Assessment data verified on pxc-db-pxc-0
+[OK] Baseline assessment contract is intact
+
+[STEP 4] Select one PXC member for deliberate failure
+[INFO] Failure target : pxc-db-pxc-0
+[INFO] Failure UID    : ae5d397a-606c-4a8b-99e5-a510ccd82e2b
+
+[STEP 5] Deliberately remove one PXC member
+pod "pxc-db-pxc-0" deleted from mysql namespace
+[OK] Failure initiated for pxc-db-pxc-0
+
+[STEP 6] Verify surviving PXC quorum
+[OK] Two original surviving PXC members retain Primary quorum
+
+[STEP 7] Verify assessment data after member failure
+----- wsrep state: pxc-db-pxc-1 -----
+wsrep_cluster_size	3
+wsrep_cluster_status	Primary
+wsrep_connected	ON
+wsrep_local_state_comment	Synced
+wsrep_ready	ON
+[INFO] Validate assessment data on pxc-db-pxc-1
+[OK] Assessment data verified on pxc-db-pxc-1
+----- wsrep state: pxc-db-pxc-2 -----
+wsrep_cluster_size	3
+wsrep_cluster_status	Primary
+wsrep_connected	ON
+wsrep_local_state_comment	Synced
+wsrep_ready	ON
+[INFO] Validate assessment data on pxc-db-pxc-2
+[OK] Assessment data verified on pxc-db-pxc-2
+[OK] Assessment data remains available after member failure
+
+[STEP 8] Wait for PXC Operator automatic recovery
+[OK] PXC Operator recreated the failed member
+[INFO] Original UID : ae5d397a-606c-4a8b-99e5-a510ccd82e2b
+[INFO] Current UID  : bdd9e241-8aa5-40a7-a80a-2327501ab243
+[OK] Three-member PXC cluster recovered
+
+[STEP 9] Validate final three-member PXC cluster
+----- wsrep state: pxc-db-pxc-0 -----
+wsrep_cluster_size	3
+wsrep_cluster_status	Primary
+wsrep_connected	ON
+wsrep_local_state_comment	Synced
+wsrep_ready	ON
+[INFO] Validate assessment data on pxc-db-pxc-0
+[OK] Assessment data verified on pxc-db-pxc-0
+----- wsrep state: pxc-db-pxc-1 -----
+wsrep_cluster_size	3
+wsrep_cluster_status	Primary
+wsrep_connected	ON
+wsrep_local_state_comment	Synced
+wsrep_ready	ON
+[INFO] Validate assessment data on pxc-db-pxc-1
+[OK] Assessment data verified on pxc-db-pxc-1
+----- wsrep state: pxc-db-pxc-2 -----
+wsrep_cluster_size	3
+wsrep_cluster_status	Primary
+wsrep_connected	ON
+wsrep_local_state_comment	Synced
+wsrep_ready	ON
+[INFO] Validate assessment data on pxc-db-pxc-2
+[OK] Assessment data verified on pxc-db-pxc-2
+[OK] Final three-member cluster is Kubernetes-Ready and Primary/Synced/Ready
+[OK] Assessment data preserved after recovery
+
+[STEP 10] Capture final Kubernetes state
+
+----- PXC resource -----
+NAME     ENDPOINT               STATUS   PXC   PROXYSQL   HAPROXY   AGE
+pxc-db   pxc-db-haproxy.mysql   ready    3                2         64m
+
+----- PXC pods -----
+NAME           READY   STATUS    RESTARTS   AGE   IP           NODE                                                  NOMINATED NODE   READINESS GATES
+pxc-db-pxc-0   1/1     Running   0          60s   10.x.x.x   gke-database-assessm-database-assessm-55db0b9b-1n2v   <none>           <none>
+pxc-db-pxc-1   1/1     Running   0          27m   10.x.x.x   gke-database-assessm-database-assessm-f881def6-43xx   <none>           <none>
+pxc-db-pxc-2   1/1     Running   0          26m   10.x.x.x   gke-database-assessm-database-assessm-d9fbf66d-s3zb   <none>           <none>
+
+==================================================
+ MYSQL PXC KUBERNETES — FAILOVER TEST PASSED
+==================================================
+
+Failure target : pxc-db-pxc-0
+Recovery       : automatic
+Final members  : 3
+Evidence       : /Users/<user>/platforrm-db-ob-release_v1/runtime/failover/mysql/kubernetes/failover_20261027_232433/result.txt
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-27T23:25:55Z
+Duration: 1m26.317009023s
+Status:   success

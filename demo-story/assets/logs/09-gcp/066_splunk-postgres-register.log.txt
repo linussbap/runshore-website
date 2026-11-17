@@ -1,0 +1,91 @@
+⏱ SPLUNK REGISTER · started 01:06:38 · finished in 16s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-28T01:06:38Z
+Command:  bash observability/splunk/registration/kubernetes/postgres/register.sh
+==================================================
+
+
+==================================================
+ REGISTER POSTGRES LOGS INTO SPLUNK
+==================================================
+
+[STEP 1] Resolve Splunk HEC token
+[INFO] Reuses an existing 'postgres_hec_token' if one is already
+[INFO] configured in Splunk, or creates one. Self-heals across a
+[INFO] Splunk reinstall (see ensure_splunk_hec_token.sh).
+[OK] Resolved Splunk admin credentials from secret: splunk-s1-standalone-secret-v1
+[INFO] No existing token named 'postgres_hec_token' — creating one
+[OK] Created HEC token 'postgres_hec_token'
+[OK] HEC token resolved
+
+[STEP 2] Converge Postgres-local HEC Secret
+secret/postgres-splunk-hec created
+
+[STEP 3] Apply RBAC
+serviceaccount/postgres-fluentbit created
+clusterrole.rbac.authorization.k8s.io/postgres-fluentbit-read created
+clusterrolebinding.rbac.authorization.k8s.io/postgres-fluentbit-read created
+
+[STEP 4] Apply Fluent Bit configuration
+configmap/postgres-fluentbit-config created
+
+[STEP 5] Apply Fluent Bit DaemonSet
+daemonset.apps/postgres-fluentbit created
+
+[STEP 6] Wait for DaemonSet rollout
+daemonset.apps/postgres-fluentbit restarted
+Waiting for daemon set "postgres-fluentbit" rollout to finish: 0 out of 3 new pods have been updated...
+Waiting for daemon set "postgres-fluentbit" rollout to finish: 0 out of 3 new pods have been updated...
+Waiting for daemon set "postgres-fluentbit" rollout to finish: 1 out of 3 new pods have been updated...
+Waiting for daemon set "postgres-fluentbit" rollout to finish: 1 out of 3 new pods have been updated...
+Waiting for daemon set "postgres-fluentbit" rollout to finish: 2 out of 3 new pods have been updated...
+Waiting for daemon set "postgres-fluentbit" rollout to finish: 0 of 3 updated pods are available...
+Waiting for daemon set "postgres-fluentbit" rollout to finish: 1 of 3 updated pods are available...
+Waiting for daemon set "postgres-fluentbit" rollout to finish: 2 of 3 updated pods are available...
+daemon set "postgres-fluentbit" successfully rolled out
+
+[STEP 7] Validate pipeline health
+
+==================================================
+ VALIDATE POSTGRES SPLUNK REGISTRATION
+==================================================
+
+[STEP 1] Validate DaemonSet rollout
+daemon set "postgres-fluentbit" successfully rolled out
+
+[STEP 2] Check for pipeline errors in Fluent Bit logs
+[OK] No known pipeline errors detected
+
+[STEP 3] Confirm the HEC secret exists
+[OK] postgres-splunk-hec secret present
+
+[OK] Pipeline-only validation passed
+[INFO] Skipped end-to-end delivery proof (--pipeline-only).
+
+[STEP 8] Generate PostgreSQL registration event
+WARNING:  POSTGRES_SPLUNK_REGISTRATION_1793149606_22371
+DO
+[OK] Registration event issued (marker: POSTGRES_SPLUNK_REGISTRATION_1793149606_22371)
+
+[INFO] Confirming the event reached the PostgreSQL container log...
+[OK] Registration event confirmed in PostgreSQL container log
+
+[STEP 9] Confirm event delivery in Splunk
+[OK] Registration event confirmed in Splunk (index=main sourcetype="postgresql:postgres")
+
+==================================================
+ POSTGRES -> SPLUNK REGISTRATION COMPLETE
+==================================================
+
+[OK] Postgres logs successfully registered into Splunk
+[OK] End-to-end delivery proven -- not just pipeline health
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-28T01:06:51Z
+Duration: 12.725083196s
+Status:   success

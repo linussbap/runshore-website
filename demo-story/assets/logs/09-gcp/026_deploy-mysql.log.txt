@@ -1,0 +1,567 @@
+⏱ MYSQL DEPLOY · started 22:19:33 · finished in 5m 57s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-27T22:19:33Z
+Command:  platform/cloud/gcp/orchestrator/deploy.sh mysql
+==================================================
+
+[INFO] Region (gcp): europe-west1 (ADMIN)
+==================================================
+ CLOUD LOGIN (GCP) -- from setup / ADMIN
+==================================================
+  gcloud already logged in (<email>) -- left as it is
+
+==================================================
+ DEPLOYING AS (GCP)
+==================================================
+  Google account:            <email>
+  Project (gcloud):          database-assessment-platform
+  Default region (gcloud):   not set (Terraform uses its own region)
+  Project in ADMIN:          database-assessment-platform
+    -> same project?         MATCH
+==================================================
+ OK
+
+[OK] Terraform state: GCS bucket dbplat-tfstate-database-assessment-platform
+[OK] kubectl connected to database-assessment-platform-gke
+
+[DEPENDENCY] Storage
+
+[DEPENDENCY] Kubernetes
+[OK] Kubernetes API reachable
+
+[SECURITY] Provider Kubernetes Context Guard
+[INFO] Provider : gcp
+[INFO] Platform : gke
+[INFO] Context  : gke_database-assessment-platform_europe-west1_database-assessment-platform-gke
+[OK] GCP/GKE context validated
+[OK] Default StorageClass available: standard-rwo
+
+[PLATFORM] MySQL
+
+==================================================
+ MYSQL (PXC) DEPLOYMENT
+==================================================
+
+[STEP 1] Create PXC application secrets
+[INFO] Reusing existing generated passwords from /Users/<user>/platforrm-db-ob-release_v1/shared/secrets/runtime/mysql_secrets.env
+
+[INFO] Validate PMM 3 secret source
+[OK] PMM 3 token source validated
+
+======================================
+ CREATE PXC SECRETS
+======================================
+
+[STEP 1] Ensure MySQL namespace exists
+namespace/mysql created
+[OK] Namespace ready
+
+[STEP 2] Check existing PXC secret
+
+[STEP 3] Create/update PXC secret
+secret/pxc-db-secrets created
+[OK] PXC secret applied
+
+[STEP 4] Validate PXC secret keys
+[OK] root present
+[OK] xtrabackup present
+[OK] monitor present
+[OK] clustercheck present
+[OK] proxyadmin present
+[OK] operator present
+[OK] replication present
+[OK] pmmservertoken present
+
+[STEP 5] Sync pmmservertoken into internal secret
+[INFO] internal-pxc-db does not exist yet.
+[INFO] This is expected on a brand-new cluster -- the Operator
+[INFO] creates its internal secret on first reconciliation, after
+[INFO] the PXC Custom Resource is applied. Re-run this script
+[INFO] once the cluster is up if PMM3 still is not enabled, to
+[INFO] sync the token into the internal secret.
+
+[STEP 6] Confirm PXC secret exists
+secret/pxc-db-secrets
+
+======================================
+ PXC SECRETS READY
+======================================
+
+[STEP 2] Provision backup storage / credentials
+[INFO] Provider: gcp
+[INFO] Backup provider: GCP Cloud Storage
+
+[STEP 2A] Configure GCP backup storage
+
+==================================================
+ MYSQL GCP BACKUP STORAGE SETUP
+==================================================
+
+[INFO] Project         : database-assessment-platform
+[INFO] Service account : <email>
+[INFO] Bucket          : mysql-db-backups-<account-id>
+[INFO] Bucket location : europe-west1
+[INFO] Endpoint        : https://storage.googleapis.com
+
+[STEP 1] Validate MySQL GCP backup service account
+[OK] Service account exists.
+
+[STEP 2] Validate GCS backup bucket
+[INFO] Creating bucket.
+Creating gs://mysql-db-backups-<account-id>/...
+[OK] Bucket created.
+
+[STEP 3] Configure bucket permissions
+[OK] MySQL service account has object access.
+
+[STEP 4] Discover existing HMAC keys
+[INFO] Existing HMAC key(s) found.
+
+[INFO] HMAC key : GOOG1EN7KQCFCTBX6CZBZ4NBOD3X4JJMRDAQRXJ5MM7GW2OWHQB4NR53RUMRT
+[INFO] State    : ACTIVE
+[INFO] Deactivating active HMAC key.
+accessId: GOOG1EN7KQCFCTBX6CZBZ4NBOD3X4JJMRDAQRXJ5MM7GW2OWHQB4NR53RUMRT
+etag: Y2Y2NzYyMzY=
+id: database-assessment-platform/GOOG1EN7KQCFCTBX6CZBZ4NBOD3X4JJMRDAQRXJ5MM7GW2OWHQB4NR53RUMRT
+kind: storage#hmacKeyMetadata
+projectId: database-assessment-platform
+selfLink: https://www.googleapis.com/storage/v1/projects/database-assessment-platform/hmacKeys/GOOG1EN7KQCFCTBX6CZBZ4NBOD3X4JJMRDAQRXJ5MM7GW2OWHQB4NR53RUMRT
+serviceAccountEmail: <email>
+state: INACTIVE
+timeCreated: '2026-08-18T06:56:22.978000+00:00'
+updated: '2026-10-27T22:20:02.834000+00:00'
+[OK] HMAC key deactivated.
+
+[STEP 5] Validate HMAC deactivation
+[OK] No active HMAC keys remain.
+
+[STEP 6] Remove previous HMAC keys
+[INFO] Deleting inactive HMAC key:
+       GOOG1EN7KQCFCTBX6CZBZ4NBOD3X4JJMRDAQRXJ5MM7GW2OWHQB4NR53RUMRT
+[OK] Deleted GOOG1EN7KQCFCTBX6CZBZ4NBOD3X4JJMRDAQRXJ5MM7GW2OWHQB4NR53RUMRT
+
+[STEP 7] Confirm HMAC key state is clean
+[OK] No existing HMAC keys remain.
+
+[STEP 8] Create replacement HMAC key
+[OK] HMAC key creation command completed.
+
+[STEP 9] Extract HMAC credentials
+[OK] HMAC access ID captured.
+[OK] HMAC secret captured.
+
+[STEP 10] Validate new HMAC key
+[OK] New HMAC key is ACTIVE.
+
+[STEP 11] Persist MySQL GCP configuration
+[OK] Runtime configuration persisted.
+
+[STEP 12] Validate persisted configuration
+[OK] Persisted configuration validated.
+
+[STEP 13] Validate GCS bucket
+[OK] GCS bucket exists.
+
+[STEP 14] Validate final HMAC state
+[OK] Final HMAC key is ACTIVE.
+
+==================================================
+ MYSQL GCP BACKUP STORAGE READY
+==================================================
+
+[OK] Project         : database-assessment-platform
+[OK] Service account : <email>
+[OK] Bucket          : mysql-db-backups-<account-id>
+[OK] Endpoint        : https://storage.googleapis.com
+[OK] HMAC access ID  : GOOG1EP4YG2FAUSJPQ3W6LOHBNBLGFKN2ANV4PXUHMRPVVAJWQJM5WKLQ7JZN
+
+[OK] Credentials persisted to:
+     /Users/<user>/platforrm-db-ob-release_v1/shared/secrets/runtime/mysql_secrets.env
+
+==================================================
+
+[STEP 3] Deploy PXC Operator
+==========================================
+DEPLOY PXC OPERATOR
+==========================================
+
+[STEP] Configure Helm repository
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "jetstack" chart repository
+...Successfully got an update from the "aws-ebs-csi-driver" chart repository
+...Successfully got an update from the "splunk" chart repository
+...Successfully got an update from the "percona" chart repository
+...Successfully got an update from the "cloudnative-pg" chart repository
+...Successfully got an update from the "cnpg" chart repository
+...Successfully got an update from the "splunk-otel-collector-chart" chart repository
+...Successfully got an update from the "argo" chart repository
+...Successfully got an update from the "grafana" chart repository
+...Successfully got an update from the "newrelic" chart repository
+...Successfully got an update from the "bitnami" chart repository
+Update Complete. ⎈Happy Helming!⎈
+
+[STEP] Check existing operator
+[INFO] PXC operator deployment not present
+
+[STEP] Handle stale webhook
+[INFO] Operator is absent; remove any stale webhook configuration
+
+[STEP] Deploy / reconcile PXC operator
+Release "pxc-operator" does not exist. Installing it now.
+NAME: pxc-operator
+LAST DEPLOYED: Tue Oct 27 22:20:22 2026
+NAMESPACE: mysql
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+NOTES:
+1. Percona Operator for MySQL is deployed. 
+
+  Check if operator Pod is running:
+
+    kubectl get pods -l app.kubernetes.io/name=pxc-operator --namespace mysql
+
+  Troubleshoot by checking the logs:
+
+    export POD=$(kubectl get pods -l app.kubernetes.io/name=pxc-operator --namespace mysql --output name)
+    kubectl logs $POD --namespace=mysql
+
+2. Deploy the cluster with the following command:
+
+    helm install my-db percona/pxc-db --namespace=mysql
+
+Read more in our documentation: https://docs.percona.com/percona-operator-for-mysql/pxc/
+
+[STEP] Wait for operator rollout
+Waiting for deployment "pxc-operator" rollout to finish: 0 of 1 updated replicas are available...
+deployment "pxc-operator" successfully rolled out
+
+[STEP] Verify operator
+NAME           READY   UP-TO-DATE   AVAILABLE   AGE
+pxc-operator   1/1     1            1           8s
+
+[OK] PXC operator deployment complete
+[OK] Existing MySQL/PXC pods were not deleted
+
+[STEP 4] Deploy PXC Cluster
+
+==========================================
+ DEPLOY PXC CLUSTER
+==========================================
+
+[INFO] Provider: gcp
+[INFO] Backup provider: GCP Cloud Storage
+
+==================================================
+ MYSQL GCP BACKUP STORAGE SETUP
+==================================================
+
+[INFO] Project         : database-assessment-platform
+[INFO] Service account : <email>
+[INFO] Bucket          : mysql-db-backups-<account-id>
+[INFO] Bucket location : europe-west1
+[INFO] Endpoint        : https://storage.googleapis.com
+
+[STEP 1] Validate MySQL GCP backup service account
+[OK] Service account exists.
+
+[STEP 2] Validate GCS backup bucket
+[OK] Bucket exists.
+
+[STEP 3] Configure bucket permissions
+[OK] MySQL service account has object access.
+
+[STEP 4] Discover existing HMAC keys
+[INFO] Existing HMAC key(s) found.
+
+[INFO] HMAC key : GOOG1EP4YG2FAUSJPQ3W6LOHBNBLGFKN2ANV4PXUHMRPVVAJWQJM5WKLQ7JZN
+[INFO] State    : ACTIVE
+[INFO] Deactivating active HMAC key.
+accessId: GOOG1EP4YG2FAUSJPQ3W6LOHBNBLGFKN2ANV4PXUHMRPVVAJWQJM5WKLQ7JZN
+etag: YmNkZTI5ODQ=
+id: database-assessment-platform/GOOG1EP4YG2FAUSJPQ3W6LOHBNBLGFKN2ANV4PXUHMRPVVAJWQJM5WKLQ7JZN
+kind: storage#hmacKeyMetadata
+projectId: database-assessment-platform
+selfLink: https://www.googleapis.com/storage/v1/projects/database-assessment-platform/hmacKeys/GOOG1EP4YG2FAUSJPQ3W6LOHBNBLGFKN2ANV4PXUHMRPVVAJWQJM5WKLQ7JZN
+serviceAccountEmail: <email>
+state: INACTIVE
+timeCreated: '2026-10-27T22:20:11.174000+00:00'
+updated: '2026-10-27T22:20:41.876000+00:00'
+[OK] HMAC key deactivated.
+
+[STEP 5] Validate HMAC deactivation
+[OK] No active HMAC keys remain.
+
+[STEP 6] Remove previous HMAC keys
+[INFO] Deleting inactive HMAC key:
+       GOOG1EP4YG2FAUSJPQ3W6LOHBNBLGFKN2ANV4PXUHMRPVVAJWQJM5WKLQ7JZN
+[OK] Deleted GOOG1EP4YG2FAUSJPQ3W6LOHBNBLGFKN2ANV4PXUHMRPVVAJWQJM5WKLQ7JZN
+
+[STEP 7] Confirm HMAC key state is clean
+[OK] No existing HMAC keys remain.
+
+[STEP 8] Create replacement HMAC key
+[OK] HMAC key creation command completed.
+
+[STEP 9] Extract HMAC credentials
+[OK] HMAC access ID captured.
+[OK] HMAC secret captured.
+
+[STEP 10] Validate new HMAC key
+[OK] New HMAC key is ACTIVE.
+
+[STEP 11] Persist MySQL GCP configuration
+[OK] Runtime configuration persisted.
+
+[STEP 12] Validate persisted configuration
+[OK] Persisted configuration validated.
+
+[STEP 13] Validate GCS bucket
+[OK] GCS bucket exists.
+
+[STEP 14] Validate final HMAC state
+[OK] Final HMAC key is ACTIVE.
+
+==================================================
+ MYSQL GCP BACKUP STORAGE READY
+==================================================
+
+[OK] Project         : database-assessment-platform
+[OK] Service account : <email>
+[OK] Bucket          : mysql-db-backups-<account-id>
+[OK] Endpoint        : https://storage.googleapis.com
+[OK] HMAC access ID  : GOOG1EG6IABY2RZLYR3O3AJFZRGZCZE7PSAICMEMZMSAPAY427WWHTIWEJFTB
+
+[OK] Credentials persisted to:
+     /Users/<user>/platforrm-db-ob-release_v1/shared/secrets/runtime/mysql_secrets.env
+
+==================================================
+secret/mysql-backup-gcp-creds created
+[OK] GCS bucket: mysql-db-backups-<account-id>
+[OK] GCS endpoint: https://storage.googleapis.com
+[OK] PXC storage type: s3-compatible
+
+[STEP] Render PXC manifest
+[OK] Manifest rendered:
+     storageName=gcp-backup
+
+[STEP] Apply PXC manifest
+perconaxtradbcluster.pxc.percona.com/pxc-db serverside-applied
+
+[STEP] Wait for PXC CR
+
+[STEP] Wait for StatefulSet creation
+[INFO] Waiting for StatefulSet creation...
+
+[STEP] Wait for PXC pod creation
+
+
+[STEP] Validate PXC cluster health
+[INFO] pxc-db-pxc-0: Pod Ready=False
+[INFO] pxc-db-pxc-1: Pod Ready=<empty>
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (1s)
+[INFO] pxc-db-pxc-0: Pod Ready=False
+[INFO] pxc-db-pxc-1: Pod Ready=<empty>
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (12s)
+[INFO] pxc-db-pxc-0: Pod Ready=False
+[INFO] pxc-db-pxc-1: Pod Ready=<empty>
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (23s)
+[INFO] pxc-db-pxc-0: Pod Ready=False
+[INFO] pxc-db-pxc-1: Pod Ready=<empty>
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (33s)
+[INFO] pxc-db-pxc-0: Pod Ready=False
+[INFO] pxc-db-pxc-1: Pod Ready=<empty>
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (44s)
+[INFO] pxc-db-pxc-0: Pod Ready=False
+[INFO] pxc-db-pxc-1: Pod Ready=<empty>
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (55s)
+[INFO] pxc-db-pxc-0: Pod Ready=False
+[INFO] pxc-db-pxc-1: Pod Ready=<empty>
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (65s)
+[INFO] pxc-db-pxc-0: Pod Ready=False
+[INFO] pxc-db-pxc-1: Pod Ready=<empty>
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (76s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=1
+[INFO] pxc-db-pxc-1: Pod Ready=False
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (87s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=1
+[INFO] pxc-db-pxc-1: Pod Ready=False
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (98s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=1
+[INFO] pxc-db-pxc-1: Pod Ready=False
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (109s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=1
+[INFO] pxc-db-pxc-1: Pod Ready=False
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (120s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=Donor/Desynced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=2
+[INFO] pxc-db-pxc-1: Pod Ready=False
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (131s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=2
+[INFO] pxc-db-pxc-1: Pod Ready=False
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (142s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=2
+[INFO] pxc-db-pxc-1: Pod Ready=False
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (153s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=2
+[INFO] pxc-db-pxc-1: Pod Ready=False
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (164s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=2
+[INFO] pxc-db-pxc-1: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=2
+[INFO] pxc-db-pxc-2: Pod Ready=False
+[INFO] PXC health: 0/3 (175s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=2
+[INFO] pxc-db-pxc-1: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=2
+[INFO] pxc-db-pxc-2: Pod Ready=False
+[INFO] PXC health: 0/3 (186s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=2
+[INFO] pxc-db-pxc-1: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=2
+[INFO] pxc-db-pxc-2: Pod Ready=False
+[INFO] PXC health: 0/3 (198s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=2
+[INFO] pxc-db-pxc-1: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=2
+[INFO] pxc-db-pxc-2: Pod Ready=False
+[INFO] PXC health: 0/3 (209s)
+[OK] pxc-db-pxc-0: Synced / Primary / wsrep_ready=ON / cluster_size=3
+[OK] pxc-db-pxc-1: Synced / Primary / wsrep_ready=ON / cluster_size=3
+[INFO] pxc-db-pxc-2: Pod Ready=False
+[INFO] PXC health: 2/3 (221s)
+[OK] pxc-db-pxc-0: Synced / Primary / wsrep_ready=ON / cluster_size=3
+[INFO] pxc-db-pxc-1: WSREP not converged
+       state=Donor/Desynced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=3
+[INFO] pxc-db-pxc-2: Pod Ready=False
+[INFO] PXC health: 1/3 (232s)
+[OK] pxc-db-pxc-0: Synced / Primary / wsrep_ready=ON / cluster_size=3
+[OK] pxc-db-pxc-1: Synced / Primary / wsrep_ready=ON / cluster_size=3
+[INFO] pxc-db-pxc-2: Pod Ready=False
+[INFO] PXC health: 2/3 (243s)
+[OK] pxc-db-pxc-0: Synced / Primary / wsrep_ready=ON / cluster_size=3
+[OK] pxc-db-pxc-1: Synced / Primary / wsrep_ready=ON / cluster_size=3
+[INFO] pxc-db-pxc-2: Pod Ready=False
+[INFO] PXC health: 2/3 (254s)
+[OK] pxc-db-pxc-0: Synced / Primary / wsrep_ready=ON / cluster_size=3
+[OK] pxc-db-pxc-1: Synced / Primary / wsrep_ready=ON / cluster_size=3
+[OK] pxc-db-pxc-2: Synced / Primary / wsrep_ready=ON / cluster_size=3
+[INFO] PXC health: 3/3 (266s)
+[OK] PXC cluster health converged
+
+[STEP] Validate cluster
+NAME     ENDPOINT               STATUS         PXC   PROXYSQL   HAPROXY   AGE
+pxc-db   pxc-db-haproxy.mysql   initializing   2                2         4m32s
+NAME                            READY   STATUS    RESTARTS   AGE
+pxc-db-haproxy-0                2/2     Running   0          4m31s
+pxc-db-haproxy-1                2/2     Running   0          3m
+pxc-db-pxc-0                    1/1     Running   0          4m31s
+pxc-db-pxc-1                    1/1     Running   0          3m4s
+pxc-db-pxc-2                    1/1     Running   0          96s
+pxc-operator-5b444b46d4-6nvhj   1/1     Running   0          5m6s
+NAME                   STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+datadir-pxc-db-pxc-0   Bound    pvc-3ad68c69-754e-4228-b161-a9b53c6e18ab   20Gi       RWO            standard-rwo   <unset>                 4m32s
+datadir-pxc-db-pxc-1   Bound    pvc-4ee15b75-571d-41cd-923f-1e84e5b67c2c   20Gi       RWO            standard-rwo   <unset>                 3m5s
+datadir-pxc-db-pxc-2   Bound    pvc-4136f1cd-72f8-4fe9-9b7c-7d7484033da7   20Gi       RWO            standard-rwo   <unset>                 97s
+NAME                              TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)                                          AGE
+percona-xtradb-cluster-operator   ClusterIP   10.x.x.x    <none>        443/TCP                                          5m7s
+pxc-db-haproxy                    ClusterIP   10.x.x.x   <none>        3306/TCP,3309/TCP,33062/TCP,33060/TCP,8404/TCP   4m32s
+pxc-db-haproxy-replicas           ClusterIP   10.x.x.x    <none>        3306/TCP                                         4m32s
+pxc-db-pxc                        ClusterIP   None           <none>        3306/TCP,33062/TCP,33060/TCP                     4m32s
+pxc-db-pxc-unready                ClusterIP   None           <none>        3306/TCP,33062/TCP,33060/TCP                     4m32s
+
+[OK] PXC deployment complete
+[OK] Backup storage: gcp-backup
+
+==================================================
+ MYSQL (PXC) DEPLOYMENT COMPLETE
+==================================================
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-27T22:25:30Z
+Duration: 5m56.40461064s
+Status:   success

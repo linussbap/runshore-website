@@ -1,0 +1,209 @@
+⏱ POSTGRESQL ASSESSMENT · started 14:10:10 · finished in 10m 24s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-26T14:10:10Z
+Command:  SCOPE=kubernetes db-platform/postgres/pitr/kubernetes/run_pitr_demo.sh
+==================================================
+
+[PREFLIGHT] Local Kubernetes (minikube): are Docker and Kubernetes answering?
+  $ docker ps -q        (15 s limit)
+  $ kubectl --context minikube get --raw=/readyz        (10 s limit)
+[PREFLIGHT] OK
+
+== Clean start for postgres (scope: kubernetes) ==
+[1/4] Platform operations still running on this machine
+  none
+[2/4] Unfinished restores
+  $ kubectl delete cluster.postgresql.cnpg.io platform-postgres-pitr -n postgres --wait=false
+    cluster.postgresql.cnpg.io "platform-postgres-pitr" deleted from postgres namespace
+  $ bash platform/lib/prune_test_backups.sh postgres
+      postgres: remove old test backup pitr-demo-platform-postgres-1793020286 (done, 2026-10-26T13:11:26Z)
+      $ kubectl delete backups.postgresql.cnpg.io pitr-demo-platform-postgres-1793020286 -n postgres --ignore-not-found=true --wait=false
+        backup.postgresql.cnpg.io "pitr-demo-platform-postgres-1793020286" deleted from postgres namespace
+      postgres: keep newest test backup pitr-demo-platform-postgres-1793021606 (2026-10-26T13:33:26Z)
+      postgres: files are removed by CloudNativePG's retention (10 days), not by this
+[3/4] Replication-test replicas
+    
+    [OK] POSTGRESQL REPLICATION TEST STOPPED
+    [OK] Native CNPG replication was not modified.
+[4/4] Workloads
+    [OK] PostgreSQL Kubernetes workload stopped
+    STATUS: STOPPED
+[OK] postgres: clean start done. The database and monitoring tools were kept.
+==================================================
+ POSTGRES KUBERNETES PITR DEMONSTRATION
+==================================================
+
+[STEP 1] Schema + baseline seed (orders 5001-5003)
+
+DROP TABLE
+CREATE TABLE
+INSERT 0 3
+[OK] Baseline seeded
+
+[STEP 2] Trigger real backup
+
+backup.postgresql.cnpg.io/pitr-demo-platform-postgres-1793023815 created
+[INFO] Backup still running after 30s -- waiting up to 900s
+[INFO] Backup still running after 60s -- waiting up to 900s
+[INFO] Backup still running after 90s -- waiting up to 900s
+[INFO] Backup still running after 120s -- waiting up to 900s
+[INFO] Backup still running after 150s -- waiting up to 900s
+[INFO] Backup still running after 180s -- waiting up to 900s
+[INFO] Backup still running after 210s -- waiting up to 900s
+[INFO] Backup still running after 240s -- waiting up to 900s
+[INFO] Backup still running after 270s -- waiting up to 900s
+[INFO] Backup still running after 300s -- waiting up to 900s
+[INFO] Backup still running after 330s -- waiting up to 900s
+[INFO] Backup still running after 360s -- waiting up to 900s
+[INFO] Backup still running after 390s -- waiting up to 900s
+[OK] Backup completed
+
+[STEP 3] Insert PITR marker (order 9999)
+
+INSERT 0 1
+[OK] Marker inserted on platform-postgres-2
+
+[STEP 4] Capture recovery target timestamp
+
+[OK] Recovery target (order 9999 commit time): 2026-10-26 14:17:40.269620+00
+[INFO] Waiting for WAL segment 00000002000000010000000D to archive (proves the target is real, replayable)
+[OK] Confirmed archived: 00000002000000010000000D
+
+[STEP 5] Insert post-marker activity (order 10000 — should NOT survive recovery)
+
+INSERT 0 1
+[INFO] Waiting for WAL segment 00000002000000010000000E to archive
+[OK] Confirmed archived: 00000002000000010000000E
+[OK] Order 10000 inserted and archived — original cluster now has the 'failure' state
+
+[STEP 6] Clone cluster via real PITR to: 2026-10-26 14:17:40.269620+00
+
+==================================================
+ CREATE PITR CLONE CLUSTER — DISPATCHER
+==================================================
+
+[INFO] Resolved scope/provider: local
+
+[INFO] Dispatching to: create_pitr_clone_cluster_kubernetes.sh
+
+
+==================================================
+ CREATE PITR CLONE CLUSTER
+==================================================
+
+Recovery timestamp (UTC): 2026-10-26 14:17:40.269620+00
+Source cluster:           platform-postgres
+Recovery cluster:         platform-postgres-pitr
+Backup repository:        s3://postgres-backups/postgresql
+MinIO endpoint:            http://minio.postgres.svc.cluster.local:9000
+Credential Secret:        s3-backup-creds
+mc image:                 cgr.dev/chainguard/minio-client:latest-dev
+
+[STEP 1] Confirm MinIO backup storage
+
+[OK] MinIO endpoint reachable: http://minio.postgres.svc.cluster.local:9000
+[OK] Destination: s3://postgres-backups/postgresql
+
+[STEP 1b] Confirm Kubernetes S3 recovery credentials
+
+[OK] Secret exists: s3-backup-creds
+[OK] Credential keys exist: ACCESS_KEY_ID, ACCESS_SECRET_KEY
+
+[STEP 2] Confirm completed backup exists for the source cluster
+
+[OK] 2 completed backups found:
+pitr-demo-platform-postgres-1793021606
+pitr-demo-platform-postgres-1793023815
+
+[STEP 2b] Confirm actual MinIO base backup exists
+
+[2026-10-26 14:17:54 UTC]     0B 20261026T131127/
+[2026-10-26 14:17:54 UTC]     0B 20261026T133328/
+[2026-10-26 14:17:54 UTC]     0B 20261026T141017/
+pod "pitr-minio-list-1793024273" deleted from postgres namespace
+[OK] 3 MinIO base-backup directories found
+
+[STEP 3] Create PITR clone cluster
+
+Warning: Native support for Barman Cloud backups and recovery is deprecated and will be completely removed in CloudNativePG 1.31.0. Found usage in: spec.externalClusters.0.barmanObjectStore. Please migrate existing clusters to the new Barman Cloud Plugin to ensure a smooth transition.
+Warning: spec.monitoring.enablePodMonitor is deprecated and will be removed in a future release. Please migrate to manually managing your PodMonitor resources. Set this field to false and create a PodMonitor resource for your cluster as described in the documentation.
+cluster.postgresql.cnpg.io/platform-postgres-pitr created
+
+[OK] PITR clone submitted
+
+[STEP 3b] Fixing Minikube hostPath permissions for PVC volume
+
+[OK] chmod 777 applied to /tmp/hostpath-provisioner/postgres/platform-postgres-pitr-1
+
+[STEP 4] Wait for clone readiness
+
+cluster.postgresql.cnpg.io/platform-postgres-pitr condition met
+
+[OK] PITR clone ready
+
+[STEP 5] Display cluster state
+
+NAME                     AGE     INSTANCES   READY   STATUS                     PRIMARY
+platform-postgres-pitr   2m33s   1           1       Cluster in healthy state   platform-postgres-pitr-1
+
+NAME                       READY   STATUS    RESTARTS   AGE   IP             NODE       NOMINATED NODE   READINESS GATES
+platform-postgres-pitr-1   1/1     Running   0          12s   10.x.x.x   minikube   <none>           <none>
+
+NAME                       STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE     VOLUMEMODE
+platform-postgres-pitr-1   Bound    pvc-72f23465-b523-408d-90d4-a057267e0278   20Gi       RWO            standard       <unset>                 2m33s   Filesystem
+
+==================================================
+ PITR CLONE CLUSTER READY
+==================================================
+
+[INFO] Original platform-postgres cluster was never touched.
+[INFO] Recovery source: s3://postgres-backups/postgresql
+[INFO] Recovery target: 2026-10-26 14:17:40.269620+00
+
+[INFO] Clean up when done:
+       bash /Users/<user>/platforrm-db-ob-release_v1/db-platform/postgres/pitr/destroy/destroy_pitr_clone.sh
+
+
+[STEP 7] Locate clone pod
+
+[INFO] Clone pod: platform-postgres-pitr-1
+
+==================================================
+ POSTGRES KUBERNETES PITR DEMONSTRATION COMPLETE
+==================================================
+
+[INFO] Expected: 5001, 5002, 5003, 9999 all FOUND/PASS.
+[INFO] Expected: 10000 NOT_FOUND/PASS (correctly excluded —
+[INFO] recovery stopped precisely at the target time, before
+[INFO] the post-marker 'failure' activity was ever applied).
+
+[INFO] Clean up when done:
+  bash /Users/<user>/platforrm-db-ob-release_v1/db-platform/postgres/pitr/destroy/destroy_pitr_clone.sh
+
+==================================================
+ SCORECARD — validated against the recovered clone
+==================================================
+
+ order_id | row_count |  actual   | result 
+----------+-----------+-----------+--------
+     5001 |         1 | FOUND     | PASS
+     5002 |         1 | FOUND     | PASS
+     5003 |         1 | FOUND     | PASS
+     9999 |         1 | FOUND     | PASS
+    10000 |         0 | NOT_FOUND | PASS
+(5 rows)
+
+
+[STEP 8] Write assessment evidence
+
+[INFO] Evidence written: /Users/<user>/platforrm-db-ob-release_v1/db-platform/postgres/runtime/evidence/kubernetes/assessment_20261026_142031_result.txt
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-26T14:20:31Z
+Duration: 10m21.314975925s
+Status:   success

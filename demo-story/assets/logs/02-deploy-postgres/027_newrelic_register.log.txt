@@ -1,0 +1,104 @@
+⏱ NEWRELIC REGISTER · started 14:25:30 · finished in 13s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-26T14:25:30Z
+Command:  bash observability/newrelic/registration/kubernetes/postgres/register.sh
+==================================================
+
+[PREFLIGHT] Local Kubernetes (minikube): are Docker and Kubernetes answering?
+  $ docker ps -q        (15 s limit)
+  $ kubectl --context minikube get --raw=/readyz        (10 s limit)
+[PREFLIGHT] OK
+
+
+==================================================
+ REGISTER POSTGRESQL (CNPG) INTO NEW RELIC
+==================================================
+
+[STEP 1] Validate prerequisites
+[OK] Kubernetes, PostgreSQL and New Relic available
+
+[STEP 2] Converge PostgreSQL monitoring account
+
+==========================================
+ CREATE NEW RELIC MONITORING USER
+==========================================
+
+[STEP 1] Validate prerequisites
+[OK] Prerequisites available
+
+[STEP 2] Converge PostgreSQL monitoring secret
+secret/postgres-monitoring created
+[OK] Monitoring secret available: postgres-monitoring
+
+[STEP 3] Read monitoring credentials
+[OK] Monitoring credentials loaded
+[INFO] User     : newrelic_monitor
+[INFO] Database : appdb
+
+[STEP 4] Discover CNPG primary
+[OK] Primary pod: platform-postgres-2
+
+[STEP 5] Converge PostgreSQL monitoring role
+Defaulted container "postgres" out of: postgres, bootstrap-controller (init)
+CREATE ROLE
+ALTER ROLE
+GRANT ROLE
+[OK] PostgreSQL monitoring role converged
+
+[STEP 6] Validate monitoring role
+Defaulted container "postgres" out of: postgres, bootstrap-controller (init)
+Defaulted container "postgres" out of: postgres, bootstrap-controller (init)
+[OK] Monitoring role exists
+[OK] pg_monitor granted
+
+==========================================
+ NEW RELIC MONITORING USER READY
+==========================================
+
+[OK] PostgreSQL monitoring account ready
+
+[STEP 3] Read PostgreSQL monitoring credentials
+[OK] Monitoring credentials loaded
+[INFO] User     : newrelic_monitor
+[INFO] Database : appdb
+[INFO] Host     : platform-postgres-rw.postgres.svc.cluster.local
+[INFO] Port     : 5432
+
+[STEP 4] Validate monitoring account connectivity
+Defaulted container "postgres" out of: postgres, bootstrap-controller (init)
+[OK] Monitoring account can connect to PostgreSQL
+
+[STEP 5] Converge New Relic PostgreSQL telemetry secret
+secret/newrelic-postgres-secret created
+[OK] newrelic-postgres-secret ready
+
+[STEP 6] Configure New Relic PostgreSQL integration
+configmap/newrelic-bundle-nrk8s-integrations-cfg patched
+[OK] postgres-config.yml installed
+
+[STEP 7] Restart New Relic agents
+daemonset.apps/newrelic-bundle-nrk8s-kubelet restarted
+Waiting for daemon set "newrelic-bundle-nrk8s-kubelet" rollout to finish: 0 out of 1 new pods have been updated...
+Waiting for daemon set "newrelic-bundle-nrk8s-kubelet" rollout to finish: 0 out of 1 new pods have been updated...
+Waiting for daemon set "newrelic-bundle-nrk8s-kubelet" rollout to finish: 0 of 1 updated pods are available...
+daemon set "newrelic-bundle-nrk8s-kubelet" successfully rolled out
+[OK] New Relic agents refreshed
+
+[STEP 8] Validate registration
+[OK] nri-postgresql configuration present
+[OK] PostgreSQL telemetry secret present
+
+==================================================
+ POSTGRESQL REGISTERED INTO NEW RELIC
+==================================================
+
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-26T14:25:40Z
+Duration: 9.55354205s
+Status:   success

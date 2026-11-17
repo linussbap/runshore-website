@@ -1,0 +1,39 @@
+⏱ MYSQL START WORKLOAD · started 13:21:58 · finished in 21s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-27T13:21:58Z
+Command:  bash db-platform/mysql/workload/start.sh
+==================================================
+
+[INFO] Workload time limit: 60 min -- stops by itself at 14:21 (ADMIN: WORKLOAD_MAX_MINUTES)
+[INFO] Selected workload scope: azure
+[INFO] resolve_scope.sh: SCOPE="azure" -> PLATFORM_TYPE="aks", KUBE_CONTEXT="database-assessment-platform-aks"
+[INFO] Scope        : azure
+[INFO] Platform     : aks
+[INFO] Kubernetes   : database-assessment-platform-aks
+[INFO] Workload image: ghcr.io/<user>/mysql-sysbench-workload:3160a334f5bc
+[INFO] Ensuring MySQL assessment database exists...
+mysql: [Warning] Using a password on the command line interface can be insecure.
+[OK] MySQL assessment database available: assessmentdb
+[INFO] Applying MySQL workload Pod...
+pod/mysql-sysbench-workload created
+[INFO] Waiting for workload pod to reach Running...
+pod/mysql-sysbench-workload condition met
+[INFO] Waiting for sysbench to report its first transactions (up to 3 min)...
+[INFO] Recent workload log:
+
+Initializing worker threads...
+
+Threads started!
+
+[ 10s ] thds: 4 tps: 204.37 qps: 4094.97 (r/w/o: 2866.76/664.40/563.81) lat (ms,95%): 35.59 err/s: 0.00 reconn/s: 0.00
+STATUS: RUNNING
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-27T13:22:18Z
+Duration: 19.601001874s
+Status:   success

@@ -1,0 +1,84 @@
+⏱ MONGODB ASSESSMENT · started 09:37:03 · finished in 2m 22s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-25T09:37:03Z
+Command:  SCOPE=kubernetes db-platform/mongodb/pitr/kubernetes/run_pitr_demo.sh
+==================================================
+
+==================================================
+ MONGODB KUBERNETES PITR DEMONSTRATION
+==================================================
+
+[OK] Cluster: mongodb-psmdb-db
+[INFO] Storage: minio-backup
+
+[STEP 1] Confirm continuous PITR archiving is enabled
+
+[OK] PITR archiving enabled
+
+[STEP 2] Schema + baseline seed
+
+Mongo schema complete
+Mongo seed complete
+[OK] Baseline seeded
+
+[STEP 3] Trigger real backup
+
+perconaservermongodbbackup.psmdb.percona.com/pitr-demo-1792921030 created
+[OK] Backup completed: pitr-demo-1792921030
+
+[STEP 4] Insert PITR marker (order 9999)
+
+Mongo PITR marker inserted
+[OK] Recovery target (9999 commit time + 1s buffer): 2026-10-25 09:37:29
+
+[STEP 5] Insert post-marker activity (orders 10000/10001 — should NOT survive recovery)
+
+Mongo post-PITR activity complete
+[OK] Post-marker orders inserted
+
+[INFO] Waiting for archived oplog to cover 2026-10-25 09:37:29 (up to 600s)
+[INFO] Oplog archived up to: 2026-10-25T09:06:26 (0s)
+[INFO] Oplog archived up to: 2026-10-25T09:06:26 (30s)
+[OK] Archived oplog covers the target (2026-10-25T09:37:20 - 2026-10-25T09:38:26) after 60s
+
+[STEP 6] Real PITR restore (DESTRUCTIVE — restores in-place into mongodb-psmdb-db)
+
+perconaservermongodbrestore.psmdb.percona.com/pitr-demo-restore-1792921117 created
+[OK] Restore completed
+
+[STEP 7] Validate restored data
+
+
+==================================================
+ CUSTOMER ORDER PITR SCOREBOARD
+==================================================
+
+Platform   : MongoDB
+Assessment : customer-order-assessment
+
+Order    Expected   Actual      Status
+-----    --------   ----------  ------
+5001     Present    Present     PASS
+5002     Present    Present     PASS
+5003     Present    Present     PASS
+9999     Present    Present     PASS
+10000    Absent     Absent      PASS
+
+==================================================
+ ASSESSMENT RESULT : PASS
+==================================================
+
+
+[STEP 8] Write assessment evidence
+
+[INFO] Evidence written: /Users/<user>/platforrm-db-ob-release_v1/db-platform/mongodb/runtime/evidence/kubernetes/assessment_20261025_093921_result.txt
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-25T09:39:21Z
+Duration: 2m17.859851647s
+Status:   success

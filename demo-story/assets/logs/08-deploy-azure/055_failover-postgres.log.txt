@@ -1,0 +1,120 @@
+⏱ POSTGRESQL FAILOVER · started 16:41:59 · finished in 1m 40s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-27T16:41:59Z
+Command:  SCOPE=azure db-platform/postgres/failover/kubernetes/run_failover.sh
+==================================================
+
+== Clean start for postgres (scope: azure) ==
+[1/4] Platform operations still running on this machine
+  none
+[2/4] Unfinished restores
+  $ bash platform/lib/prune_test_backups.sh postgres
+      postgres: keep newest test backup pitr-demo-platform-postgres-1793119172 (2026-10-27T16:39:32Z)
+[3/4] Replication-test replicas
+    
+    [OK] POSTGRESQL REPLICATION TEST STOPPED
+    [OK] Native CNPG replication was not modified.
+[4/4] Workloads
+    [OK] PostgreSQL Kubernetes workload stopped
+    STATUS: STOPPED
+[OK] postgres: clean start done. The database and monitoring tools were kept.
+
+==================================================
+ POSTGRESQL CNPG KUBERNETES — HA / FAILOVER TEST
+==================================================
+
+Namespace : postgres
+Cluster   : platform-postgres
+Database  : appdb
+
+[STEP 1] Verify three-instance CNPG HA topology
+[INFO] Requested instances : 3
+[INFO] Ready instances     : 3
+[INFO] Cluster phase       : Cluster in healthy state
+[INFO] Current primary     : platform-postgres-1
+[OK] Three-instance CNPG cluster is healthy
+[OK] Initial primary: platform-postgres-1
+[OK] Initial primary UID: 13618933-d5cb-4046-898f-c0846106d11d
+
+[STEP 2] Verify PostgreSQL connectivity before primary failure
+[OK] PostgreSQL connectivity verified before failure
+
+[STEP 3] Capture pre-failure HA state
+
+----- CNPG Cluster -----
+NAME                AGE     INSTANCES   READY   STATUS                     PRIMARY
+platform-postgres   8m59s   3           3       Cluster in healthy state   platform-postgres-1
+
+----- PostgreSQL Pods -----
+NAME                  READY   STATUS    RESTARTS   AGE     IP           NODE                             NOMINATED NODE   READINESS GATES
+platform-postgres-1   1/1     Running   0          8m38s   10.x.x.x   aks-system-18600840-vmss000001   <none>           <none>
+platform-postgres-2   1/1     Running   0          7m38s   10.x.x.x   aks-system-18600840-vmss000000   <none>           <none>
+platform-postgres-3   1/1     Running   0          6m49s   10.x.x.x   aks-system-18600840-vmss000002   <none>           <none>
+
+----- CNPG Current Primary -----
+platform-postgres-1
+
+[STEP 4] Simulate primary instance failure
+[INFO] Failure target: platform-postgres-1
+[INFO] Failure target UID: 13618933-d5cb-4046-898f-c0846106d11d
+Warning: Immediate deletion does not wait for confirmation that the running resource has been terminated. The resource may continue to run on the cluster indefinitely.
+pod "platform-postgres-1" force deleted from postgres namespace
+[OK] Primary failure injected
+
+[STEP 5] Wait for CNPG automatic primary promotion
+[OK] CNPG promoted a surviving instance
+[INFO] Previous primary: platform-postgres-1
+[INFO] New primary     : platform-postgres-2
+[OK] Promoted primary is Ready
+[INFO] Promoted primary UID: db1e9a5e-5ffa-4997-b5a5-98124fadb20f
+
+[STEP 6] Verify PostgreSQL availability after promotion
+[OK] PostgreSQL connectivity verified on promoted primary
+
+[STEP 7] Verify CNPG cluster recovery
+[OK] CNPG returned to three Ready instances
+[OK] Promoted primary remains Ready
+
+[STEP 8] Final HA validation
+[OK] Final CNPG phase: Cluster in healthy state
+[OK] Final ready instances: 3
+[OK] Final primary: platform-postgres-2
+
+[STEP 9] Capture final Kubernetes state
+
+----- CNPG Cluster -----
+NAME                AGE   INSTANCES   READY   STATUS                     PRIMARY
+platform-postgres   10m   3           3       Cluster in healthy state   platform-postgres-2
+
+----- PostgreSQL Pods -----
+NAME                  READY   STATUS    RESTARTS   AGE     IP           NODE                             NOMINATED NODE   READINESS GATES
+platform-postgres-1   1/1     Running   0          64s     10.x.x.x   aks-system-18600840-vmss000001   <none>           <none>
+platform-postgres-2   1/1     Running   0          9m11s   10.x.x.x   aks-system-18600840-vmss000000   <none>           <none>
+platform-postgres-3   1/1     Running   0          8m22s   10.x.x.x   aks-system-18600840-vmss000002   <none>           <none>
+
+----- CNPG Current Primary -----
+platform-postgres-2
+
+==================================================
+ POSTGRESQL CNPG KUBERNETES — HA TEST PASSED
+==================================================
+
+Failure target       : platform-postgres-1
+Failure target UID   : 13618933-d5cb-4046-898f-c0846106d11d
+Promoted primary     : platform-postgres-2
+Promoted primary UID : db1e9a5e-5ffa-4997-b5a5-98124fadb20f
+Final instances      : 3
+Final phase          : Cluster in healthy state
+Recovery             : automatic CNPG promotion
+Connectivity         : verified before and after failure
+Evidence             : /Users/<user>/platforrm-db-ob-release_v1/runtime/failover/postgres/kubernetes/failover_20261027_164202/result.txt
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-27T16:43:37Z
+Duration: 1m38.123358749s
+Status:   success

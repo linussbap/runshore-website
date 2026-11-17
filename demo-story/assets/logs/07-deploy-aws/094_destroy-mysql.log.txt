@@ -1,0 +1,143 @@
+⏱ MYSQL DESTROY · started 21:22:56 · finished in 3m 08s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-28T21:22:56Z
+Command:  platform/cloud/aws/orchestrator/destroy.sh mysql
+==================================================
+
+[INFO] Region (aws): eu-west-2 (ADMIN)
+==================================================
+ CLOUD LOGIN (AWS) -- from setup / ADMIN
+==================================================
+  AWS CLI already logged in -- left as it is
+
+==================================================
+ DESTROYING AS (AWS)
+==================================================
+  AWS identity:              arn:aws:iam::<account-id>:user/<user>
+  Region:                    eu-west-2
+  Account of ADMIN key:      <account-id>
+  Region in ADMIN:           eu-west-2
+    -> same account?         MATCH
+==================================================
+ OK
+
+[OK] Terraform state: S3 bucket dbplat-tfstate-<account-id>-eu-west-2
+[OK] kubectl connected to database-assessment-platform-eks
+
+[DEPENDENCY] Kubernetes
+[OK] Kubernetes API reachable
+
+[SECURITY] Provider Kubernetes Context Guard
+[INFO] Provider : aws
+[INFO] Platform : eks
+[INFO] Context  : arn:aws:eks:eu-west-2:<account-id>:cluster/database-assessment-platform-eks
+[OK] AWS/EKS context validated
+
+[PLATFORM] MySQL
+[INFO] Stopping mysql workload (aws) via db-platform/mysql/workload/stop.sh before destroy...
+[INFO] resolve_scope.sh: SCOPE="aws" -> PLATFORM_TYPE="eks", KUBE_CONTEXT="arn:aws:eks:eu-west-2:<account-id>:cluster/database-assessment-platform-eks"
+STATUS: IDLE
+
+======================================
+ DESTROY MYSQL
+======================================
+
+Idempotent -- safe to re-run. Explicitly clears every finalizer
+class found to block namespace deletion this session (PVC
+protection, Percona's backup-job keep-job finalizer), plus a
+generic catch-all for anything else still blocking at the end.
+If the active scope is aws, also removes the real S3 backup bucket
+and IAM user provisioned by setup_mysql_backup_creds.sh -- a real
+gap confirmed this session (bucket/user survived every previous
+destroy, including via the UI's own Destroy button).
+
+[STEP 1] Validate tooling
+[OK] kubectl available
+[OK] helm available
+
+[STEP 2] Validate Kubernetes API
+[OK] Kubernetes API reachable
+
+[STEP 3] Remove PXC clusters
+[INFO] Deleting mysql/pxc-db
+perconaxtradbcluster.pxc.percona.com "pxc-db" deleted from mysql namespace
+
+[STEP 3a] Remove MinIO backup storage
+
+[STEP 3b] Remove PXC backup resources
+perconaxtradbclusterbackup.pxc.percona.com "pitr-demo-pxc-db-1793217747" force deleted from mysql namespace
+perconaxtradbclusterbackup.pxc.percona.com "pitr-demo-pxc-db-1793221884" force deleted from mysql namespace
+[OK] Backup resources cleared
+
+[STEP 3c] Discover and remove all namespaced resources before PVC deletion
+[INFO] Requesting deletion of configmap/kube-root-ca.crt
+configmap "kube-root-ca.crt" deleted from mysql namespace
+[INFO] Requesting deletion of deployment.apps/pxc-operator
+deployment.apps "pxc-operator" deleted from mysql namespace
+[INFO] Requesting deletion of lease.coordination.k8s.io/08db1feb.percona.com
+lease.coordination.k8s.io "08db1feb.percona.com" deleted from mysql namespace
+[INFO] Requesting deletion of perconaxtradbclusterrestore.pxc.percona.com/pitr-demo-restore-1793222028
+perconaxtradbclusterrestore.pxc.percona.com "pitr-demo-restore-1793222028" deleted from mysql namespace
+[INFO] Requesting deletion of secret/internal-pxc-db
+secret "internal-pxc-db" deleted from mysql namespace
+[INFO] Requesting deletion of secret/mysql-backup-s3-creds
+secret "mysql-backup-s3-creds" deleted from mysql namespace
+[INFO] Requesting deletion of secret/mysql-splunk-hec
+secret "mysql-splunk-hec" deleted from mysql namespace
+[INFO] Requesting deletion of secret/pxc-db-secrets
+secret "pxc-db-secrets" deleted from mysql namespace
+[INFO] Requesting deletion of secret/sh.helm.release.v1.pxc-operator.v1
+secret "sh.helm.release.v1.pxc-operator.v1" deleted from mysql namespace
+[INFO] Requesting deletion of serviceaccount/default
+serviceaccount "default" deleted from mysql namespace
+[INFO] Requesting deletion of serviceaccount/pxc-operator
+serviceaccount "pxc-operator" deleted from mysql namespace
+
+[STEP 3d] Wait for ALL namespace Pods to actually terminate
+[OK] All namespace Pods terminated
+
+[STEP 3e] Remove PVCs after workload termination
+[INFO] Requesting deletion of persistentvolumeclaim/datadir-pxc-db-pxc-0
+persistentvolumeclaim "datadir-pxc-db-pxc-0" deleted from mysql namespace
+[INFO] Requesting deletion of persistentvolumeclaim/datadir-pxc-db-pxc-1
+persistentvolumeclaim "datadir-pxc-db-pxc-1" deleted from mysql namespace
+[INFO] Requesting deletion of persistentvolumeclaim/datadir-pxc-db-pxc-2
+persistentvolumeclaim "datadir-pxc-db-pxc-2" deleted from mysql namespace
+
+[STEP 3f] Force-clear any remaining Jobs with stuck finalizers
+
+[STEP 4] Remove Percona Helm releases
+
+[STEP 5] Remove Percona webhooks
+validatingwebhookconfiguration.admissionregistration.k8s.io "percona-xtradbcluster-webhook" deleted
+
+[STEP 6] Remove MySQL namespaces
+namespace "mysql" deleted
+
+[STEP 7] Verify namespaces actually terminate (not just requested)
+[OK] Namespace mysql fully removed
+[OK] Namespace database fully removed
+
+[STEP 8] Clean up real AWS backup resources (if provider=aws)
+{
+    "BucketRegion": "eu-west-2",
+    "AccessPointAlias": false
+}
+[INFO] Emptying and deleting bucket: mysql-db-backups-<account-id>-1785238733
+[OK] Bucket deleted: mysql-db-backups-<account-id>-1785238733
+[INFO] Removing IAM user: mysql-backup-svc
+[OK] IAM user deleted: mysql-backup-svc
+
+======================================
+ MYSQL TEARDOWN COMPLETE
+======================================
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-28T21:26:00Z
+Duration: 3m4.79462162s
+Status:   success

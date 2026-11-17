@@ -1,0 +1,35 @@
+⏱ MONGODB START WORKLOAD · started 16:57:46 · finished in 8s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-27T16:57:46Z
+Command:  bash db-platform/mongodb/workload/kubernetes/start.sh
+==================================================
+
+[INFO] Workload time limit: 60 min -- stops by itself at 17:57 (ADMIN: WORKLOAD_MAX_MINUTES)
+[INFO] resolve_scope.sh: SCOPE="azure" -> PLATFORM_TYPE="aks", KUBE_CONTEXT="database-assessment-platform-aks"
+
+==================================================
+ MONGODB YCSB KUBERNETES WORKLOAD
+==================================================
+
+Scope      : azure
+Kubernetes : database-assessment-platform-aks
+Namespace  : mongodb
+Pod        : mongodb-ycsb-workload
+
+[INFO] Workload image: ghcr.io/<user>/mongodb-ycsb-workload:d65951cfb095
+[INFO] Applying MongoDB YCSB workload Pod...
+pod/mongodb-ycsb-workload created
+[INFO] Waiting for workload Pod...
+pod/mongodb-ycsb-workload condition met
+[OK] MongoDB YCSB workload Pod is Running.
+STATUS: RUNNING
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-27T16:57:53Z
+Duration: 6.934269748s
+Status:   success

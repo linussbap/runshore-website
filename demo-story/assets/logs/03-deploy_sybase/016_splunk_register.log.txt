@@ -1,0 +1,88 @@
+⏱ SPLUNK REGISTER · started 07:19:30 · finished in 20s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-25T07:19:30Z
+Command:  bash observability/splunk/registration/kubernetes/sybase/register.sh
+==================================================
+
+==> Validating Sybase deployment...
+[SUCCESS] Sybase Deployment available.
+==> Resolving Splunk HEC token...
+[OK] Resolved Splunk admin credentials from secret: splunk-s1-standalone-secret-v1
+[OK] Existing HEC token 'sybase_hec_token' found
+[SUCCESS] Splunk HEC token resolved.
+==> Converging Splunk HEC Secret...
+[OK] Sybase log collector already uses the current Splunk token.
+[SUCCESS] Splunk HEC Secret converged.
+==> Converging Fluent Bit ConfigMap...
+[SUCCESS] Fluent Bit ConfigMap converged.
+==> Converging Fluent Bit sidecar container...
+deployment.apps/platform-sybase patched
+[SUCCESS] Fluent Bit sidecar container converged.
+==> Converging Sybase activity collector sidecar...
+[SUCCESS] Sybase activity collector sidecar converged.
+==> Waiting for Sybase Deployment rollout...
+Waiting for deployment "platform-sybase" rollout to finish: 0 out of 1 new replicas have been updated...
+Waiting for deployment "platform-sybase" rollout to finish: 0 out of 1 new replicas have been updated...
+Waiting for deployment "platform-sybase" rollout to finish: 0 out of 1 new replicas have been updated...
+Waiting for deployment "platform-sybase" rollout to finish: 0 of 1 updated replicas are available...
+deployment "platform-sybase" successfully rolled out
+==> Validating Fluent Bit collector container is present and Ready...
+[SUCCESS] Fluent Bit collector container is Ready. Pod: platform-sybase-59f7668668-5wrzv
+
+==> Proving end-to-end delivery (validate.sh)...
+
+==================================================
+ VALIDATE SYBASE SPLUNK REGISTRATION
+==================================================
+
+[STEP 1] Validate Fluent Bit collector container
+[OK] Fluent Bit collector container Ready: platform-sybase-59f7668668-5wrzv
+
+[STEP 2] Check for pipeline errors in Fluent Bit logs
+[OK] No known pipeline errors detected
+
+[STEP 3] Confirm the HEC secret exists
+[OK] sybase-splunk-hec secret present
+
+[STEP 4] Retrieve Sybase administrative credentials
+[OK] Sybase administrative credentials retrieved
+
+[STEP 5] Generate Sybase validation event
+Splunk validation marker: <arg1>
+The message has been inserted.
+(return status = 0)
+Msg 20001, Level 16, State 1:
+Server 'SYBASE', Line 1:
+Splunk validation marker: SYBASE_SPLUNK_VALIDATION_1792912784_12893
+[OK] Validation event issued (marker: SYBASE_SPLUNK_VALIDATION_1792912784_12893)
+
+[INFO] Confirming the event reached /shared-logs/SYBASE.log...
+[OK] Validation event confirmed in /shared-logs/SYBASE.log
+
+[STEP 6] Confirm event delivery in Splunk
+[OK] Resolved Splunk admin credentials from secret: splunk-s1-standalone-secret-v1
+[OK] Validation event confirmed in Splunk (index=main sourcetype="sybase:ase")
+
+[OK] Sybase Splunk registration validated end-to-end
+
+==> Checking Sybase activity collector...
+[SUCCESS] Sybase activity collector running:
+          2026-10-25T07:19:40Z kind=server connections=9 active=1 blocked=0
+[INFO] Per-table rows appear once the workload touches assessmentdb tables.
+[INFO] Splunk search: index=main sourcetype="sybase:ase:activity"
+
+==================================================
+ SYBASE -> SPLUNK REGISTRATION COMPLETE (Kubernetes)
+==================================================
+
+[INFO] End-to-end delivery proven; REGISTERED status recorded.
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-25T07:19:49Z
+Duration: 19.14820482s
+Status:   success

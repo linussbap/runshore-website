@@ -1,0 +1,55 @@
+⏱ PMM DESTROY · started 14:22:01 · finished in 24s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-26T14:22:01Z
+Command:  SCOPE=kubernetes observability/pmm/deploy/kubernetes/destroy.sh
+==================================================
+
+[PREFLIGHT] Local Kubernetes (minikube): are Docker and Kubernetes answering?
+  $ docker ps -q        (15 s limit)
+  $ kubectl --context minikube get --raw=/readyz        (10 s limit)
+[PREFLIGHT] OK
+
+
+[STEP PMM WEB ACCESS] Stop local PMM port-forward
+[INFO] Stopping PMM port-forward PID 83223...
+[OK] PMM local web access stopped.
+[OK] PMM local web access stopped.
+
+==================================================
+ PMM KUBERNETES DESTROY
+==================================================
+
+[STEP 1] Remove Helm release
+release "pmm" uninstalled
+
+[STEP 2] Remove PMM Client Deployment
+deployment.apps "pmm-client" deleted from pmm namespace
+[OK] PMM Client deployment removed
+
+[STEP 3] Remove PMM PVCs
+persistentvolumeclaim "pmm-client-storage" deleted from pmm namespace
+persistentvolumeclaim "pmm-storage-pmm-0" deleted from pmm namespace
+
+[STEP 4] Delete PMM namespace
+namespace "pmm" deleted
+[INFO] Waiting for namespace removal...
+[WAIT] Namespace pmm still terminating (0/180s)
+[WAIT] Namespace pmm still terminating (5/180s)
+
+[STEP 5] Verify PMM removal
+[OK] PMM namespace absent
+[OK] PMM Helm release absent
+
+==================================================
+ PMM DESTROY COMPLETE
+==================================================
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-26T14:22:22Z
+Duration: 21.114589426s
+Status:   success

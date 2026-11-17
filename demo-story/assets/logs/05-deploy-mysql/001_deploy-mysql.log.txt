@@ -1,0 +1,485 @@
+⏱ MYSQL DEPLOY · started 15:15:29 · finished in 4m 48s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-26T15:15:29Z
+Command:  SCOPE=kubernetes db-platform/mysql/deploy/kubernetes/deploy.sh
+==================================================
+
+[PREFLIGHT] Local Kubernetes (minikube): are Docker and Kubernetes answering?
+  $ docker ps -q        (15 s limit)
+  $ kubectl --context minikube get --raw=/readyz        (10 s limit)
+[PREFLIGHT] OK
+
+
+==================================================
+ MYSQL (PXC) DEPLOYMENT
+==================================================
+
+[STEP 1] Create PXC application secrets
+[INFO] Reusing existing generated passwords from /Users/<user>/platforrm-db-ob-release_v1/shared/secrets/runtime/mysql_secrets.env
+
+[INFO] Validate PMM 3 secret source
+[OK] PMM 3 token source validated
+
+======================================
+ CREATE PXC SECRETS
+======================================
+
+[STEP 1] Ensure MySQL namespace exists
+namespace/mysql created
+[OK] Namespace ready
+
+[STEP 2] Check existing PXC secret
+
+[STEP 3] Create/update PXC secret
+secret/pxc-db-secrets created
+[OK] PXC secret applied
+
+[STEP 4] Validate PXC secret keys
+[OK] root present
+[OK] xtrabackup present
+[OK] monitor present
+[OK] clustercheck present
+[OK] proxyadmin present
+[OK] operator present
+[OK] replication present
+[OK] pmmservertoken present
+
+[STEP 5] Sync pmmservertoken into internal secret
+[INFO] internal-pxc-db does not exist yet.
+[INFO] This is expected on a brand-new cluster -- the Operator
+[INFO] creates its internal secret on first reconciliation, after
+[INFO] the PXC Custom Resource is applied. Re-run this script
+[INFO] once the cluster is up if PMM3 still is not enabled, to
+[INFO] sync the token into the internal secret.
+
+[STEP 6] Confirm PXC secret exists
+secret/pxc-db-secrets
+
+======================================
+ PXC SECRETS READY
+======================================
+
+[STEP 2] Provision backup storage / credentials
+[INFO] Provider: local
+[INFO] Backup provider: local / MinIO
+
+[STEP 2A] Deploy MinIO backup storage
+
+==================================================
+ MINIO DEPLOYMENT (KUBERNETES)
+==================================================
+
+[INFO] MinIO source commit : 7aac2a2c5b7c882e68c1ce017d8256be2feea27f
+[INFO] mc source commit    : 77f82e18b5401a65958f1619df6ebb994634bd88
+[INFO] MinIO image         : cgr.dev/chainguard/minio:latest
+[INFO] mc image            : cgr.dev/chainguard/minio-client:latest-dev
+
+[OK] MinIO image already exists: cgr.dev/chainguard/minio:latest
+[OK] MinIO Client image already exists: cgr.dev/chainguard/minio-client:latest-dev
+
+[STEP 3] Load local images into Minikube
+[OK] Images loaded into Minikube
+
+[STEP 4] Deploy MinIO
+namespace/mysql unchanged
+deployment.apps/minio created
+persistentvolumeclaim/minio-data created
+service/minio created
+
+[STEP 5] Wait for MinIO readiness
+Waiting for deployment "minio" rollout to finish: 0 of 1 updated replicas are available...
+deployment "minio" successfully rolled out
+[OK] MinIO deployment ready
+
+[STEP 6] Create backup bucket
+pod/mc-bucket-setup created
+[INFO] Waiting for bucket setup pod to complete
+pod/mc-bucket-setup condition met
+[OK] Bucket setup completed
+pod "mc-bucket-setup" deleted from mysql namespace
+
+[STEP 7] Create Kubernetes secret for PXC backup
+secret/mysql-backup-minio-creds created
+[OK] Secret mysql-backup-minio-creds ready
+
+==================================================
+ MINIO READY
+==================================================
+[INFO] Endpoint (in-cluster): http://minio.mysql.svc.cluster.local:9000
+[INFO] Bucket: mysql-backups
+[INFO] Secret: mysql-backup-minio-creds
+[INFO] MinIO image: cgr.dev/chainguard/minio:latest
+[INFO] mc image: cgr.dev/chainguard/minio-client:latest-dev
+
+
+[STEP 3] Deploy PXC Operator
+==========================================
+DEPLOY PXC OPERATOR
+==========================================
+
+[STEP] Configure Helm repository
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "aws-ebs-csi-driver" chart repository
+...Successfully got an update from the "jetstack" chart repository
+...Successfully got an update from the "percona" chart repository
+...Successfully got an update from the "splunk" chart repository
+...Successfully got an update from the "cloudnative-pg" chart repository
+...Successfully got an update from the "cnpg" chart repository
+...Successfully got an update from the "splunk-otel-collector-chart" chart repository
+...Successfully got an update from the "newrelic" chart repository
+...Successfully got an update from the "grafana" chart repository
+...Successfully got an update from the "argo" chart repository
+...Successfully got an update from the "bitnami" chart repository
+Update Complete. ⎈Happy Helming!⎈
+
+[STEP] Check existing operator
+[INFO] PXC operator deployment not present
+
+[STEP] Handle stale webhook
+[INFO] Operator is absent; remove any stale webhook configuration
+
+[STEP] Deploy / reconcile PXC operator
+Release "pxc-operator" does not exist. Installing it now.
+NAME: pxc-operator
+LAST DEPLOYED: Mon Oct 26 15:16:08 2026
+NAMESPACE: mysql
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+NOTES:
+1. Percona Operator for MySQL is deployed. 
+
+  Check if operator Pod is running:
+
+    kubectl get pods -l app.kubernetes.io/name=pxc-operator --namespace mysql
+
+  Troubleshoot by checking the logs:
+
+    export POD=$(kubectl get pods -l app.kubernetes.io/name=pxc-operator --namespace mysql --output name)
+    kubectl logs $POD --namespace=mysql
+
+2. Deploy the cluster with the following command:
+
+    helm install my-db percona/pxc-db --namespace=mysql
+
+Read more in our documentation: https://docs.percona.com/percona-operator-for-mysql/pxc/
+
+[STEP] Wait for operator rollout
+Waiting for deployment "pxc-operator" rollout to finish: 0 of 1 updated replicas are available...
+deployment "pxc-operator" successfully rolled out
+
+[STEP] Verify operator
+NAME           READY   UP-TO-DATE   AVAILABLE   AGE
+pxc-operator   1/1     1            1           1s
+
+[OK] PXC operator deployment complete
+[OK] Existing MySQL/PXC pods were not deleted
+
+[STEP 4] Deploy PXC Cluster
+
+==========================================
+ DEPLOY PXC CLUSTER
+==========================================
+
+[INFO] Provider: local
+[INFO] Backup provider: local / MinIO
+
+==================================================
+ MINIO DEPLOYMENT (KUBERNETES)
+==================================================
+
+[INFO] MinIO source commit : 7aac2a2c5b7c882e68c1ce017d8256be2feea27f
+[INFO] mc source commit    : 77f82e18b5401a65958f1619df6ebb994634bd88
+[INFO] MinIO image         : cgr.dev/chainguard/minio:latest
+[INFO] mc image            : cgr.dev/chainguard/minio-client:latest-dev
+
+[OK] MinIO image already exists: cgr.dev/chainguard/minio:latest
+[OK] MinIO Client image already exists: cgr.dev/chainguard/minio-client:latest-dev
+
+[STEP 3] Load local images into Minikube
+[OK] Images loaded into Minikube
+
+[STEP 4] Deploy MinIO
+namespace/mysql unchanged
+deployment.apps/minio unchanged
+persistentvolumeclaim/minio-data unchanged
+service/minio unchanged
+
+[STEP 5] Wait for MinIO readiness
+deployment "minio" successfully rolled out
+[OK] MinIO deployment ready
+
+[STEP 6] Create backup bucket
+pod/mc-bucket-setup created
+[INFO] Waiting for bucket setup pod to complete
+pod/mc-bucket-setup condition met
+[OK] Bucket setup completed
+pod "mc-bucket-setup" deleted from mysql namespace
+
+[STEP 7] Create Kubernetes secret for PXC backup
+secret/mysql-backup-minio-creds unchanged
+[OK] Secret mysql-backup-minio-creds ready
+
+==================================================
+ MINIO READY
+==================================================
+[INFO] Endpoint (in-cluster): http://minio.mysql.svc.cluster.local:9000
+[INFO] Bucket: mysql-backups
+[INFO] Secret: mysql-backup-minio-creds
+[INFO] MinIO image: cgr.dev/chainguard/minio:latest
+[INFO] mc image: cgr.dev/chainguard/minio-client:latest-dev
+
+
+[STEP] Render PXC manifest
+[OK] Manifest rendered:
+     storageName=minio-backup
+
+[STEP] Apply PXC manifest
+perconaxtradbcluster.pxc.percona.com/pxc-db serverside-applied
+
+[STEP] Wait for PXC CR
+
+[STEP] Wait for StatefulSet creation
+[INFO] Waiting for StatefulSet creation...
+
+[STEP] Wait for PXC pod creation
+
+
+[STEP] Validate PXC cluster health
+[INFO] pxc-db-pxc-0: Pod Ready=False
+[INFO] pxc-db-pxc-1: Pod Ready=<empty>
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (1s)
+[INFO] pxc-db-pxc-0: Pod Ready=False
+[INFO] pxc-db-pxc-1: Pod Ready=<empty>
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (11s)
+[INFO] pxc-db-pxc-0: Pod Ready=False
+[INFO] pxc-db-pxc-1: Pod Ready=<empty>
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (22s)
+[INFO] pxc-db-pxc-0: Pod Ready=False
+[INFO] pxc-db-pxc-1: Pod Ready=<empty>
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (32s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=<empty>
+       cluster=<empty>
+       wsrep_ready=<empty>
+       cluster_size=<empty>
+[INFO] pxc-db-pxc-1: Pod Ready=False
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (42s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=<empty>
+       cluster=<empty>
+       wsrep_ready=<empty>
+       cluster_size=<empty>
+[INFO] pxc-db-pxc-1: Pod Ready=False
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (53s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=<empty>
+       cluster=<empty>
+       wsrep_ready=<empty>
+       cluster_size=<empty>
+[INFO] pxc-db-pxc-1: Pod Ready=False
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (63s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=<empty>
+       cluster=<empty>
+       wsrep_ready=<empty>
+       cluster_size=<empty>
+[INFO] pxc-db-pxc-1: Pod Ready=False
+[INFO] pxc-db-pxc-2: Pod Ready=<empty>
+[INFO] PXC health: 0/3 (74s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=<empty>
+       cluster=<empty>
+       wsrep_ready=<empty>
+       cluster_size=<empty>
+[INFO] pxc-db-pxc-1: WSREP not converged
+       state=<empty>
+       cluster=<empty>
+       wsrep_ready=<empty>
+       cluster_size=<empty>
+[INFO] pxc-db-pxc-2: Pod Ready=False
+[INFO] PXC health: 0/3 (85s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=<empty>
+       cluster=<empty>
+       wsrep_ready=<empty>
+       cluster_size=<empty>
+[INFO] pxc-db-pxc-1: WSREP not converged
+       state=<empty>
+       cluster=<empty>
+       wsrep_ready=<empty>
+       cluster_size=<empty>
+[INFO] pxc-db-pxc-2: Pod Ready=False
+[INFO] PXC health: 0/3 (95s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=<empty>
+       cluster=<empty>
+       wsrep_ready=<empty>
+       cluster_size=<empty>
+[INFO] pxc-db-pxc-1: WSREP not converged
+       state=<empty>
+       cluster=<empty>
+       wsrep_ready=<empty>
+       cluster_size=<empty>
+[INFO] pxc-db-pxc-2: Pod Ready=False
+[INFO] PXC health: 0/3 (106s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=<empty>
+       cluster=<empty>
+       wsrep_ready=<empty>
+       cluster_size=<empty>
+[INFO] pxc-db-pxc-1: WSREP not converged
+       state=<empty>
+       cluster=<empty>
+       wsrep_ready=<empty>
+       cluster_size=<empty>
+[INFO] pxc-db-pxc-2: Pod Ready=False
+[INFO] PXC health: 0/3 (117s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=<empty>
+       cluster=<empty>
+       wsrep_ready=<empty>
+       cluster_size=<empty>
+[INFO] pxc-db-pxc-1: WSREP not converged
+       state=<empty>
+       cluster=<empty>
+       wsrep_ready=<empty>
+       cluster_size=<empty>
+[INFO] pxc-db-pxc-2: Pod Ready=False
+[INFO] PXC health: 0/3 (128s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=<empty>
+       cluster=<empty>
+       wsrep_ready=<empty>
+       cluster_size=<empty>
+[INFO] pxc-db-pxc-1: WSREP not converged
+       state=<empty>
+       cluster=<empty>
+       wsrep_ready=<empty>
+       cluster_size=<empty>
+[INFO] pxc-db-pxc-2: Pod Ready=False
+[INFO] PXC health: 0/3 (138s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=<empty>
+       cluster=<empty>
+       wsrep_ready=<empty>
+       cluster_size=<empty>
+[INFO] pxc-db-pxc-1: WSREP not converged
+       state=<empty>
+       cluster=<empty>
+       wsrep_ready=<empty>
+       cluster_size=<empty>
+[INFO] pxc-db-pxc-2: WSREP not converged
+       state=<empty>
+       cluster=<empty>
+       wsrep_ready=<empty>
+       cluster_size=<empty>
+[INFO] PXC health: 0/3 (149s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=1
+[INFO] pxc-db-pxc-1: WSREP not converged
+       state=<empty>
+       cluster=<empty>
+       wsrep_ready=<empty>
+       cluster_size=<empty>
+[INFO] pxc-db-pxc-2: WSREP not converged
+       state=<empty>
+       cluster=<empty>
+       wsrep_ready=<empty>
+       cluster_size=<empty>
+[INFO] PXC health: 0/3 (160s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=1
+[INFO] pxc-db-pxc-1: WSREP not converged
+       state=<empty>
+       cluster=<empty>
+       wsrep_ready=<empty>
+       cluster_size=<empty>
+[INFO] pxc-db-pxc-2: WSREP not converged
+       state=<empty>
+       cluster=<empty>
+       wsrep_ready=<empty>
+       cluster_size=<empty>
+[INFO] PXC health: 0/3 (171s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=1
+[INFO] pxc-db-pxc-1: Pod Ready=False
+[INFO] pxc-db-pxc-2: Pod Ready=False
+[INFO] PXC health: 0/3 (182s)
+[INFO] pxc-db-pxc-0: WSREP not converged
+       state=Synced
+       cluster=Primary
+       wsrep_ready=ON
+       cluster_size=1
+[INFO] pxc-db-pxc-1: Pod Ready=False
+[INFO] pxc-db-pxc-2: Pod Ready=False
+[INFO] PXC health: 0/3 (192s)
+[OK] pxc-db-pxc-0: Synced / Primary / wsrep_ready=ON / cluster_size=3
+[INFO] pxc-db-pxc-1: Pod Ready=False
+[INFO] pxc-db-pxc-2: Pod Ready=False
+[INFO] PXC health: 1/3 (203s)
+[OK] pxc-db-pxc-0: Synced / Primary / wsrep_ready=ON / cluster_size=3
+[OK] pxc-db-pxc-1: Synced / Primary / wsrep_ready=ON / cluster_size=3
+[OK] pxc-db-pxc-2: Synced / Primary / wsrep_ready=ON / cluster_size=3
+[INFO] PXC health: 3/3 (214s)
+[OK] PXC cluster health converged
+
+[STEP] Validate cluster
+NAME     ENDPOINT               STATUS   PXC   PROXYSQL   HAPROXY   AGE
+pxc-db   pxc-db-haproxy.mysql   ready    3                2         3m39s
+NAME                            READY   STATUS     RESTARTS      AGE
+minio-5d64f6f8f8-gwn92          1/1     Running    0             4m20s
+pxc-db-haproxy-0                2/2     Running    0             3m39s
+pxc-db-haproxy-1                2/2     Running    0             57s
+pxc-db-pitr-7649f869b5-52mvl    0/1     Init:0/1   0             1s
+pxc-db-pxc-0                    1/1     Running    0             3m39s
+pxc-db-pxc-1                    1/1     Running    1 (39s ago)   2m58s
+pxc-db-pxc-2                    1/1     Running    1 (42s ago)   2m20s
+pxc-operator-56845458c5-j7vxb   1/1     Running    0             4m5s
+NAME                   STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+datadir-pxc-db-pxc-0   Bound    pvc-9dfdb629-8166-48a5-a0b8-9fa171fd633e   20Gi       RWO            standard       <unset>                 3m39s
+datadir-pxc-db-pxc-1   Bound    pvc-15b8ea37-3a73-4540-8d78-deceff4ce933   20Gi       RWO            standard       <unset>                 2m58s
+datadir-pxc-db-pxc-2   Bound    pvc-8f6c9c82-8ff5-48ef-9b75-95ecb8ff9a6c   20Gi       RWO            standard       <unset>                 2m20s
+minio-data             Bound    pvc-53784684-964b-4e1e-a7d8-7af6f22913fd   5Gi        RWO            standard       <unset>                 4m20s
+NAME                              TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                                          AGE
+minio                             ClusterIP   10.x.x.x   <none>        9000/TCP,9001/TCP                                4m20s
+percona-xtradb-cluster-operator   ClusterIP   10.x.x.x   <none>        443/TCP                                          4m5s
+pxc-db-haproxy                    ClusterIP   10.x.x.x     <none>        3306/TCP,3309/TCP,33062/TCP,33060/TCP,8404/TCP   3m39s
+pxc-db-haproxy-replicas           ClusterIP   10.x.x.x     <none>        3306/TCP                                         3m39s
+pxc-db-pitr                       ClusterIP   10.x.x.x    <none>        8080/TCP                                         1s
+pxc-db-pxc                        ClusterIP   None            <none>        3306/TCP,33062/TCP,33060/TCP                     3m39s
+pxc-db-pxc-unready                ClusterIP   None            <none>        3306/TCP,33062/TCP,33060/TCP                     3m39s
+
+[OK] PXC deployment complete
+[OK] Backup storage: minio-backup
+
+==================================================
+ MYSQL (PXC) DEPLOYMENT COMPLETE
+==================================================
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-26T15:20:14Z
+Duration: 4m45.54060363s
+Status:   success

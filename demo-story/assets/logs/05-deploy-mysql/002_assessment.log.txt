@@ -1,0 +1,312 @@
+⏱ MYSQL ASSESSMENT · started 15:59:40 · finished in 6m 25s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-26T15:59:40Z
+Command:  SCOPE=kubernetes db-platform/mysql/pitr/kubernetes/run_pitr_demo.sh
+==================================================
+
+[PREFLIGHT] Local Kubernetes (minikube): are Docker and Kubernetes answering?
+  $ docker ps -q        (15 s limit)
+  $ kubectl --context minikube get --raw=/readyz        (10 s limit)
+[PREFLIGHT] OK
+
+== Clean start for mysql (scope: kubernetes) ==
+[1/4] Platform operations still running on this machine
+  none
+[2/4] Unfinished restores
+  $ bash db-platform/mysql/pitr/kubernetes/cancel_restore.sh --yes
+    == Cancel unfinished MySQL restore ==
+    [OK] No unfinished restore and the cluster has 3 nodes -- nothing to do
+    STATUS: OK
+  $ bash platform/lib/prune_test_backups.sh mysql
+      mysql: no test backups
+  $ bash db-platform/mysql/pitr/kubernetes/rm_old_pitr_pods.sh
+    [INFO] Namespace: mysql
+    [INFO] none
+    [INFO] No completed PITR/backup/restore Jobs found.
+    [INFO] No remaining completed PITR/backup/restore pods found.
+    [INFO] Jobs deleted : 0
+    [INFO] Pods deleted : 0
+[3/4] Replication-test replicas
+    [2026-10-26 15:59:43] Wiping stale hostpath-provisioner directory (Minikube-specific): /tmp/hostpath-provisioner/mysql/mysql-data-mysql-async-replica-0
+    [2026-10-26 15:59:43] Standalone MySQL async replica teardown complete.
+    [2026-10-26 15:59:43] PXC (pxc-db) was not touched.
+[4/4] Workloads
+    [INFO] resolve_scope.sh: SCOPE="kubernetes" -> PLATFORM_TYPE="kubeadm", KUBE_CONTEXT="minikube"
+    STATUS: IDLE
+[OK] mysql: clean start done. The database and monitoring tools were kept.
+
+==================================================
+ MYSQL KUBERNETES PITR DEMONSTRATION
+==================================================
+
+[INFO] Namespace    : mysql
+[INFO] Cluster      : pxc-db
+[INFO] Database     : assessmentdb
+[INFO] Provider     : local
+[INFO] Storage      : minio-backup
+[INFO] Assessment   : customer-order-assessment
+[INFO] Archive wait : 60s
+[INFO] Log          : /Users/<user>/platforrm-db-ob-release_v1/runtime/logs/mysql/pitr_demo_20261026_155944.log
+
+[STEP 0] Validate prerequisites
+
+[OK] Live root credential resolved from Kubernetes Secret pxc-db-secrets
+[OK] Prerequisites available
+
+[STEP 1] Validate PXC cluster health
+
+[INFO] PXC Pods       : 3/3 Ready
+[INFO] WSREP          : all members Synced
+[INFO] Cluster status : Primary
+[INFO] Cluster size   : 3/3
+[INFO] WSREP ready    : all members ON
+[OK] PXC cluster ready
+[OK] PXC cluster ready
+
+[STEP 2] Validate PITR configuration and collector
+
+[OK] PITR enabled
+[INFO] PITR storage: minio-backup
+[INFO] PITR collector : pxc-db-pitr-7649f869b5-52mvl
+[INFO] PITR ready     : true
+[OK] PITR collector ready
+
+[STEP 3] Prepare canonical assessment fixture
+
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+[OK] Baseline seeded
+
+[STEP 4] Trigger real PXC backup
+
+[INFO] Backup attempt 1/3
+[INFO] Backup name: pitr-demo-pxc-db-1793030389
+perconaxtradbclusterbackup.pxc.percona.com/pitr-demo-pxc-db-1793030389 created
+[INFO] Backup state: pending
+[INFO] Backup state: Starting
+[INFO] Backup state: Running
+[INFO] Backup state: Running
+[INFO] Backup state: Running
+[INFO] Backup state: Running
+[INFO] Backup state: Running
+[INFO] Backup state: Running
+[INFO] Backup state: Succeeded
+[OK] Backup completed: pitr-demo-pxc-db-1793030389
+
+[STEP 4b] Trim stored change logs older than this backup
+[INFO] PITR storage minio-backup (s3); trimming change-log files stored before 2026-10-26 15:57:49 UTC
+[OK] trimmed 8 of 8 old change-log files (0.0 GB); 2 kept for the restore
+
+[STEP 5] Insert PITR marker — order 9999
+
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+[OK] PITR marker created
+[INFO] Marker timestamp : 2026-10-26 16:00:35
+[INFO] Marker epoch     : 1793030435
+
+[STEP 6] Establish recovery-target timestamp strictly after the marker
+
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+[OK] Recovery target established
+[INFO] Marker epoch          : 1793030435
+[INFO] Recovery target epoch : 1793030436
+[INFO] Recovery target       : 2026-10-26 16:00:36
+
+[STEP 7] Insert post-marker activity — order 10000
+
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+[OK] Order 10000 inserted
+[INFO] Post-marker timestamp : 2026-10-26 16:00:37
+[INFO] Post-marker epoch     : 1793030437
+[OK] PITR boundary verified: marker < recovery_target < post-marker
+[INFO] 1793030435 < 1793030436 < 1793030437
+
+[STEP 8] Allow PITR binlog collector to archive activity
+
+[INFO] PITR collector : pxc-db-pitr-7649f869b5-52mvl
+[INFO] PITR ready     : true
+[INFO] PITR collector : pxc-db-pitr-7649f869b5-52mvl
+[INFO] Archive wait    : 60s
+[OK] Binlog archive settlement interval completed
+
+[STEP 9] Real operator-native PITR restore
+
+[WARN] Restore operates in-place against pxc-db.
+[WARN] PXC, HAProxy and PITR pods may be reconciled by the operator.
+
+perconaxtradbclusterrestore.pxc.percona.com/pitr-demo-restore-1793030499 created
+[INFO] Restore state: pending
+[INFO] Restore state: Stopping Cluster
+[INFO] Restore state: Stopping Cluster
+[INFO] Restore state: Stopping Cluster
+[INFO] Restore state: Stopping Cluster
+[INFO] Restore state: Stopping Cluster
+[INFO] Restore state: Stopping Cluster
+[INFO] Restore state: Stopping Cluster
+[INFO] Restore state: Stopping Cluster
+[INFO] Restore state: Stopping Cluster
+[INFO] Restore state: Restoring
+[INFO] Restore state: Restoring
+[INFO] Restore state: Restoring
+[INFO] Restore state: Restoring
+[INFO] Restore state: Restoring
+[INFO] Restore state: Restoring
+[INFO] Restore state: Restoring
+[INFO] Restore state: Restoring
+[INFO] Restore state: Restoring
+[INFO] Restore state: Restoring
+[INFO] Restore state: Restoring
+[INFO] Restore state: Point-in-time recovering
+[INFO] Restore state: Point-in-time recovering
+[INFO] Replaying change logs: 1 of 2 files done
+[INFO] Restore state: Starting Cluster
+[INFO] Restore state: Starting Cluster
+[INFO] Restore state: Starting Cluster
+[INFO] Restore state: Starting Cluster
+[INFO] Restore state: Starting Cluster
+[INFO] Restore state: Starting Cluster
+[INFO] Restore state: Starting Cluster
+[INFO] Restore state: Starting Cluster
+[INFO] Restore state: Starting Cluster
+[INFO] Restore state: Starting Cluster
+[INFO] Restore state: Starting Cluster
+[INFO] Restore state: Starting Cluster
+[INFO] Restore state: Starting Cluster
+[INFO] Restore state: Starting Cluster
+[INFO] Restore state: Starting Cluster
+[INFO] Restore state: Starting Cluster
+[INFO] Restore state: Starting Cluster
+[INFO] Restore state: Starting Cluster
+[INFO] Restore state: Starting Cluster
+[INFO] Restore state: Starting Cluster
+[INFO] Restore state: Starting Cluster
+[INFO] Restore state: Starting Cluster
+[INFO] Restore state: Starting Cluster
+[INFO] Restore state: Starting Cluster
+[INFO] Restore state: Starting Cluster
+[INFO] Restore state: Starting Cluster
+[INFO] Restore state: Starting Cluster
+[INFO] Restore state: Starting Cluster
+[INFO] Restore state: Succeeded
+[OK] Restore completed: pitr-demo-restore-1793030499
+
+[STEP 10] Wait for complete Galera convergence
+
+[INFO] PXC Pods       : 3/3 Ready
+[INFO] WSREP          : all members Synced
+[INFO] Cluster status : Primary
+[INFO] Cluster size   : 3/3
+[INFO] WSREP ready    : all members ON
+[OK] PXC cluster ready
+[OK] Galera cluster fully resynced and ready
+
+[INFO] Post-restore cluster resources:
+NAME                                                    READY   STATUS      RESTARTS   AGE     IP             NODE       NOMINATED NODE   READINESS GATES
+minio-5d64f6f8f8-gwn92                                  1/1     Running     0          50m     10.x.x.x   minikube   <none>           <none>
+pitr-job-pitr-demo-restore-1793030499-pxc-db-xdqlw      0/1     Completed   0          2m36s   10.x.x.x   minikube   <none>           <none>
+pxc-db-haproxy-0                                        2/2     Running     0          2m26s   10.x.x.x   minikube   <none>           <none>
+pxc-db-haproxy-1                                        2/2     Running     0          102s    10.x.x.x   minikube   <none>           <none>
+pxc-db-pitr-7649f869b5-mcdxb                            0/1     Init:0/1    0          2s      10.x.x.x   minikube   <none>           <none>
+pxc-db-pxc-0                                            1/1     Running     0          3m16s   10.x.x.x   minikube   <none>           <none>
+pxc-db-pxc-1                                            1/1     Running     0          2m26s   10.x.x.x   minikube   <none>           <none>
+pxc-db-pxc-2                                            1/1     Running     0          78s     10.x.x.x   minikube   <none>           <none>
+pxc-operator-56845458c5-j7vxb                           1/1     Running     0          49m     10.x.x.x   minikube   <none>           <none>
+restore-job-pitr-demo-restore-1793030499-pxc-db-wj4rx   0/1     Completed   0          3m36s   10.x.x.x   minikube   <none>           <none>
+xb-pitr-demo-pxc-db-1793030389-pdvs4                    0/1     Completed   0          6m12s   10.x.x.x   minikube   <none>           <none>
+
+[STEP 11] Validate recovered customer orders
+
+[INFO] Validation pod: pxc-db-pxc-0
+
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+[STEP 12] Write assessment evidence
+
+[INFO] Evidence written: /Users/<user>/platforrm-db-ob-release_v1/db-platform/mysql/runtime/evidence/kubernetes/assessment_20261026_160603_result.txt
+[INFO] Execution log   : /Users/<user>/platforrm-db-ob-release_v1/runtime/logs/mysql/pitr_demo_20261026_155944.log
+
+[STEP 13] Clean up completed backup/PITR/restore job pods
+
+
+==================================================
+ CLEAN UP OLD PITR / BACKUP / RESTORE JOB PODS
+==================================================
+
+[INFO] Namespace: mysql
+
+[STEP 0] Release jobs whose restore or backup no longer exists
+
+[INFO] none
+
+[STEP 1] Remove completed Jobs matching PITR/backup/restore naming
+
+[INFO] Deleting Job: pitr-job-pitr-demo-restore-1793030499-pxc-db
+job.batch "pitr-job-pitr-demo-restore-1793030499-pxc-db" deleted from mysql namespace
+[INFO] Deleting Job: restore-job-pitr-demo-restore-1793030499-pxc-db
+job.batch "restore-job-pitr-demo-restore-1793030499-pxc-db" deleted from mysql namespace
+[INFO] Deleting Job: xb-pitr-demo-pxc-db-1793030389
+job.batch "xb-pitr-demo-pxc-db-1793030389" deleted from mysql namespace
+
+[STEP 2] Remove any remaining completed pods matching the same naming
+
+[INFO] No remaining completed PITR/backup/restore pods found.
+
+==================================================
+ CLEANUP COMPLETE
+==================================================
+[INFO] Jobs deleted : 3
+[INFO] Pods deleted : 0
+
+
+==================================================
+ ASSESSMENT RESULT : PASS
+==================================================
+
+==================================================
+ MYSQL KUBERNETES PITR ASSESSMENT COMPLETE
+==================================================
+
+
+==================================================
+ CUSTOMER ORDER PITR SCORECARD
+==================================================
+
+Platform   : MySQL (PXC)
+Assessment : customer-order-assessment
+
+Order    Expected   Actual     Status
+-----    --------   ------     ------
+5001     Present    Present    PASS
+5002     Present    Present    PASS
+5003     Present    Present    PASS
+9999     Present    Present    PASS
+10000    Absent     Absent     PASS
+
+==================================================
+
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-26T16:06:04Z
+Duration: 6m23.75085347s
+Status:   success

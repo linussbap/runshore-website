@@ -1,0 +1,196 @@
+⏱ SPLUNK DEPLOY · started 17:25:34 · finished in 5m 05s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-26T17:25:34Z
+Command:  SCOPE=kubernetes observability/splunk/deploy/kubernetes/deploy.sh
+==================================================
+
+[PREFLIGHT] Local Kubernetes (minikube): are Docker and Kubernetes answering?
+  $ docker ps -q        (15 s limit)
+  $ kubectl --context minikube get --raw=/readyz        (10 s limit)
+[PREFLIGHT] OK
+
+
+==================================================
+ DEPLOY SPLUNK ENTERPRISE
+==================================================
+
+Architecture : Splunk Operator for Kubernetes
+Operator     : 3.1.0
+Namespace    : splunk
+Standalone   : s1
+Web URL      : http://localhost:18000/
+
+[STEP 1] Validate prerequisites
+[OK] Kubernetes API reachable
+[OK] Required tooling available
+
+[STEP 2] Converge Splunk Operator for Kubernetes
+[INFO] Installing Splunk Operator 3.1.0
+namespace/splunk-operator serverside-applied
+customresourcedefinition.apiextensions.k8s.io/clustermanagers.enterprise.splunk.com serverside-applied
+customresourcedefinition.apiextensions.k8s.io/clustermasters.enterprise.splunk.com serverside-applied
+customresourcedefinition.apiextensions.k8s.io/indexerclusters.enterprise.splunk.com serverside-applied
+customresourcedefinition.apiextensions.k8s.io/ingestorclusters.enterprise.splunk.com serverside-applied
+customresourcedefinition.apiextensions.k8s.io/licensemanagers.enterprise.splunk.com serverside-applied
+customresourcedefinition.apiextensions.k8s.io/licensemasters.enterprise.splunk.com serverside-applied
+customresourcedefinition.apiextensions.k8s.io/monitoringconsoles.enterprise.splunk.com serverside-applied
+customresourcedefinition.apiextensions.k8s.io/objectstorages.enterprise.splunk.com serverside-applied
+customresourcedefinition.apiextensions.k8s.io/queues.enterprise.splunk.com serverside-applied
+customresourcedefinition.apiextensions.k8s.io/searchheadclusters.enterprise.splunk.com serverside-applied
+customresourcedefinition.apiextensions.k8s.io/standalones.enterprise.splunk.com serverside-applied
+serviceaccount/splunk-operator-controller-manager serverside-applied
+role.rbac.authorization.k8s.io/splunk-operator-leader-election-role serverside-applied
+clusterrole.rbac.authorization.k8s.io/splunk-operator-manager-role serverside-applied
+clusterrole.rbac.authorization.k8s.io/splunk-operator-metrics-auth-role serverside-applied
+clusterrole.rbac.authorization.k8s.io/splunk-operator-metrics-reader serverside-applied
+rolebinding.rbac.authorization.k8s.io/splunk-operator-leader-election-rolebinding serverside-applied
+clusterrolebinding.rbac.authorization.k8s.io/splunk-operator-manager-rolebinding serverside-applied
+clusterrolebinding.rbac.authorization.k8s.io/splunk-operator-metrics-auth-rolebinding serverside-applied
+configmap/splunk-operator-config serverside-applied
+configmap/splunk-operator-manager-config serverside-applied
+configmap/splunk-operator-manager-telemetry serverside-applied
+service/splunk-operator-controller-manager-metrics-service serverside-applied
+service/splunk-operator-controller-manager-service serverside-applied
+persistentvolumeclaim/splunk-operator-app-download serverside-applied
+deployment.apps/splunk-operator-controller-manager serverside-applied
+[OK] Splunk Operator manifest applied
+
+[STEP 3] Configure Splunk Operator
+deployment.apps/splunk-operator-controller-manager env updated
+[OK] SPLUNK_GENERAL_TERMS configured on Operator
+Waiting for deployment "splunk-operator-controller-manager" rollout to finish: 0 out of 1 new replicas have been updated...
+Waiting for deployment "splunk-operator-controller-manager" rollout to finish: 0 out of 1 new replicas have been updated...
+Waiting for deployment "splunk-operator-controller-manager" rollout to finish: 0 out of 1 new replicas have been updated...
+Waiting for deployment "splunk-operator-controller-manager" rollout to finish: 0 of 1 updated replicas are available...
+deployment "splunk-operator-controller-manager" successfully rolled out
+[OK] Splunk Operator deployment ready
+[OK] Required Standalone CRD available
+
+[STEP 4] Converge Splunk namespace
+namespace/splunk created
+[OK] Namespace available: splunk
+
+[STEP 5] Resolve storage
+[OK] Splunk StorageClass (auto-detected default): standard
+
+[STEP 5b] Resolve license configuration
+[INFO] No license file found
+[INFO] Using Splunk Operator supported default trial license
+
+[STEP 6] Apply Splunk Standalone Custom Resource
+standalone.enterprise.splunk.com/s1 created
+[OK] Standalone Custom Resource applied
+
+[STEP 7] Wait for Splunk Enterprise readiness
+[INFO] Waiting for Standalone/s1 to report phase=Ready
+[INFO] Timeout: 600s
+[INFO] Standalone/s1 phase: unknown (0/600s)
+[INFO] Standalone/s1 phase: Pending (10/600s)
+[INFO] Standalone/s1 phase: Pending (20/600s)
+[INFO] Standalone/s1 phase: Pending (30/600s)
+[INFO] Standalone/s1 phase: Pending (40/600s)
+[INFO] Standalone/s1 phase: Pending (50/600s)
+[INFO] Standalone/s1 phase: Pending (60/600s)
+[INFO] Standalone/s1 phase: Pending (70/600s)
+[INFO] Standalone/s1 phase: Pending (80/600s)
+[INFO] Standalone/s1 phase: Pending (90/600s)
+[INFO] Standalone/s1 phase: Pending (100/600s)
+[INFO] Standalone/s1 phase: Pending (110/600s)
+[INFO] Standalone/s1 phase: Pending (120/600s)
+[INFO] Standalone/s1 phase: Pending (130/600s)
+[INFO] Standalone/s1 phase: Pending (140/600s)
+[INFO] Standalone/s1 phase: Pending (150/600s)
+[INFO] Standalone/s1 phase: Pending (160/600s)
+[INFO] Standalone/s1 phase: Pending (170/600s)
+[INFO] Standalone/s1 phase: Pending (180/600s)
+[INFO] Standalone/s1 phase: Pending (190/600s)
+[INFO] Standalone/s1 phase: Pending (200/600s)
+[OK] Standalone/s1 is Ready
+
+[STEP 8] Resolve Splunk Operator-managed credentials
+
+[INFO] Discovering Splunk Operator-managed admin credential Secret
+[OK] Authoritative Splunk admin Secret: splunk-s1-standalone-secret-v1
+
+[STEP 9] Ensure Splunk Web access
+[INFO] Starting Splunk Web port-forward
+[INFO] localhost:18000 -> splunk-s1-standalone-service:8000
+[OK] Splunk Web port-forward started
+[OK] PID: 86341
+[OK] Splunk Web forwarding healthy
+[OK] PID: 86341
+[OK] HTTP: 303
+[OK] URL: http://localhost:18000/
+[OK] Workload feed to Splunk started (PID 86450); log: /Users/<user>/platforrm-db-ob-release_v1/shared/state/splunk/workload-feed.log
+[OK] Dashboard dbplat_assessment_mongodb: http://localhost:18000/en-US/app/search/dbplat_assessment_mongodb
+[OK] Dashboard dbplat_assessment_mysql: http://localhost:18000/en-US/app/search/dbplat_assessment_mysql
+[OK] Dashboard dbplat_assessment_postgres: http://localhost:18000/en-US/app/search/dbplat_assessment_postgres
+[OK] Dashboard dbplat_assessment_sybase: http://localhost:18000/en-US/app/search/dbplat_assessment_sybase
+[OK] Dashboard dbplat_database_overview: http://localhost:18000/en-US/app/search/dbplat_database_overview
+[OK] Dashboard dbplat_workload_mongodb: http://localhost:18000/en-US/app/search/dbplat_workload_mongodb
+[OK] Dashboard dbplat_workload_mysql: http://localhost:18000/en-US/app/search/dbplat_workload_mysql
+[OK] Dashboard dbplat_workload_postgres: http://localhost:18000/en-US/app/search/dbplat_workload_postgres
+[OK] Dashboard dbplat_workload_sybase: http://localhost:18000/en-US/app/search/dbplat_workload_sybase
+[OK] Dashboard links for CONNECTION INFO: runtime/state/splunk/dashboards.json
+== 2026-10-26 17:29:41
+[OK] results ledger: 0 new check(s), 1061 in total
+[OK] splunk   1061 result(s) sent (kubernetes)
+[OK] newrelic up to date
+[INFO] pmm      not deployed -- 1061 result(s) wait for it
+
+[STEP 10] Validate Splunk deployment
+
+==================================================
+ VALIDATE SPLUNK
+==================================================
+
+[STEP 1] Validate namespace
+[OK] Namespace present
+
+[STEP 2] Wait for DaemonSets to become ready
+[WARN] No DaemonSets found in splunk
+
+[STEP 3] Wait for Deployments to become ready
+[WARN] No Deployments found in splunk
+
+[STEP 4] Verify no pods are in a failed/backoff state
+[OK] No pods in a failed state
+
+[STEP 4b] Validate Splunk accepts a HEC test event
+[OK] Splunk accepted a HEC test event
+
+[STEP 5] Evidence
+NAME                     READY   STATUS    RESTARTS   AGE     IP             NODE       NOMINATED NODE   READINESS GATES
+splunk-s1-standalone-0   1/1     Running   0          4m40s   10.x.x.x   minikube   <none>           <none>
+No resources found in splunk namespace.
+No resources found in splunk namespace.
+
+[OK] Splunk validation complete
+
+==================================================
+ SPLUNK ENTERPRISE DEPLOYMENT COMPLETE
+==================================================
+
+Splunk Web
+  URL      : http://localhost:18000/
+  Username : admin
+  Password : stored in splunk-s1-standalone-secret-v1
+
+Retrieve the current password with:
+  kubectl get secret splunk-s1-standalone-secret-v1 \
+    -n splunk \
+    -o jsonpath='{.data.password}' | base64 -d
+
+Web access is managed by the Splunk deployment lifecycle.
+Destroying Splunk will stop the managed port-forward.
+
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-26T17:30:37Z
+Duration: 5m2.552511359s
+Status:   success

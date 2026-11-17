@@ -1,0 +1,343 @@
+⏱ POSTGRESQL DEPLOY · started 13:07:31 · finished in 2m 25s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-26T13:07:31Z
+Command:  SCOPE=kubernetes db-platform/postgres/deploy/kubernetes/deploy.sh
+==================================================
+
+
+==================================================
+ PostgreSQL Kubernetes Deployment
+==================================================
+
+[1/10] Validating prerequisites...
+PASS
+
+[2/10] Validating platform...
+[OK] Kubernetes available
+PASS
+
+[3/10] Resolving deployment provider...
+[INFO] Cloud provider: local
+PASS
+
+[4/10] Deploying CloudNativePG Operator...
+
+========================================
+ Deploy CloudNativePG Operator
+========================================
+namespace/cnpg-system created
+Release "cnpg" does not exist. Installing it now.
+NAME: cnpg
+LAST DEPLOYED: Mon Oct 26 13:07:38 2026
+NAMESPACE: cnpg-system
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+NOTES:
+CloudNativePG operator should be installed in namespace "cnpg-system".
+You can now create a PostgreSQL cluster with 3 nodes as follows:
+
+cat <<EOF | kubectl apply -f -
+# Example of PostgreSQL cluster
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cluster-example
+  
+spec:
+  instances: 3
+  storage:
+    size: 1Gi
+EOF
+
+kubectl get -A cluster
+deployment "cnpg-cloudnative-pg" successfully rolled out
+
+NAME                                   READY   STATUS    RESTARTS   AGE
+cnpg-cloudnative-pg-84cd4568f9-pqnvs   1/1     Running   0          6s
+
+[PASS] CloudNativePG Operator is Ready.
+PASS
+
+[5/10] Creating application secret...
+
+==================================================
+ PostgreSQL Application Secret
+==================================================
+namespace/postgres created
+
+[INFO] Creating application secret...
+secret/platform-postgres-app created
+
+NAME                    TYPE     DATA   AGE
+platform-postgres-app   Opaque   3      1s
+
+[PASS] PostgreSQL application secret is ready.
+PASS
+
+[6/10] Provisioning backup storage / credentials...
+[INFO] Local-family provider: local
+[INFO] Deploying MinIO backup storage
+
+==================================================
+ MINIO DEPLOYMENT (KUBERNETES)
+==================================================
+
+[INFO] MinIO image         : cgr.dev/chainguard/minio:latest
+[INFO] mc image            : cgr.dev/chainguard/minio-client:latest-dev
+
+[STEP 1] Ensure images (pull if missing)
+[OK] MinIO image available
+[OK] MinIO Client image available
+
+[STEP 2] Load local images into Minikube
+[OK] Images loaded into Minikube
+
+[STEP 3] Deploy MinIO
+deployment.apps/minio created
+persistentvolumeclaim/minio-data created
+service/minio created
+
+[STEP 4] Wait for MinIO readiness
+Waiting for deployment "minio" rollout to finish: 0 of 1 updated replicas are available...
+deployment "minio" successfully rolled out
+[OK] MinIO deployment ready
+
+[STEP 5] Create backup bucket
+pod/mc-bucket-setup created
+pod/mc-bucket-setup condition met
+Added `local` successfully.
+Bucket created successfully `local/postgres-backups`.
+Access permission for `local/postgres-backups` is set to `private`
+[OK] Bucket postgres-backups ready
+
+[STEP 6] Create Kubernetes secret for CNPG backup
+secret/s3-backup-creds created
+
+==================================================
+ MINIO READY
+==================================================
+[INFO] Endpoint (in-cluster): http://minio.postgres.svc.cluster.local:9000
+[INFO] Bucket: postgres-backups
+[INFO] Secret: s3-backup-creds
+[INFO] MinIO image: cgr.dev/chainguard/minio:latest
+[INFO] mc image: cgr.dev/chainguard/minio-client:latest-dev
+PASS
+
+[7/10] Deploying PostgreSQL Platform...
+==========================================
+ CLOUDNATIVEPG PLATFORM DEPLOYMENT (local)
+==========================================
+
+[STEP 1] Validate Kubernetes Access
+
+
+[STEP 2] Validate CloudNativePG Operator
+[OK] CloudNativePG operator already installed
+
+[STEP 3] Validate Default StorageClass
+[OK] Default StorageClass=standard
+
+[STEP 4] Create Namespace
+Warning: resource namespaces/postgres is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+namespace/postgres configured
+
+[STEP 5] Validate Backup Credentials (local)
+[INFO] Local-family scope (local) -- using MinIO backup storage.
+PASS
+
+[STEP 6] Create Backup Secret (local)
+[INFO] Local-family scope (local) -- backup secret
+[INFO] (s3-backup-creds) already created by MinIO's own setup. Skipping.
+
+[STEP 7] Render Cluster Manifest (local)
+[OK] Manifest rendered for local MinIO bucket: postgres-backups
+
+[STEP 8] Validate Manifest
+cluster.postgresql.cnpg.io/platform-postgres created (dry run)
+
+[STEP 9] Deploy PostgreSQL Cluster
+Warning: Native support for Barman Cloud backups and recovery is deprecated and will be completely removed in CloudNativePG 1.31.0. Found usage in: spec.backup.barmanObjectStore. Please migrate existing clusters to the new Barman Cloud Plugin to ensure a smooth transition.
+Warning: spec.monitoring.enablePodMonitor is deprecated and will be removed in a future release. Please migrate to manually managing your PodMonitor resources. Set this field to false and create a PodMonitor resource for your cluster as described in the documentation.
+cluster.postgresql.cnpg.io/platform-postgres created
+
+[STEP 10] Wait For Cluster Readiness
+cluster.postgresql.cnpg.io/platform-postgres condition met
+
+[OK] PostgreSQL platform deployed
+
+==========================================
+ POSTGRESQL PLATFORM STATUS
+==========================================
+
+[CLUSTERS]
+NAME                AGE   INSTANCES   READY   STATUS                     PRIMARY
+platform-postgres   86s   3           3       Cluster in healthy state   platform-postgres-1
+
+[PODS]
+NAME                     READY   STATUS    RESTARTS   AGE
+minio-5d64f6f8f8-5h5fb   1/1     Running   0          97s
+platform-postgres-1      1/1     Running   0          79s
+platform-postgres-2      1/1     Running   0          37s
+platform-postgres-3      1/1     Running   0          12s
+
+[PVC]
+NAME                  STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+minio-data            Bound    pvc-2286ccfa-7134-417a-881e-d92d7cc03c0e   5Gi        RWO            standard       <unset>                 97s
+platform-postgres-1   Bound    pvc-b3e0154d-1872-4c5b-ac95-a44135a4d249   20Gi       RWO            standard       <unset>                 85s
+platform-postgres-2   Bound    pvc-021be0fe-cf45-4c12-bd13-33af30211070   20Gi       RWO            standard       <unset>                 67s
+platform-postgres-3   Bound    pvc-d532ab2b-635c-4c33-b2d2-28af0b8a832a   20Gi       RWO            standard       <unset>                 26s
+
+[SERVICES]
+NAME                   TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)             AGE
+minio                  ClusterIP   10.x.x.x   <none>        9000/TCP,9001/TCP   97s
+platform-postgres-r    ClusterIP   10.x.x.x   <none>        5432/TCP            86s
+platform-postgres-ro   ClusterIP   10.x.x.x    <none>        5432/TCP            86s
+platform-postgres-rw   ClusterIP   10.x.x.x    <none>        5432/TCP            86s
+
+[STEP 11] Write state file
+[OK] State written: /Users/<user>/platforrm-db-ob-release_v1/db-platform/postgres/runtime/state.env
+# Written by deploy_postgresql_platform.sh on successful deploy.
+# Single source of truth for Postgres's live configuration — read this,
+# don't keep a separate copy of these values in a new file.
+# Regenerated on every deploy. Do not hand-edit.
+POSTGRES_NAMESPACE=postgres
+CNPG_CLUSTER_NAME=platform-postgres
+POSTGRES_SECRET_NAME=platform-postgres-app
+POSTGRES_SECRET_USERNAME_KEY=username
+POSTGRES_SECRET_PASSWORD_KEY=password
+DEPLOYMENT_TARGET=kubernetes
+CLOUD_PROVIDER=local
+DEPLOYED_AT=2026-10-26T13:09:47Z
+DEPLOYED_BY_SCRIPT=db-platform/postgres/deploy/kubernetes/deploy_postgresql_platform.sh
+
+[STEP 12] Sync New Relic PostgreSQL telemetry (if deployed)
+[INFO] New Relic not deployed in this cluster — skipping telemetry sync
+PASS
+
+[8/10] Creating monitoring user...
+
+========================================
+ PostgreSQL Monitoring User
+========================================
+[INFO] Ensuring monitoring role 'monitor' exists...
+Defaulted container "postgres" out of: postgres, bootstrap-controller (init)
+DO
+GRANT ROLE
+ALTER ROLE
+
+[PASS] Monitoring role is ready.
+
+Defaulted container "postgres" out of: postgres, bootstrap-controller (init)
+     List of roles
+ Role name | Attributes 
+-----------+------------
+ monitor   | 
+
+PASS
+
+[9/10] Validating deployment...
+[PASS] Node minikube disk: 158 GB free (69%)
+[INFO] resolve_scope.sh: SCOPE="kubernetes" -> PLATFORM_TYPE="kubeadm", KUBE_CONTEXT="minikube"
+
+==================================================
+ PostgreSQL Platform Validation
+==================================================
+
+[1/10] Validating prerequisites...
+[PASS] Prerequisites validated
+
+[2/10] Validating CloudNativePG Operator...
+[PASS] CloudNativePG operator ready
+
+[3/10] Validating PostgreSQL Cluster...
+[PASS] Cluster healthy
+
+[4/10] Validating Pods...
+[PASS] Pods Ready
+
+[5/10] Validating Services...
+[PASS] Services validated
+
+[6/10] Validating Storage...
+[PASS] Storage validated
+
+[7/10] Validating Secrets...
+[INFO] Live CNPG backup credential secret: s3-backup-creds
+[PASS] Secrets validated
+
+[8/10] Validating Connectivity...
+[INFO] CNPG primary: platform-postgres-1
+[INFO] PostgreSQL container: postgres
+[PASS] Database connectivity validated
+
+[9/10] Validating Monitoring User...
+[PASS] Monitoring role 'monitor' validated
+
+[10/10] Final platform validation...
+[PASS] Final PostgreSQL platform validation passed
+
+==================================================
+ PostgreSQL Platform Validation: PASS
+==================================================
+
+PASS
+
+[10/10] Collecting deployment evidence...
+NAME              STATUS   AGE
+cnpg-system       Active   2m14s
+default           Active   3d20h
+kube-node-lease   Active   3d20h
+kube-public       Active   3d20h
+kube-system       Active   3d20h
+postgres          Active   2m6s
+NAMESPACE     NAME                                   READY   STATUS    RESTARTS       AGE
+cnpg-system   cnpg-cloudnative-pg-84cd4568f9-pqnvs   1/1     Running   0              2m12s
+kube-system   coredns-7d764666f9-dwwms               1/1     Running   13 (20m ago)   3d20h
+kube-system   etcd-minikube                          1/1     Running   2 (20m ago)    3d20h
+kube-system   kube-apiserver-minikube                1/1     Running   5 (20m ago)    3d20h
+kube-system   kube-controller-manager-minikube       1/1     Running   7 (20m ago)    3d20h
+kube-system   kube-proxy-fwjvn                       1/1     Running   2 (20m ago)    3d20h
+kube-system   kube-scheduler-minikube                1/1     Running   4 (20m ago)    3d20h
+kube-system   metrics-server-9d74bb658-2fpk5         1/1     Running   29 (20m ago)   3d20h
+kube-system   storage-provisioner                    1/1     Running   30 (19m ago)   3d20h
+postgres      minio-5d64f6f8f8-5h5fb                 1/1     Running   0              102s
+postgres      platform-postgres-1                    1/1     Running   0              84s
+postgres      platform-postgres-2                    1/1     Running   0              42s
+postgres      platform-postgres-3                    1/1     Running   0              17s
+NAMESPACE   NAME                  STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+postgres    minio-data            Bound    pvc-2286ccfa-7134-417a-881e-d92d7cc03c0e   5Gi        RWO            standard       <unset>                 102s
+postgres    platform-postgres-1   Bound    pvc-b3e0154d-1872-4c5b-ac95-a44135a4d249   20Gi       RWO            standard       <unset>                 90s
+postgres    platform-postgres-2   Bound    pvc-021be0fe-cf45-4c12-bd13-33af30211070   20Gi       RWO            standard       <unset>                 72s
+postgres    platform-postgres-3   Bound    pvc-d532ab2b-635c-4c33-b2d2-28af0b8a832a   20Gi       RWO            standard       <unset>                 31s
+NAMESPACE     NAME                   TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                  AGE
+cnpg-system   cnpg-webhook-service   ClusterIP   10.x.x.x    <none>        443/TCP                  2m13s
+default       kubernetes             ClusterIP   10.x.x.x        <none>        443/TCP                  3d20h
+kube-system   kube-dns               ClusterIP   10.x.x.x       <none>        53/UDP,53/TCP,9153/TCP   3d20h
+kube-system   metrics-server         ClusterIP   10.x.x.x   <none>        443/TCP                  3d20h
+postgres      minio                  ClusterIP   10.x.x.x   <none>        9000/TCP,9001/TCP        103s
+postgres      platform-postgres-r    ClusterIP   10.x.x.x   <none>        5432/TCP                 92s
+postgres      platform-postgres-ro   ClusterIP   10.x.x.x    <none>        5432/TCP                 92s
+postgres      platform-postgres-rw   ClusterIP   10.x.x.x    <none>        5432/TCP                 92s
+
+
+==================================================
+ PostgreSQL Kubernetes deployment completed
+==================================================
+
+Log:
+  /Users/<user>/platforrm-db-ob-release_v1/db-platform/postgres/runtime/logs/deploy.log
+
+Runtime:
+  /Users/<user>/platforrm-db-ob-release_v1/db-platform/postgres/runtime
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-26T13:09:53Z
+Duration: 2m21.131940096s
+Status:   success

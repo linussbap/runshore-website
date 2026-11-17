@@ -1,0 +1,44 @@
+⏱ NEWRELIC DESTROY · started 17:24:47 · finished in 16s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-26T17:24:47Z
+Command:  SCOPE=kubernetes observability/newrelic/deploy/kubernetes/destroy.sh
+==================================================
+
+[PREFLIGHT] Local Kubernetes (minikube): are Docker and Kubernetes answering?
+  $ docker ps -q        (15 s limit)
+  $ kubectl --context minikube get --raw=/readyz        (10 s limit)
+[PREFLIGHT] OK
+
+
+==================================================
+ DESTROY NEW RELIC PLATFORM
+==================================================
+
+[STEP 1] Validate prerequisites
+[OK] Kubernetes reachable
+
+[STEP 2] Remove Helm release
+release "newrelic-bundle" uninstalled
+[OK] Helm release removed
+
+[STEP 3] Remove namespace
+namespace "newrelic" deleted
+[INFO] Waiting for namespace removal...
+[OK] Namespace removed
+
+[STEP 4] Validate removal
+[OK] New Relic platform removed
+
+==================================================
+ NEW RELIC PLATFORM DESTROY COMPLETE
+==================================================
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-26T17:25:00Z
+Duration: 13.629531857s
+Status:   success

@@ -1,0 +1,42 @@
+⏱ SPLUNK UNREGISTER · started 11:13:54 · finished in 4s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-27T11:13:54Z
+Command:  bash observability/splunk/registration/kubernetes/postgres/unregister.sh
+==================================================
+
+
+==================================================
+ UNREGISTER POSTGRES LOGS FROM SPLUNK
+==================================================
+
+[STEP 1] Remove Fluent Bit DaemonSet
+daemonset.apps "postgres-fluentbit" deleted from postgres namespace
+
+[STEP 2] Remove Fluent Bit configuration
+configmap "postgres-fluentbit-config" deleted from postgres namespace
+
+[STEP 3] Remove RBAC
+serviceaccount "postgres-fluentbit" deleted from postgres namespace
+clusterrole.rbac.authorization.k8s.io "postgres-fluentbit-read" deleted
+clusterrolebinding.rbac.authorization.k8s.io "postgres-fluentbit-read" deleted
+
+[STEP 4] Remove HEC Secret
+secret "postgres-splunk-hec" deleted from postgres namespace
+
+[INFO] The Splunk-side HEC token itself is left in place (shared
+[INFO] infrastructure, same convention as PMM's operator/CRD
+[INFO] preservation on database destroy) — only the in-cluster
+[INFO] collector resources are removed.
+
+[OK] Registration state cleared
+[OK] Postgres Splunk log forwarding removed
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-27T11:13:55Z
+Duration: 694.953572ms
+Status:   success

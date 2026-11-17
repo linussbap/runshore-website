@@ -1,0 +1,56 @@
+⏱ NEWRELIC UNREGISTER · started 18:34:22 · finished in 12s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-27T18:34:22Z
+Command:  bash observability/newrelic/registration/kubernetes/mysql/unregister.sh
+==================================================
+
+
+==================================================
+ UNREGISTER MYSQL FROM NEW RELIC
+==================================================
+
+[STEP 1] Validate prerequisites
+[OK] Kubernetes and New Relic available
+
+[STEP 2] Clear MySQL New Relic registration state
+[OK] MySQL registration state cleared
+
+[STEP 3] Remove MySQL integration configuration
+configmap/newrelic-bundle-nrk8s-integrations-cfg patched
+[OK] Removed mysql-config.yml
+
+[STEP 4] Remove MySQL telemetry secret
+secret "newrelic-mysql-secret" deleted from newrelic namespace
+[OK] Removed newrelic-mysql-secret
+
+[STEP 5] Refresh New Relic agents
+daemonset.apps/newrelic-bundle-nrk8s-kubelet restarted
+Waiting for daemon set "newrelic-bundle-nrk8s-kubelet" rollout to finish: 0 out of 3 new pods have been updated...
+Waiting for daemon set "newrelic-bundle-nrk8s-kubelet" rollout to finish: 0 out of 3 new pods have been updated...
+Waiting for daemon set "newrelic-bundle-nrk8s-kubelet" rollout to finish: 1 out of 3 new pods have been updated...
+Waiting for daemon set "newrelic-bundle-nrk8s-kubelet" rollout to finish: 1 out of 3 new pods have been updated...
+Waiting for daemon set "newrelic-bundle-nrk8s-kubelet" rollout to finish: 2 out of 3 new pods have been updated...
+Waiting for daemon set "newrelic-bundle-nrk8s-kubelet" rollout to finish: 2 out of 3 new pods have been updated...
+Waiting for daemon set "newrelic-bundle-nrk8s-kubelet" rollout to finish: 2 of 3 updated pods are available...
+daemon set "newrelic-bundle-nrk8s-kubelet" successfully rolled out
+[OK] New Relic agents refreshed
+
+[STEP 6] Validate MySQL registration removal
+[OK] mysql-config.yml absent
+[OK] newrelic-mysql-secret absent
+[OK] MySQL registration state marker absent
+
+==================================================
+ MYSQL UNREGISTERED FROM NEW RELIC
+==================================================
+
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-27T18:34:31Z
+Duration: 8.769351045s
+Status:   success

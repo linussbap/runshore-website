@@ -1,0 +1,76 @@
+⏱ POSTGRESQL DESTROY · started 15:11:30 · finished in 1m 04s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-26T15:11:30Z
+Command:  SCOPE=kubernetes db-platform/postgres/deploy/kubernetes/destroy.sh
+==================================================
+
+[PREFLIGHT] Local Kubernetes (minikube): are Docker and Kubernetes answering?
+  $ docker ps -q        (15 s limit)
+  $ kubectl --context minikube get --raw=/readyz        (10 s limit)
+[PREFLIGHT] OK
+
+[INFO] Stopping postgres workload (kubernetes) via db-platform/postgres/workload/kubernetes/stop.sh before destroy...
+[OK] PostgreSQL Kubernetes workload stopped
+STATUS: STOPPED
+
+==================================================
+ POSTGRES PLATFORM DESTROY
+==================================================
+
+[STEP 1] Validate Kubernetes API
+[OK] Kubernetes API reachable
+
+[STEP 2] Remove PostgreSQL clusters
+[INFO] Deleting postgres/platform-postgres
+cluster.postgresql.cnpg.io "platform-postgres" deleted from postgres namespace
+[INFO] Waiting for PostgreSQL clusters to terminate
+[OK] All PostgreSQL clusters removed
+
+[INFO] Waiting for PostgreSQL pods to stop
+[INFO] Still stopping: platform-postgres-1 platform-postgres-2 platform-postgres-3 (0s)
+[INFO] Still stopping: platform-postgres-2 (15s)
+[OK] PostgreSQL pods stopped (25s)
+[STEP 3] Remove CloudNativePG operator
+[INFO] PostgreSQL platform owns the CloudNativePG operator
+[INFO] Uninstalling Helm release cnpg
+These resources were kept due to the resource policy:
+[CustomResourceDefinition] poolers.postgresql.cnpg.io
+[CustomResourceDefinition] publications.postgresql.cnpg.io
+[CustomResourceDefinition] scheduledbackups.postgresql.cnpg.io
+[CustomResourceDefinition] subscriptions.postgresql.cnpg.io
+[CustomResourceDefinition] backups.postgresql.cnpg.io
+[CustomResourceDefinition] clusterimagecatalogs.postgresql.cnpg.io
+[CustomResourceDefinition] clusters.postgresql.cnpg.io
+[CustomResourceDefinition] databaseroles.postgresql.cnpg.io
+[CustomResourceDefinition] databases.postgresql.cnpg.io
+[CustomResourceDefinition] failoverquorums.postgresql.cnpg.io
+[CustomResourceDefinition] imagecatalogs.postgresql.cnpg.io
+
+release "cnpg" uninstalled
+[INFO] Removing cnpg-system namespace
+namespace "cnpg-system" deleted
+[INFO] Waiting for cnpg-system namespace removal (0s)
+[INFO] Waiting for cnpg-system namespace removal (5s)
+[OK] CloudNativePG operator removed
+
+[STEP 4] Remove PostgreSQL namespace
+namespace "postgres" deleted
+[INFO] Waiting for namespace removal (0s)
+[INFO] Waiting for namespace removal (5s)
+[INFO] Waiting for namespace removal (10s)
+[INFO] Waiting for namespace removal (15s)
+[OK] PostgreSQL namespace removed
+
+==================================================
+ POSTGRES PLATFORM DESTROY COMPLETE
+==================================================
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-26T15:12:31Z
+Duration: 1m0.979330574s
+Status:   success

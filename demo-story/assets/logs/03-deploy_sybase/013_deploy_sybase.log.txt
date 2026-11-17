@@ -1,0 +1,267 @@
+⏱ SYBASE DEPLOY · started 07:03:16 · finished in 36s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-25T07:03:16Z
+Command:  SCOPE=kubernetes db-platform/sybase/deploy/kubernetes/deploy.sh
+==================================================
+
+
+==================================================
+ SYBASE ASE KUBERNETES DEPLOYMENT
+==================================================
+
+Role       : migration-source
+Namespace  : sybase
+Deployment : platform-sybase
+Image      : sybase-ase-installed:latest
+
+[1/11] Validating prerequisites...
+[PASS] Kubernetes prerequisites validated.
+[PASS] Sybase manifest validated.
+
+[2/11] Validating Sybase image...
+[INFO] Kubernetes context: minikube
+[INFO] Non-VM Kubernetes scope detected.
+[PASS] ASE image available in Minikube.
+
+[3/11] Validating Kubernetes image runtime...
+[INFO] Kubernetes context: minikube
+[PASS] ASE image available in Minikube.
+
+[4/11] Converging namespace...
+namespace/sybase created
+[PASS] Namespace ready.
+
+[5/11] Converging Sybase credentials Secret...
+secret/platform-sybase-credentials created
+[PASS] Credentials Secret ready.
+
+[6/11] Converging Splunk observability resources...
+configmap/sybase-fluentbit-config created
+[PASS] sybase-fluentbit-config ConfigMap ready.
+[OK] Resolved Splunk admin credentials from secret: splunk-s1-standalone-secret-v1
+[OK] Existing HEC token 'sybase_hec_token' found
+secret/sybase-splunk-hec created
+[PASS] sybase-splunk-hec Secret ready (Splunk logs on).
+
+[7/11] Deploying Sybase ASE and persistent storage...
+persistentvolumeclaim/sybase-master created
+persistentvolumeclaim/sybase-system-data created
+persistentvolumeclaim/sybase-system-log created
+persistentvolumeclaim/sybase-temp-data created
+persistentvolumeclaim/sybase-temp-log created
+persistentvolumeclaim/sybase-data created
+persistentvolumeclaim/sybase-log created
+persistentvolumeclaim/sybase-backup created
+deployment.apps/platform-sybase created
+service/platform-sybase created
+
+[INFO] Persistent storage state:
+NAME                 STATUS    VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+sybase-backup        Pending                                                                        standard       <unset>                 0s
+sybase-data          Pending                                                                        standard       <unset>                 0s
+sybase-log           Pending                                                                        standard       <unset>                 0s
+sybase-master        Bound     pvc-ea386aa2-8903-41e5-871b-f7b8ea01fecb   2Gi        RWO            standard       <unset>                 0s
+sybase-system-data   Bound     pvc-eb7b568e-2522-41c4-8287-b76232b04fd4   1Gi        RWO            standard       <unset>                 0s
+sybase-system-log    Bound     pvc-b3da6f93-65ff-4301-bc8f-3e351eb341c8   1Gi        RWO            standard       <unset>                 0s
+sybase-temp-data     Bound     pvc-84cd00c6-18d0-4df8-bbfc-841c50832880   1Gi        RWO            standard       <unset>                 0s
+sybase-temp-log      Pending                                                                        standard       <unset>                 0s
+
+[INFO] Waiting for Deployment rollout...
+Waiting for deployment "platform-sybase" rollout to finish: 0 of 1 updated replicas are available...
+deployment "platform-sybase" successfully rolled out
+[PASS] Kubernetes Deployment available.
+[OK] Sybase log collector already uses the current Splunk token.
+
+[8/11] Validating ASE...
+[INFO] Waiting for ASE SQL readiness...
+[PASS] ASE SQL connectivity verified.
+[PASS] ASE storage mount points ready.
+
+[9/11] Converging ASE system database storage...
+
+[INFO] Converging ASE device capacity...
+ number of devices          10         #22             20             20 number dynamic 
+
+(1 row affected)
+Configuration option changed. ASE need not be rebooted since the option is dynamic.
+Changing the value of 'number of devices' to '20' increases the amount of memory ASE uses by 8 K.
+(return status = 0)
+==================================================
+ ASE PLATFORM DEVICE CONVERGENCE
+==================================================
+command terminated with exit code 1
+command terminated with exit code 1
+command terminated with exit code 1
+command terminated with exit code 1
+command terminated with exit code 1
+command terminated with exit code 1
+command terminated with exit code 1
+command terminated with exit code 1
+command terminated with exit code 1
+command terminated with exit code 1
+Creating new ASE physical device master_data_dev
+Creating new ASE physical device master_log_dev
+Creating new ASE physical device sybsystemprocs_data_dev
+Creating new ASE physical device sybsystemprocs_log_dev
+Creating new ASE physical device sybsystemdb_data_dev
+Creating new ASE physical device sybsystemdb_log_dev
+Creating new ASE physical device tempdb_data_dev
+Creating new ASE physical device tempdb_log_dev
+Creating new ASE physical device data_dev
+Creating new ASE physical device log_dev
+==================================================
+ ASE PLATFORM DEVICE CONVERGENCE COMPLETE
+==================================================
+
+[INFO] Converging dedicated DATA allocations...
+(1 row affected)
+Resizing master device to 256M
+Successfully resized the device 'master' to 315392 kilobytes.
+(1 row affected)
+Extending master database by 200M onto its own device
+Extending database by 51200 pages (200.0 megabytes) on disk master
+Extending sybsystemprocs onto sybsystemprocs_data_dev
+Extending database by 65536 pages (256.0 megabytes) on disk sybsystemprocs_data_dev
+Extending sybsystemdb onto sybsystemdb_data_dev
+Extending database by 32768 pages (128.0 megabytes) on disk sybsystemdb_data_dev
+Extending tempdb onto tempdb_data_dev
+Extending database by 65536 pages (256.0 megabytes) on disk tempdb_data_dev
+
+[INFO] Converging dedicated LOG allocations...
+Extending sybsystemprocs LOG onto sybsystemprocs_log_dev
+Extending database by 32768 pages (128.0 megabytes) on disk sybsystemprocs_log_dev
+Warning: Using ALTER DATABASE to extend the log segment will cause user thresholds on the log segment within 128 pages of the last chance threshold to be disabled.
+Extending sybsystemdb LOG onto sybsystemdb_log_dev
+Extending database by 16384 pages (64.0 megabytes) on disk sybsystemdb_log_dev
+Warning: Using ALTER DATABASE to extend the log segment will cause user thresholds on the log segment within 128 pages of the last chance threshold to be disabled.
+Extending tempdb LOG onto tempdb_log_dev
+Extending database by 32768 pages (128.0 megabytes) on disk tempdb_log_dev
+Warning: Using ALTER DATABASE to extend the log segment will cause user thresholds on the log segment within 128 pages of the last chance threshold to be disabled.
+
+[PASS] ASE system database storage converged.
+
+[10/11] Validating ASE storage topology...
+==================================================
+ PLATFORM ASE DEVICES
+==================================================
+ master_data_dev                /opt/sap/platform-system-data/master_data.dat                                                                                             64.00 
+ master_log_dev                 /opt/sap/platform-system-log/master_log.dat                                                                                               32.00 
+ sybsystemdb_data_dev           /opt/sap/platform-system-data/sybsystemdb_data.dat                                                                                       128.00 
+ sybsystemdb_log_dev            /opt/sap/platform-system-log/sybsystemdb_log.dat                                                                                          64.00 
+ sybsystemprocs_data_dev        /opt/sap/platform-system-data/sybsystemprocs_data.dat                                                                                    256.00 
+ sybsystemprocs_log_dev         /opt/sap/platform-system-log/sybsystemprocs_log.dat                                                                                      128.00 
+ tempdb_data_dev                /opt/sap/platform-temp-data/tempdb_data.dat                                                                                              256.00 
+ tempdb_log_dev                 /opt/sap/platform-temp-log/tempdb_log.dat                                                                                                128.00 
+
+(8 rows affected)
+==================================================
+ PLATFORM DATABASE ALLOCATIONS
+==================================================
+ sybsystemdb                    sybsystemdb_data_dev           DATA                      64.00 
+ sybsystemdb                    sybsystemdb_log_dev            LOG                       32.00 
+ sybsystemprocs                 sybsystemprocs_data_dev        DATA                     128.00 
+ sybsystemprocs                 sybsystemprocs_log_dev         LOG                       64.00 
+ tempdb                         tempdb_data_dev                DATA                     128.00 
+ tempdb                         tempdb_log_dev                 LOG                       64.00 
+
+(6 rows affected)
+
+[INFO] Enforcing required device allocations...
+(1 row affected)
+(1 row affected)
+PASS: all required ASE system DATA/LOG allocations exist
+
+[PASS] ASE system storage topology validated.
+
+[INFO] Validating Kubernetes PVC state...
+[PASS] PVC sybase-system-data: Bound
+[PASS] PVC sybase-system-log: Bound
+[PASS] PVC sybase-temp-data: Bound
+[PASS] PVC sybase-temp-log: Bound
+[PASS] PVC sybase-data: Bound
+[PASS] PVC sybase-log: Bound
+[PASS] PVC sybase-backup: Bound
+
+[11/11] Publishing deployment state...
+
+===== DEPLOYMENT =====
+NAME              READY   UP-TO-DATE   AVAILABLE   AGE
+platform-sybase   1/1     1            1           30s
+
+===== PODS =====
+NAME                              READY   STATUS    RESTARTS   AGE
+platform-sybase-585757ff4-vlcnh   2/2     Running   0          30s
+
+===== SERVICE =====
+NAME              TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
+platform-sybase   ClusterIP   10.x.x.x   <none>        5000/TCP   30s
+
+===== PERSISTENT STORAGE =====
+NAME                 STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+sybase-backup        Bound    pvc-93be324d-f43b-4a12-9999-51b32b42d1f7   2Gi        RWO            standard       <unset>                 30s
+sybase-data          Bound    pvc-e4920a38-14dd-4ecb-a13b-17e8e7a5866b   2Gi        RWO            standard       <unset>                 30s
+sybase-log           Bound    pvc-92c85551-abd9-4855-b5ea-02fb645f0ba8   1Gi        RWO            standard       <unset>                 30s
+sybase-master        Bound    pvc-ea386aa2-8903-41e5-871b-f7b8ea01fecb   2Gi        RWO            standard       <unset>                 30s
+sybase-system-data   Bound    pvc-eb7b568e-2522-41c4-8287-b76232b04fd4   1Gi        RWO            standard       <unset>                 30s
+sybase-system-log    Bound    pvc-b3da6f93-65ff-4301-bc8f-3e351eb341c8   1Gi        RWO            standard       <unset>                 30s
+sybase-temp-data     Bound    pvc-84cd00c6-18d0-4df8-bbfc-841c50832880   1Gi        RWO            standard       <unset>                 30s
+sybase-temp-log      Bound    pvc-21977c39-d230-41a9-b523-c421aa8e3401   1Gi        RWO            standard       <unset>                 30s
+
+==================================================
+ SYBASE MIGRATION SOURCE READY
+==================================================
+
+Role:
+  migration-source
+
+Namespace:
+  sybase
+
+In-cluster endpoint:
+  platform-sybase.sybase.svc.cluster.local:5000
+
+System storage:
+  master (data+log)    -> resized/extended on its own device (target: 256M)
+  master_data_dev      -> master_data_dev (unused headroom device, not allocated)
+  master_log_dev       -> master_log_dev (unused headroom device, not allocated)
+  sybsystemprocs DATA -> sybsystemprocs_data_dev
+  sybsystemprocs LOG  -> sybsystemprocs_log_dev
+  sybsystemdb DATA    -> sybsystemdb_data_dev
+  sybsystemdb LOG     -> sybsystemdb_log_dev
+  tempdb DATA         -> tempdb_data_dev
+  tempdb LOG          -> tempdb_log_dev
+
+  assessment DATA     -> data_dev
+  assessment LOG      -> log_dev
+
+Assessment storage:
+  DATA PVC -> sybase-data
+  LOG PVC  -> sybase-log
+
+Backup storage:
+  PVC      -> sybase-backup
+
+Local access:
+  kubectl port-forward -n sybase svc/platform-sybase 5000:5000
+
+Validation:
+  /Users/<user>/platforrm-db-ob-release_v1/db-platform/sybase/deploy/kubernetes/validate.sh
+
+Deployment state:
+  /Users/<user>/platforrm-db-ob-release_v1/db-platform/sybase/runtime/deployment.json
+
+Log:
+  /Users/<user>/platforrm-db-ob-release_v1/db-platform/sybase/runtime/logs/deploy_kubernetes_20261025_070316.log
+
+[PASS] Sybase Kubernetes platform converged.
+
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-25T07:04:49Z
+Duration: 32.87911475s
+Status:   success

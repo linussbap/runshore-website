@@ -1,0 +1,140 @@
+⏱ NEWRELIC DEPLOY · started 13:39:32 · finished in 1m 12s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-28T13:39:32Z
+Command:  platform/cloud/aws/orchestrator/deploy.sh newrelic
+==================================================
+
+[INFO] Region (aws): eu-west-2 (ADMIN)
+==================================================
+ CLOUD LOGIN (AWS) -- from setup / ADMIN
+==================================================
+  AWS CLI already logged in -- left as it is
+
+==================================================
+ DEPLOYING AS (AWS)
+==================================================
+  AWS identity:              arn:aws:iam::<account-id>:user/<user>
+  Region:                    eu-west-2
+  Account of ADMIN key:      <account-id>
+  Region in ADMIN:           eu-west-2
+    -> same account?         MATCH
+==================================================
+ OK
+
+[OK] Terraform state: S3 bucket dbplat-tfstate-<account-id>-eu-west-2
+[OK] kubectl connected to database-assessment-platform-eks
+
+[DEPENDENCY] Kubernetes
+[OK] Kubernetes API reachable
+
+[SECURITY] Provider Kubernetes Context Guard
+[INFO] Provider : aws
+[INFO] Platform : eks
+[INFO] Context  : arn:aws:eks:eu-west-2:<account-id>:cluster/database-assessment-platform-eks
+[OK] AWS/EKS context validated
+
+==================================================
+ DEPLOY NEW RELIC STACK
+==================================================
+
+[STEP 1] Validate Kubernetes
+[OK] Kubernetes reachable
+
+[STEP 2] Validate Helm
+[OK] Helm available
+
+[STEP 3] Validate registration workflows
+[OK] Kubernetes MySQL registration script found
+
+[STEP 4] Create Namespace
+namespace/newrelic created
+[OK] Namespace newrelic ready
+
+[STEP 5] Create License Secret
+secret/newrelic-license-key created
+[OK] New Relic license secret ready
+
+[STEP 6] Configure Helm Repository
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "aws-ebs-csi-driver" chart repository
+...Successfully got an update from the "jetstack" chart repository
+...Successfully got an update from the "splunk" chart repository
+...Successfully got an update from the "splunk-otel-collector-chart" chart repository
+...Successfully got an update from the "cloudnative-pg" chart repository
+...Successfully got an update from the "cnpg" chart repository
+...Successfully got an update from the "percona" chart repository
+...Successfully got an update from the "argo" chart repository
+...Successfully got an update from the "newrelic" chart repository
+...Successfully got an update from the "grafana" chart repository
+...Successfully got an update from the "bitnami" chart repository
+Update Complete. ⎈Happy Helming!⎈
+[OK] New Relic Helm repository ready
+
+[STEP 7] Deploy New Relic
+Release "newrelic-bundle" does not exist. Installing it now.
+NAME: newrelic-bundle
+LAST DEPLOYED: Wed Oct 28 13:40:03 2026
+NAMESPACE: newrelic
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+[OK] New Relic Helm release deployed
+
+[STEP 8] Validate New Relic
+NAME                                                      READY   STATUS    RESTARTS   AGE
+newrelic-bundle-kube-state-metrics-74b6bd5fbb-ptp9g       1/1     Running   0          25s
+newrelic-bundle-newrelic-logging-cst8t                    1/1     Running   0          25s
+newrelic-bundle-newrelic-logging-d4dmg                    1/1     Running   0          25s
+newrelic-bundle-newrelic-logging-ml6rn                    1/1     Running   0          25s
+newrelic-bundle-nri-metadata-injection-67d8fd5f97-7vsxv   1/1     Running   0          25s
+newrelic-bundle-nrk8s-ksm-7864db6c57-x772q                2/2     Running   0          25s
+newrelic-bundle-nrk8s-kubelet-59rc5                       2/2     Running   0          25s
+newrelic-bundle-nrk8s-kubelet-kh9q8                       2/2     Running   0          25s
+newrelic-bundle-nrk8s-kubelet-wf9df                       2/2     Running   0          25s
+pod/newrelic-bundle-kube-state-metrics-74b6bd5fbb-ptp9g condition met
+pod/newrelic-bundle-newrelic-logging-cst8t condition met
+pod/newrelic-bundle-newrelic-logging-d4dmg condition met
+pod/newrelic-bundle-newrelic-logging-ml6rn condition met
+pod/newrelic-bundle-nri-metadata-injection-67d8fd5f97-7vsxv condition met
+pod/newrelic-bundle-nrk8s-ksm-7864db6c57-x772q condition met
+pod/newrelic-bundle-nrk8s-kubelet-59rc5 condition met
+pod/newrelic-bundle-nrk8s-kubelet-kh9q8 condition met
+pod/newrelic-bundle-nrk8s-kubelet-wf9df condition met
+[OK] New Relic agents ready
+
+[STEP 9] Converge MySQL collection
+[INFO] No PXC cluster detected
+[INFO] MySQL collection skipped
+
+[STEP 10] Final validation
+NAME                                                      READY   STATUS    RESTARTS   AGE
+newrelic-bundle-kube-state-metrics-74b6bd5fbb-ptp9g       1/1     Running   0          30s
+newrelic-bundle-newrelic-logging-cst8t                    1/1     Running   0          30s
+newrelic-bundle-newrelic-logging-d4dmg                    1/1     Running   0          30s
+newrelic-bundle-newrelic-logging-ml6rn                    1/1     Running   0          30s
+newrelic-bundle-nri-metadata-injection-67d8fd5f97-7vsxv   1/1     Running   0          30s
+newrelic-bundle-nrk8s-ksm-7864db6c57-x772q                2/2     Running   0          30s
+newrelic-bundle-nrk8s-kubelet-59rc5                       2/2     Running   0          30s
+newrelic-bundle-nrk8s-kubelet-kh9q8                       2/2     Running   0          30s
+newrelic-bundle-nrk8s-kubelet-wf9df                       2/2     Running   0          30s
+NAME                            DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR            AGE
+newrelic-bundle-nrk8s-kubelet   3         3         3       3            3           kubernetes.io/os=linux   31s
+
+==================================================
+ NEW RELIC STACK READY
+==================================================
+[INFO] Namespace : newrelic
+[INFO] Release   : newrelic-bundle
+[INFO] Log       : /Users/<user>/platforrm-db-ob-release_v1/runtime/logs/newrelic/deploy_newrelic_20261028_133949.log
+==================================================
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-28T13:40:44Z
+Duration: 1m11.900282173s
+Status:   success

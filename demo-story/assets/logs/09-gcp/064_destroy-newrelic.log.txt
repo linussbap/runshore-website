@@ -1,0 +1,69 @@
+⏱ NEWRELIC DESTROY · started 00:56:36 · finished in 36s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-28T00:56:36Z
+Command:  platform/cloud/gcp/orchestrator/destroy.sh newrelic
+==================================================
+
+[INFO] Region (gcp): europe-west1 (ADMIN)
+==================================================
+ CLOUD LOGIN (GCP) -- from setup / ADMIN
+==================================================
+  gcloud already logged in (<email>) -- left as it is
+
+==================================================
+ DESTROYING AS (GCP)
+==================================================
+  Google account:            <email>
+  Project (gcloud):          database-assessment-platform
+  Default region (gcloud):   not set (Terraform uses its own region)
+  Project in ADMIN:          database-assessment-platform
+    -> same project?         MATCH
+==================================================
+ OK
+
+[OK] Terraform state: GCS bucket dbplat-tfstate-database-assessment-platform
+[OK] kubectl connected to database-assessment-platform-gke
+
+[DEPENDENCY] Kubernetes
+[OK] Kubernetes API reachable
+
+[SECURITY] Provider Kubernetes Context Guard
+[INFO] Provider : gcp
+[INFO] Platform : gke
+[INFO] Context  : gke_database-assessment-platform_europe-west1_database-assessment-platform-gke
+[OK] GCP/GKE context validated
+
+[PLATFORM] New Relic
+
+==================================================
+ DESTROY NEW RELIC PLATFORM
+==================================================
+
+[STEP 1] Validate prerequisites
+[OK] Kubernetes reachable
+
+[STEP 2] Remove Helm release
+release "newrelic-bundle" uninstalled
+[OK] Helm release removed
+
+[STEP 3] Remove namespace
+namespace "newrelic" deleted
+[INFO] Waiting for namespace removal...
+[OK] Namespace removed
+
+[STEP 4] Validate removal
+[OK] New Relic platform removed
+
+==================================================
+ NEW RELIC PLATFORM DESTROY COMPLETE
+==================================================
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-28T00:57:12Z
+Duration: 35.555392793s
+Status:   success

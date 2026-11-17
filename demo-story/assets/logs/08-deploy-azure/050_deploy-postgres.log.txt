@@ -1,0 +1,398 @@
+⏱ POSTGRESQL DEPLOY · started 15:37:03 · finished in 3m 24s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-27T15:37:03Z
+Command:  platform/cloud/azure/orchestrator/deploy.sh postgres
+==================================================
+
+[INFO] Region (azure): uksouth (default)
+==================================================
+ CLOUD LOGIN (AZURE) -- from setup / ADMIN
+==================================================
+  Azure CLI already logged in -- left as it is
+
+==================================================
+ DEPLOYING AS (AZURE)
+==================================================
+  Azure login:               <email>
+  Subscription:              Database-Assessment-Observability
+  Default location (az):     not set (Terraform uses its own location)
+==================================================
+ OK
+
+[OK] Terraform state: Azure storage account dbplattfdd7c99f20d82dc (resource group dbplat-tfstate-rg)
+[OK] kubectl connected to database-assessment-platform-aks
+
+[DEPENDENCY] Storage
+
+[DEPENDENCY] Kubernetes
+[OK] Kubernetes API reachable
+
+[SECURITY] Provider Kubernetes Context Guard
+[INFO] Provider : azure
+[INFO] Platform : aks
+[INFO] Context  : database-assessment-platform-aks
+[OK] Azure/AKS context validated
+[OK] Default StorageClass available: default
+
+[DEPENDENCY] Metrics Server
+
+[DEPENDENCY] Kubernetes
+[OK] Kubernetes API reachable
+
+[SECURITY] Provider Kubernetes Context Guard
+[INFO] Provider : azure
+[INFO] Platform : aks
+[INFO] Context  : database-assessment-platform-aks
+[OK] Azure/AKS context validated
+[OK] Metrics Server already deployed
+
+[PLATFORM] PostgreSQL
+
+==================================================
+ PostgreSQL Kubernetes Deployment
+==================================================
+
+[1/10] Validating prerequisites...
+PASS
+
+[2/10] Validating platform...
+[OK] Kubernetes available
+PASS
+
+[3/10] Resolving deployment provider...
+[INFO] Cloud provider: azure
+PASS
+
+[4/10] Deploying CloudNativePG Operator...
+
+========================================
+ Deploy CloudNativePG Operator
+========================================
+namespace/cnpg-system created
+Release "cnpg" does not exist. Installing it now.
+NAME: cnpg
+LAST DEPLOYED: Tue Oct 27 15:37:21 2026
+NAMESPACE: cnpg-system
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+NOTES:
+CloudNativePG operator should be installed in namespace "cnpg-system".
+You can now create a PostgreSQL cluster with 3 nodes as follows:
+
+cat <<EOF | kubectl apply -f -
+# Example of PostgreSQL cluster
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cluster-example
+  
+spec:
+  instances: 3
+  storage:
+    size: 1Gi
+EOF
+
+kubectl get -A cluster
+deployment "cnpg-cloudnative-pg" successfully rolled out
+
+NAME                                  READY   STATUS    RESTARTS   AGE
+cnpg-cloudnative-pg-968f678b8-2sgbn   1/1     Running   0          12s
+
+[PASS] CloudNativePG Operator is Ready.
+PASS
+
+[5/10] Creating application secret...
+
+==================================================
+ PostgreSQL Application Secret
+==================================================
+namespace/postgres created
+
+[INFO] Creating application secret...
+secret/platform-postgres-app created
+
+NAME                    TYPE     DATA   AGE
+platform-postgres-app   Opaque   3      0s
+
+[PASS] PostgreSQL application secret is ready.
+PASS
+
+[6/10] Provisioning backup storage / credentials...
+[INFO] Provider: azure
+[INFO] Provisioning Azure Blob backup credentials
+[INFO] Reusing existing storage account name from /Users/<user>/platforrm-db-ob-release_v1/shared/secrets/runtime/postgres_secrets.env: pgbackup7d96846f32d44ccb
+==========================================
+ POSTGRES AZURE BLOB BACKUP CREDENTIALS SETUP
+==========================================
+
+[STEP 1] Storage account: pgbackup7d96846f32d44ccb
+[OK] Storage account already exists
+
+[STEP 2] Retrieve storage account key
+[OK] Storage account key retrieved
+
+[STEP 3] Create blob container: postgres-backups
+[OK] Container already exists
+
+[STEP 4] Write Azure credentials to /Users/<user>/platforrm-db-ob-release_v1/shared/secrets/runtime/postgres_secrets.env
+[OK] Matching storage key already recorded in /Users/<user>/platforrm-db-ob-release_v1/shared/secrets/runtime/postgres_secrets.env
+
+==========================================
+ SETUP COMPLETE
+==========================================
+Nothing sensitive was printed to this terminal — the key only exists
+inside /Users/<user>/platforrm-db-ob-release_v1/shared/secrets/runtime/postgres_secrets.env.
+[OK] Provider credentials persisted to runtime secrets
+PASS
+
+[7/10] Deploying PostgreSQL Platform...
+==========================================
+ CLOUDNATIVEPG PLATFORM DEPLOYMENT (azure)
+==========================================
+
+[STEP 1] Validate Kubernetes Access
+
+
+[STEP 2] Validate CloudNativePG Operator
+[OK] CloudNativePG operator already installed
+
+[STEP 3] Validate Default StorageClass
+[OK] Default StorageClass=default
+
+[STEP 4] Create Namespace
+Warning: resource namespaces/postgres is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+namespace/postgres configured
+
+[STEP 5] Validate Backup Credentials (azure)
+PASS
+
+[STEP 6] Create Backup Secret (azure)
+
+==================================================
+ PostgreSQL Azure Blob Backup Secret
+==================================================
+
+[INFO] Creating backup secret...
+secret/azure-backup-creds created
+
+NAME                 TYPE     DATA   AGE
+azure-backup-creds   Opaque   2      1s
+
+[PASS] PostgreSQL Azure Blob backup secret is ready.
+
+[STEP 7] Render Cluster Manifest (azure)
+[OK] Manifest rendered with Azure storage account: pgbackup7d96846f32d44ccb
+
+[STEP 8] Validate Manifest
+cluster.postgresql.cnpg.io/platform-postgres created (dry run)
+
+[STEP 9] Deploy PostgreSQL Cluster
+Warning: Native support for Barman Cloud backups and recovery is deprecated and will be completely removed in CloudNativePG 1.31.0. Found usage in: spec.backup.barmanObjectStore. Please migrate existing clusters to the new Barman Cloud Plugin to ensure a smooth transition.
+Warning: spec.monitoring.enablePodMonitor is deprecated and will be removed in a future release. Please migrate to manually managing your PodMonitor resources. Set this field to false and create a PodMonitor resource for your cluster as described in the documentation.
+cluster.postgresql.cnpg.io/platform-postgres created
+
+[STEP 10] Wait For Cluster Readiness
+cluster.postgresql.cnpg.io/platform-postgres condition met
+
+[OK] PostgreSQL platform deployed
+
+==========================================
+ POSTGRESQL PLATFORM STATUS
+==========================================
+
+[CLUSTERS]
+NAME                AGE     INSTANCES   READY   STATUS                     PRIMARY
+platform-postgres   2m31s   3           3       Cluster in healthy state   platform-postgres-1
+
+[PODS]
+NAME                  READY   STATUS    RESTARTS   AGE
+platform-postgres-1   1/1     Running   0          2m5s
+platform-postgres-2   1/1     Running   0          66s
+platform-postgres-3   1/1     Running   0          18s
+
+[PVC]
+NAME                  STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+platform-postgres-1   Bound    pvc-dbb17816-d3a9-487e-a335-8e574e113e06   20Gi       RWO            default        <unset>                 2m31s
+platform-postgres-2   Bound    pvc-4e375029-8c9d-456b-8683-6293b62ce518   20Gi       RWO            default        <unset>                 112s
+platform-postgres-3   Bound    pvc-45d3a4f1-d182-4220-a6d1-32dfc7edfcb5   20Gi       RWO            default        <unset>                 51s
+
+[SERVICES]
+NAME                   TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+platform-postgres-r    ClusterIP   10.x.x.x     <none>        5432/TCP   2m32s
+platform-postgres-ro   ClusterIP   10.x.x.x     <none>        5432/TCP   2m32s
+platform-postgres-rw   ClusterIP   10.x.x.x   <none>        5432/TCP   2m32s
+
+[STEP 11] Write state file
+[OK] State written: /Users/<user>/platforrm-db-ob-release_v1/db-platform/postgres/runtime/state.env
+# Written by deploy_postgresql_platform.sh on successful deploy.
+# Single source of truth for Postgres's live configuration — read this,
+# don't keep a separate copy of these values in a new file.
+# Regenerated on every deploy. Do not hand-edit.
+POSTGRES_NAMESPACE=postgres
+CNPG_CLUSTER_NAME=platform-postgres
+POSTGRES_SECRET_NAME=platform-postgres-app
+POSTGRES_SECRET_USERNAME_KEY=username
+POSTGRES_SECRET_PASSWORD_KEY=password
+DEPLOYMENT_TARGET=kubernetes
+CLOUD_PROVIDER=azure
+DEPLOYED_AT=2026-10-27T15:40:18Z
+DEPLOYED_BY_SCRIPT=db-platform/postgres/deploy/kubernetes/deploy_postgresql_platform.sh
+
+[STEP 12] Sync New Relic PostgreSQL telemetry (if deployed)
+[INFO] New Relic not deployed in this cluster — skipping telemetry sync
+PASS
+
+[8/10] Creating monitoring user...
+
+========================================
+ PostgreSQL Monitoring User
+========================================
+[INFO] Ensuring monitoring role 'monitor' exists...
+Defaulted container "postgres" out of: postgres, bootstrap-controller (init)
+DO
+GRANT ROLE
+ALTER ROLE
+
+[PASS] Monitoring role is ready.
+
+Defaulted container "postgres" out of: postgres, bootstrap-controller (init)
+     List of roles
+ Role name | Attributes 
+-----------+------------
+ monitor   | 
+
+PASS
+
+[9/10] Validating deployment...
+[PASS] Node aks-system-18600840-vmss000000 disk: 37 GB free (61%)
+[PASS] Node aks-system-18600840-vmss000001 disk: 34 GB free (56%)
+[PASS] Node aks-system-18600840-vmss000002 disk: 37 GB free (60%)
+[INFO] resolve_scope.sh: SCOPE="azure" -> PLATFORM_TYPE="aks", KUBE_CONTEXT="database-assessment-platform-aks"
+
+==================================================
+ PostgreSQL Platform Validation
+==================================================
+
+[1/10] Validating prerequisites...
+[PASS] Prerequisites validated
+
+[2/10] Validating CloudNativePG Operator...
+[PASS] CloudNativePG operator ready
+
+[3/10] Validating PostgreSQL Cluster...
+[PASS] Cluster healthy
+
+[4/10] Validating Pods...
+[PASS] Pods Ready
+
+[5/10] Validating Services...
+[PASS] Services validated
+
+[6/10] Validating Storage...
+[PASS] Storage validated
+
+[7/10] Validating Secrets...
+[INFO] Live CNPG backup credential secret: azure-backup-creds
+[PASS] Secrets validated
+
+[8/10] Validating Connectivity...
+[INFO] CNPG primary: platform-postgres-1
+[INFO] PostgreSQL container: postgres
+[PASS] Database connectivity validated
+
+[9/10] Validating Monitoring User...
+[PASS] Monitoring role 'monitor' validated
+
+[10/10] Final platform validation...
+[PASS] Final PostgreSQL platform validation passed
+
+==================================================
+ PostgreSQL Platform Validation: PASS
+==================================================
+
+PASS
+
+[10/10] Collecting deployment evidence...
+NAME              STATUS   AGE
+cnpg-system       Active   3m3s
+default           Active   32m
+kube-node-lease   Active   32m
+kube-public       Active   32m
+kube-system       Active   32m
+pmm               Active   18m
+postgres          Active   2m45s
+NAMESPACE     NAME                                             READY   STATUS    RESTARTS      AGE
+cnpg-system   cnpg-cloudnative-pg-968f678b8-2sgbn              1/1     Running   0             2m58s
+kube-system   azure-cns-gg4tv                                  1/1     Running   0             31m
+kube-system   azure-cns-j7g2t                                  1/1     Running   0             31m
+kube-system   azure-cns-ldglc                                  1/1     Running   0             31m
+kube-system   azure-ip-masq-agent-5ldnk                        1/1     Running   0             31m
+kube-system   azure-ip-masq-agent-9d7vw                        1/1     Running   0             31m
+kube-system   azure-ip-masq-agent-c78np                        1/1     Running   0             31m
+kube-system   azure-npm-j8vv9                                  1/1     Running   0             31m
+kube-system   azure-npm-jkv4s                                  1/1     Running   0             31m
+kube-system   azure-npm-sdvjh                                  1/1     Running   0             31m
+kube-system   cloud-node-manager-n65tv                         1/1     Running   0             31m
+kube-system   cloud-node-manager-v45cc                         1/1     Running   0             31m
+kube-system   cloud-node-manager-wczrs                         1/1     Running   0             31m
+kube-system   coredns-76df789c68-6974z                         1/1     Running   0             30m
+kube-system   coredns-76df789c68-lhznm                         1/1     Running   0             31m
+kube-system   coredns-autoscaler-548c6d85c6-ksj4v              1/1     Running   0             31m
+kube-system   csi-azuredisk-node-crzbk                         3/3     Running   1 (30m ago)   31m
+kube-system   csi-azuredisk-node-kmwt2                         3/3     Running   0             31m
+kube-system   csi-azuredisk-node-txrhn                         3/3     Running   0             31m
+kube-system   csi-azurefile-node-7pllx                         4/4     Running   0             31m
+kube-system   csi-azurefile-node-jb56c                         4/4     Running   0             31m
+kube-system   csi-azurefile-node-xvkx5                         4/4     Running   0             31m
+kube-system   konnectivity-agent-644668cd48-48tfn              1/1     Running   0             30m
+kube-system   konnectivity-agent-644668cd48-crjpt              1/1     Running   0             31m
+kube-system   konnectivity-agent-autoscaler-5b658f6697-cdlwl   1/1     Running   0             31m
+kube-system   kube-proxy-6464f                                 1/1     Running   0             31m
+kube-system   kube-proxy-ltqvj                                 1/1     Running   0             31m
+kube-system   kube-proxy-p4n7w                                 1/1     Running   0             31m
+kube-system   metrics-server-866c8cb87d-8qbt2                  2/2     Running   0             30m
+kube-system   metrics-server-866c8cb87d-p7wkn                  2/2     Running   0             30m
+pmm           pmm-0                                            1/1     Running   0             18m
+pmm           pmm-client-6755cf5b44-g8npx                      1/1     Running   0             14m
+postgres      platform-postgres-1                              1/1     Running   0             2m12s
+postgres      platform-postgres-2                              1/1     Running   0             73s
+postgres      platform-postgres-3                              1/1     Running   0             25s
+NAMESPACE   NAME                  STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+pmm         pmm-client-storage    Bound    pvc-81010f5e-024c-4994-8671-7ae9c0e3773d   1Gi        RWO            default        <unset>                 14m
+pmm         pmm-storage-pmm-0     Bound    pvc-66660835-1bc6-493f-8167-0c6a7537a3bb   10Gi       RWO            default        <unset>                 18m
+postgres    platform-postgres-1   Bound    pvc-dbb17816-d3a9-487e-a335-8e574e113e06   20Gi       RWO            default        <unset>                 2m37s
+postgres    platform-postgres-2   Bound    pvc-4e375029-8c9d-456b-8683-6293b62ce518   20Gi       RWO            default        <unset>                 118s
+postgres    platform-postgres-3   Bound    pvc-45d3a4f1-d182-4220-a6d1-32dfc7edfcb5   20Gi       RWO            default        <unset>                 57s
+NAMESPACE     NAME                          TYPE           CLUSTER-IP      EXTERNAL-IP     PORT(S)                      AGE
+cnpg-system   cnpg-webhook-service          ClusterIP      10.x.x.x    <none>          443/TCP                      2m59s
+default       kubernetes                    ClusterIP      10.x.x.x       <none>          443/TCP                      32m
+kube-system   kube-dns                      ClusterIP      10.x.x.x      <none>          53/UDP,53/TCP                32m
+kube-system   metrics-server                ClusterIP      10.x.x.x    <none>          443/TCP                      31m
+kube-system   npm-metrics-cluster-service   ClusterIP      10.x.x.x    <none>          9000/TCP                     32m
+pmm           monitoring-service            LoadBalancer   10.x.x.x    20.26.167.204   443:32205/TCP,80:32239/TCP   18m
+postgres      platform-postgres-r           ClusterIP      10.x.x.x     <none>          5432/TCP                     2m39s
+postgres      platform-postgres-ro          ClusterIP      10.x.x.x     <none>          5432/TCP                     2m39s
+postgres      platform-postgres-rw          ClusterIP      10.x.x.x   <none>          5432/TCP                     2m39s
+
+
+==================================================
+ PostgreSQL Kubernetes deployment completed
+==================================================
+
+Log:
+  /Users/<user>/platforrm-db-ob-release_v1/db-platform/postgres/runtime/logs/deploy.log
+
+Runtime:
+  /Users/<user>/platforrm-db-ob-release_v1/db-platform/postgres/runtime
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-27T15:40:25Z
+Duration: 3m21.347163353s
+Status:   success

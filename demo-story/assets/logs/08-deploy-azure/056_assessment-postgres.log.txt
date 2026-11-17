@@ -1,0 +1,159 @@
+POSTGRESQL ASSESSMENT · started 16:39:29 · finished in 1m 24s
+
+==================================================
+ EXECUTION AUDIT LOG
+==================================================
+Started:  2026-10-27T16:39:29Z
+Command:  SCOPE=azure db-platform/postgres/pitr/kubernetes/run_pitr_demo.sh
+==================================================
+
+== Clean start for postgres (scope: azure) ==
+[1/4] Platform operations still running on this machine
+  none
+[2/4] Unfinished restores
+  $ bash platform/lib/prune_test_backups.sh postgres
+      postgres: no test backups
+[3/4] Replication-test replicas
+    
+    [OK] POSTGRESQL REPLICATION TEST STOPPED
+    [OK] Native CNPG replication was not modified.
+[4/4] Workloads
+    [OK] PostgreSQL Kubernetes workload stopped
+    STATUS: STOPPED
+[OK] postgres: clean start done. The database and monitoring tools were kept.
+==================================================
+ POSTGRES KUBERNETES PITR DEMONSTRATION
+==================================================
+
+[STEP 1] Schema + baseline seed (orders 5001-5003)
+
+psql:<stdin>:1: NOTICE:  table "customer_orders" does not exist, skipping
+DROP TABLE
+CREATE TABLE
+INSERT 0 3
+[OK] Baseline seeded
+
+[STEP 2] Trigger real backup
+
+backup.postgresql.cnpg.io/pitr-demo-platform-postgres-1793119172 created
+[OK] Backup completed
+
+[STEP 3] Insert PITR marker (order 9999)
+
+INSERT 0 1
+[OK] Marker inserted on platform-postgres-1
+
+[STEP 4] Capture recovery target timestamp
+
+[OK] Recovery target (order 9999 commit time): 2026-10-27 16:39:49.974589+00
+[INFO] Waiting for WAL segment 000000010000000000000006 to archive (proves the target is real, replayable)
+[OK] Confirmed archived: 000000010000000000000006
+
+[STEP 5] Insert post-marker activity (order 10000 — should NOT survive recovery)
+
+INSERT 0 1
+[INFO] Waiting for WAL segment 000000010000000000000007 to archive
+[OK] Confirmed archived: 000000010000000000000007
+[OK] Order 10000 inserted and archived — original cluster now has the 'failure' state
+
+[STEP 6] Clone cluster via real PITR to: 2026-10-27 16:39:49.974589+00
+
+==================================================
+ CREATE PITR CLONE CLUSTER — DISPATCHER
+==================================================
+
+[INFO] Resolved scope/provider: azure
+
+[INFO] Dispatching to: create_pitr_clone_cluster_cloud.sh
+
+==================================================
+ CREATE PITR CLONE CLUSTER
+==================================================
+
+Recovery timestamp (UTC): 2026-10-27 16:39:49.974589+00
+Source cluster:           platform-postgres
+Recovery cluster:         platform-postgres-pitr
+
+[STEP 1] Read the source cluster's backup store
+
+[OK] Backup repository: https://pgbackup7d96846f32d44ccb.blob.core.windows.net/postgres-backups
+[OK] Credential Secret exists: azure-backup-creds
+
+[STEP 2] Confirm completed backup exists for the source cluster
+
+[OK] 1 completed backup(s) found:
+pitr-demo-platform-postgres-1793119172
+
+[STEP 3] Create PITR clone cluster
+
+Warning: Native support for Barman Cloud backups and recovery is deprecated and will be completely removed in CloudNativePG 1.31.0. Found usage in: spec.externalClusters.0.barmanObjectStore. Please migrate existing clusters to the new Barman Cloud Plugin to ensure a smooth transition.
+Warning: spec.monitoring.enablePodMonitor is deprecated and will be removed in a future release. Please migrate to manually managing your PodMonitor resources. Set this field to false and create a PodMonitor resource for your cluster as described in the documentation.
+cluster.postgresql.cnpg.io/platform-postgres-pitr created
+
+[OK] PITR clone submitted
+
+[STEP 4] Wait for clone readiness
+
+cluster.postgresql.cnpg.io/platform-postgres-pitr condition met
+
+[OK] PITR clone ready
+
+[STEP 5] Display cluster state
+
+NAME                       READY   STATUS    RESTARTS   AGE
+platform-postgres-pitr-1   1/1     Running   0          18s
+
+==================================================
+ PITR CLONE CLUSTER READY
+==================================================
+
+[INFO] Original platform-postgres cluster was never touched.
+[INFO] Recovery source: https://pgbackup7d96846f32d44ccb.blob.core.windows.net/postgres-backups
+[INFO] Clean up when done:
+       kubectl delete cluster platform-postgres-pitr -n postgres
+
+
+[STEP 7] Locate clone pod
+
+[INFO] Clone pod: platform-postgres-pitr-1
+
+==================================================
+ POSTGRES KUBERNETES PITR DEMONSTRATION COMPLETE
+==================================================
+
+[INFO] Expected: 5001, 5002, 5003, 9999 all FOUND/PASS.
+[INFO] Expected: 10000 NOT_FOUND/PASS (correctly excluded —
+[INFO] recovery stopped precisely at the target time, before
+[INFO] the post-marker 'failure' activity was ever applied).
+
+[INFO] The clone is removed automatically at the end (STEP 9). Keep it: KEEP_PITR_CLONE=1
+
+==================================================
+ SCORECARD — validated against the recovered clone
+==================================================
+
+ order_id | row_count |  actual   | result 
+----------+-----------+-----------+--------
+     5001 |         1 | FOUND     | PASS
+     5002 |         1 | FOUND     | PASS
+     5003 |         1 | FOUND     | PASS
+     9999 |         1 | FOUND     | PASS
+    10000 |         0 | NOT_FOUND | PASS
+(5 rows)
+
+
+[STEP 8] Write assessment evidence
+
+[INFO] Evidence written: /Users/<user>/platforrm-db-ob-release_v1/db-platform/postgres/runtime/evidence/azure/assessment_20261027_164049_result.txt
+
+[STEP 9] Remove the PITR clone (evidence is saved)
+  $ kubectl delete cluster.postgresql.cnpg.io platform-postgres-pitr -n postgres --wait=true --timeout=120s
+    cluster.postgresql.cnpg.io "platform-postgres-pitr" deleted from postgres namespace
+[OK] PITR clone removed -- only platform-postgres is left
+
+==================================================
+ EXECUTION COMPLETE
+==================================================
+Finished: 2026-10-27T16:40:49Z
+Duration: 1m20.59170284s
+Status:   success
