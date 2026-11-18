@@ -1,0 +1,26 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:10.000
+The demonstration starts from nothing: the local Kubernetes scope, with no cluster and nothing deployed.
+
+2
+00:00:10.000 --> 00:00:45.000
+Deploy starts minikube on Docker Desktop. The Activity feed streams the log with a live timer.
+
+3
+00:00:45.000 --> 00:00:52.000
+Minikube starts its control plane and enables storage, metrics and the default storage class.
+
+4
+00:00:52.000 --> 00:01:46.000
+The Containers tab shows the Kubernetes system pods coming up while the deployment continues.
+
+5
+00:01:46.000 --> 00:02:05.000
+The cluster is deployed in 1 minute 36 seconds.
+
+6
+00:02:05.000 --> 00:02:28.000
+Containers now shows every system pod running.
+

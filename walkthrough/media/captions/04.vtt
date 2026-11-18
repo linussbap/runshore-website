@@ -1,0 +1,30 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.000
+PMM monitoring is already in place. Next is the failover test.
+
+2
+00:00:05.000 --> 00:00:08.000
+Failover asks for confirmation, because it deliberately takes down the primary.
+
+3
+00:00:08.000 --> 00:00:15.000
+The test starts, after checking that no other platform operation is running.
+
+4
+00:00:15.000 --> 00:01:15.000
+In the Kubernetes Monitor, CloudNativePG reports the primary as unhealthy and fails over from platform-postgres-1. Probes fail while that pod restarts.
+
+5
+00:01:15.000 --> 00:01:27.000
+The log confirms the starting state: three instances, platform-postgres-1 as primary, and PostgreSQL reachable before the failure.
+
+6
+00:01:27.000 --> 00:01:36.000
+After the failure, CloudNativePG promotes platform-postgres-2. It is ready and accepting connections.
+
+7
+00:01:36.000 --> 00:01:51.000
+HA test passed. The whole failover test took 1 minute 18 seconds.
+

@@ -1,0 +1,46 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:08.000
+New Relic is chosen for observability. Before it starts, Deploy warns if the cluster is short of room.
+
+2
+00:00:08.000 --> 00:00:21.000
+The deployment creates the newrelic namespace, stores the licence key as a Kubernetes secret, and adds the New Relic Helm repository.
+
+3
+00:00:21.000 --> 00:00:56.000
+It installs the New Relic bundle. The Containers view shows its pods start.
+
+4
+00:00:56.000 --> 00:01:32.000
+Validation checks the Kubernetes API, the namespace, the licence secret, 3 deployments, 3 daemonsets, 6 of 6 pods ready, and that New Relic accepts the licence key. Every check passes.
+
+5
+00:01:32.000 --> 00:02:53.000
+Next it creates the New Relic dashboards.
+
+6
+00:02:53.000 --> 00:03:05.000
+There is an assessment dashboard and a workload dashboard for each database, plus platform overviews.
+
+7
+00:03:05.000 --> 00:03:15.000
+Connection Info links straight to the dashboards.
+
+8
+00:03:15.000 --> 00:03:58.000
+The PostgreSQL workload dashboard opens in New Relic. It is empty for now, because the database is not registered yet.
+
+9
+00:03:58.000 --> 00:04:12.000
+Back in the Kubernetes Monitor, the New Relic pods are running.
+
+10
+00:04:12.000 --> 00:05:05.000
+The deployment finishes its last steps.
+
+11
+00:05:05.000 --> 00:05:19.000
+New Relic is deployed in 4 minutes 57 seconds.
+

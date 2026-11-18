@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="RunShore database assessment and observability demonstration.">
+  <title>RunShore | Platform Demonstration</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#" aria-label="RunShore home"><span class="brand-mark">R</span><span>RunShore</span></a>
+    <span class="header-label">Platform demonstration</span>
+  </header>
+
+  <main class="shell">
+    <section class="intro">
+      <p class="eyebrow">DATABASE ASSESSMENT &amp; OBSERVABILITY</p>
+      <h1>RunShore platform walkthrough</h1>
+      <p class="intro-copy">Twelve short chapters, recorded on RunShore's local Kubernetes scope. Watch with captions, or read the transcript. Use full screen for the sharpest view.</p>
+    </section>
+
+    <section class="player-layout" aria-label="Demonstration player">
+      <div class="main-column">
+        <div class="video-frame">
+          <video id="video" playsinline preload="metadata" controls aria-label="RunShore demonstration video">
+            Your browser does not support HTML video.
+          </video>
+          <div id="video-placeholder" class="video-placeholder">
+            <div class="placeholder-icon">▶</div>
+            <strong>Demonstration video</strong>
+            <span>Add the hosted video URL for this chapter in <code>media.js</code>.</span>
+          </div>
+        </div>
+
+        <div class="player-toolbar">
+          <div class="control-group">
+            <button id="audio-toggle" class="control-button" type="button" aria-pressed="false" hidden>Audio: Off</button>
+            <button id="captions-toggle" class="control-button active" type="button" aria-pressed="true">Captions: On</button>
+            <button id="transcript-toggle" class="control-button" type="button" aria-expanded="true">Transcript: Open</button>
+          </div>
+          <label class="speed-control">Playback
+            <select id="playback-speed" aria-label="Playback speed">
+              <option value="1">1×</option>
+              <option value="1.25">1.25×</option>
+              <option value="1.5">1.5×</option>
+              <option value="2">2×</option>
+            </select>
+          </label>
+        </div>
+
+        <section class="now-playing">
+          <p class="eyebrow" id="chapter-number">CHAPTER 01</p>
+          <h2 id="chapter-title">RunShore introduction</h2>
+          <p id="chapter-description">An overview of the platform and the demonstration.</p>
+        </section>
+
+        <section id="transcript-panel" class="transcript-panel">
+          <div class="section-heading">
+            <h3>Transcript</h3>
+            <span class="small-note">Readable without audio</span>
+          </div>
+          <div id="transcript-text" class="transcript-text">Select a chapter to read its narration.</div>
+        </section>
+      </div>
+
+      <aside class="chapters-panel">
+        <div class="section-heading">
+          <h3>Chapters</h3>
+          <span id="chapter-count" class="small-note"></span>
+        </div>
+        <div id="chapter-list" class="chapter-list"></div>
+      </aside>
+    </section>
+
+    <footer class="site-footer">
+      <p>RunShore · Database Assessment &amp; Observability Platform</p>
+      <p class="footer-note">Recorded 17 November 2026 on minikube (local Kubernetes). Account details, home folders and internal addresses are blurred.</p>
+    </footer>
+  </main>
+  <script src="transcripts.js"></script>
+  <script src="media.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

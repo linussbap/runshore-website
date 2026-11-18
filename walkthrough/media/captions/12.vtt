@@ -1,0 +1,26 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:08.000
+Ask AI answers questions about the platform from its live state and diagnostics.
+
+2
+00:00:08.000 --> 00:00:20.000
+The question: what was the outcome of today's actions, and is PostgreSQL performing as expected? A diagnostics summary is pasted in with it.
+
+3
+00:00:20.000 --> 00:01:10.000
+Ask AI reads the live platform state while it works.
+
+4
+00:01:10.000 --> 00:01:30.000
+Its answer: today's PostgreSQL actions all succeeded, and the workload looks healthy.
+
+5
+00:01:30.000 --> 00:02:10.000
+It also says what it cannot conclude. With no stored baseline, it won't claim performance is as expected, and it shows where each finding comes from.
+
+6
+00:02:10.000 --> 00:02:58.000
+Run Diagnostics collects pods, events, services, logs and YAML, read-only, ready to search or to hand to Ask AI.
+

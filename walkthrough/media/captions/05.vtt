@@ -1,0 +1,26 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:14.000
+The replication test checks that a write on the primary reaches a replica.
+
+2
+00:00:14.000 --> 00:00:23.000
+It first checks that no other platform operation is running.
+
+3
+00:00:23.000 --> 00:00:30.000
+It confirms the topology, with platform-postgres-2 now the primary, and that the replica is in recovery mode.
+
+4
+00:00:30.000 --> 00:00:36.000
+A marker row is written on the primary. It reaches the replica within about a second.
+
+5
+00:00:36.000 --> 00:00:45.000
+The data on the primary and the replica match.
+
+6
+00:00:45.000 --> 00:01:08.000
+PostgreSQL asynchronous replication: PASS. The test took 17 seconds.
+

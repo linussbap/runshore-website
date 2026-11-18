@@ -1,0 +1,38 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:20.000
+Connection Info opens the PostgreSQL assessment dashboard in New Relic.
+
+2
+00:00:20.000 --> 00:00:58.000
+It already shows the earlier tests: failover, replication and point-in-time recovery all passed.
+
+3
+00:00:58.000 --> 00:01:10.000
+Back in RunShore, Assessment runs the point-in-time recovery test.
+
+4
+00:01:10.000 --> 00:01:33.000
+It seeds orders 5001 to 5003 and takes a real backup.
+
+5
+00:01:33.000 --> 00:01:43.000
+It writes marker order 9999 and records its commit time as the recovery target.
+
+6
+00:01:43.000 --> 00:01:50.000
+It waits until the log is archived, proving the target can be replayed, then writes order 10000, which must not survive recovery.
+
+7
+00:01:50.000 --> 00:03:09.000
+A new cluster is cloned from the backup and recovered to the target time. The Kubernetes Monitor shows the clone start.
+
+8
+00:03:09.000 --> 00:03:16.000
+The assessment finishes in 2 minutes 2 seconds.
+
+9
+00:03:16.000 --> 00:03:40.000
+The clone has orders 5001 to 5003 and 9999, and not order 10000. Point-in-time recovery passes, and the clone is removed.
+

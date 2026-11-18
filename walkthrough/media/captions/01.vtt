@@ -1,0 +1,50 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:19.000
+This is the RunShore console on the local Kubernetes scope: platform status on the left, activity in the centre, database and observability controls on the right.
+
+2
+00:00:19.000 --> 00:00:24.000
+The Containers tab lists every pod in the cluster. All 13 are healthy.
+
+3
+00:00:24.000 --> 00:00:30.000
+Switching scope asks first. Switching only changes the view: nothing running is stopped or destroyed.
+
+4
+00:00:30.000 --> 00:00:44.000
+AWS, Azure and Google Cloud are scopes too. No cloud cluster is deployed in this run, so they have nothing to show.
+
+5
+00:00:44.000 --> 00:00:55.000
+Back on local Kubernetes, the cluster is unchanged.
+
+6
+00:00:55.000 --> 00:01:20.000
+Inspect opens a pod's full description: its status, where it runs, its containers and their settings.
+
+7
+00:01:20.000 --> 00:01:47.000
+The Scoreboard shows every database on every scope: the latest result of each test, pass rates and how long each test takes.
+
+8
+00:01:47.000 --> 00:01:58.000
+Resources shows the CPU and memory each container is using.
+
+9
+00:01:58.000 --> 00:02:06.000
+Ask AI answers questions about the platform from its live state and diagnostics.
+
+10
+00:02:06.000 --> 00:02:24.000
+Learn holds lessons on the technology behind RunShore, and a library of 132 fixes, incidents and guides recorded while building it. Ask AI draws on the same material.
+
+11
+00:02:24.000 --> 00:02:41.000
+The Operations Console opens the Kubernetes Monitor: pods, nodes, resource usage, events and pod logs.
+
+12
+00:02:41.000 --> 00:03:29.000
+The Apps tab runs real client applications on the platform's databases. Only PostgreSQL is deployed in this run, so the apps for MySQL, MongoDB and SAP ASE show as not deployed.
+

@@ -1,0 +1,22 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:08.000
+Register connects PostgreSQL to New Relic.
+
+2
+00:00:08.000 --> 00:00:17.000
+It checks that Kubernetes, PostgreSQL and New Relic are all available.
+
+3
+00:00:17.000 --> 00:00:21.000
+It sets up a read-only monitoring account inside PostgreSQL and checks that it can connect.
+
+4
+00:00:21.000 --> 00:00:23.000
+It stores those credentials as a secret, configures the New Relic PostgreSQL integration and restarts the agents.
+
+5
+00:00:23.000 --> 00:00:36.000
+PostgreSQL is registered into New Relic in 13 seconds.
+

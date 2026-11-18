@@ -1,0 +1,14 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:08.000
+Recover repairs a PostgreSQL cluster after a crash or a stuck instance.
+
+2
+00:00:08.000 --> 00:00:12.000
+It checks the node's free disk space and the cluster's health first.
+
+3
+00:00:12.000 --> 00:00:23.000
+The cluster is healthy, so there is nothing to recover. Finished in 4 seconds.
+

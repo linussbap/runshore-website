@@ -1,0 +1,30 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:16.000
+With Kubernetes running, PostgreSQL is chosen in the database panel.
+
+2
+00:00:16.000 --> 00:00:19.000
+Deploy asks for confirmation before it changes anything.
+
+3
+00:00:19.000 --> 00:00:40.000
+The deployment checks its prerequisites, then installs the CloudNativePG operator.
+
+4
+00:00:40.000 --> 00:01:40.000
+The Kubernetes Monitor shows the operator start, then the PostgreSQL instances being created.
+
+5
+00:01:40.000 --> 00:03:04.000
+CloudNativePG builds a three-instance cluster: one primary and two replicas, each in its own pod.
+
+6
+00:03:04.000 --> 00:03:15.000
+PostgreSQL is deployed in 2 minutes 45 seconds.
+
+7
+00:03:15.000 --> 00:03:53.000
+A final validation confirms all three instances are healthy. PostgreSQL platform validation: PASS.
+

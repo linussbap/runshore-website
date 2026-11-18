@@ -1,0 +1,18 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.000
+The assessment removes its clone and keeps the evidence.
+
+2
+00:00:03.000 --> 00:00:40.000
+The New Relic assessment dashboard shows the new point-in-time recovery result: a 100% pass rate.
+
+3
+00:00:40.000 --> 00:01:00.000
+Changing the time range shows the runs in each period.
+
+4
+00:01:00.000 --> 00:01:18.000
+The PostgreSQL workload dashboard shows the database's live activity: operations per second, connections, CPU and memory.
+

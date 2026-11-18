@@ -1,0 +1,26 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:09.000
+Now a workload runs against PostgreSQL.
+
+2
+00:00:09.000 --> 00:00:21.000
+Start Workload prepares the pgbench schema. The run has a 60-minute limit, so it stops by itself, and evidence is saved every 10 seconds.
+
+3
+00:00:21.000 --> 00:00:35.000
+The Workloads page follows the run as it happens.
+
+4
+00:00:35.000 --> 00:01:31.000
+pgbench drives about 200 to 390 transactions a second through the primary, with two replicas streaming. The amber band marks the earlier recovery test.
+
+5
+00:01:31.000 --> 00:02:30.000
+In New Relic, the workload dashboard picks up the load.
+
+6
+00:02:30.000 --> 00:02:48.000
+Operations per second, connections, CPU and memory all rise with the workload.
+
